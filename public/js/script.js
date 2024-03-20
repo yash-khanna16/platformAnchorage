@@ -7,7 +7,7 @@ $(() => {
     // let attribute = ev.target.getAttribute('class');
     // console.log(attribute);
     $.post(
-        '/pgForBoys/admin/deleteListing',{
+        '/platformAnchorage/admin/deleteListing',{
           id
         }).done((data)=>{
           // updateListings

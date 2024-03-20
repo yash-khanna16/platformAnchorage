@@ -32,7 +32,7 @@ module.exports.addListing =  (req,res,next)=>{
     newListing.save()
         .then(()=>{
             console.log("listing added successfully");
-            res.redirect('/pgForBoys/admin');
+            res.redirect('/platformAnchorage/admin');
         })
         .catch(err=>{
             res.send(err);

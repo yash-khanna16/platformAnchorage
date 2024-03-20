@@ -37,7 +37,7 @@ app.use(passport.session());
 app.use(express.json());
 app.use("/", express.static(path.join(__dirname, "public")));
 // app.use("/login", allRoutes)
-app.use("/pgForBoys", postRouter);
+app.use("/platformAnchorage", postRouter);
 
 
 app.use("/", allRoutes);

@@ -16,7 +16,7 @@ route.post(
   "/login",
   passport.authenticate("local", {
     failureRedirect: "/login",
-    successRedirect: "/pgForBoys/admin",
+    successRedirect: "/platformAnchorage/admin",
   })
 );
 
