@@ -13,16 +13,21 @@ module.exports.getListings = (req,res,next)=>{
 }
 
 module.exports.getAdmin = (req,res,next)=>{
-    listings.find({})
-        .then((listings)=>{
-            console.log(listings);
-            res.render('admin',{
-                listings
-            });
-        })
-        .catch(err=>{
-            res.send("no listings found");
-        })
+    if(req.user){
+        listings.find({})
+            .then((listings)=>{
+                console.log(listings);
+                res.render('admin',{
+                    listings
+                });
+            })
+            .catch(err=>{
+                res.send("no listings found");
+            })
+    }
+    else{
+        res.render("login");
+    }
 }
 
 module.exports.addListing =  (req,res,next)=>{

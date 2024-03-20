@@ -13,6 +13,7 @@ $(() => {
           // updateListings
           console.log(data);
         })
+    location.reload();
   });
 });
 

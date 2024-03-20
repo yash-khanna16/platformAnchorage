@@ -8,7 +8,7 @@ const bcrypt = require('bcrypt');
 route.get("/login", (req, res, next) => {
   console.log(req.session);
   console.log(req.user);
-  if (req.user) return res.redirect("/listings");
+  if (req.user) return res.redirect("/platformAnchorage/admin");
   res.render("login");
 });
 
