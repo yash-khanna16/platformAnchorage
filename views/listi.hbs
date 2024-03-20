@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+{{>navbar}}
+<h1>listings</h1>
+        {{#each listings as |listing|}}
+            <div>{{listing.title}}</div>
+            <div>{{listing.title}}</div>
+            {{!-- <div>{{listing.ownerName}}</div>
+            <div>{{listing.ownerPhone}}</div> --}}
+
+            <button>
+                {{!-- <a href="/deleteuser?id={{user._id}}">Delete User</a> --}}
+            </button>
+        {{/each}}
+</body>
+</html>
