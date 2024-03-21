@@ -1,7 +1,7 @@
 {
-  "name": "pgforboys",
+  "name": "platformAnchorage",
   "version": "1.0.0",
-  "description": "Website for listing properties",
+  "description": "product Anchorage",
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
