@@ -46,7 +46,7 @@ module.exports.addGuestDetails =  (req,res,next)=>{
 module.exports.deleteGuestDetails = (req,res,next)=>{
     const {id}=req.body;
     console.log(id);
-    listings.deleteOne({_id:id})
+    guests.deleteOne({_id:id})
         .then(()=>{
             res.render('guests')
         })

@@ -15,7 +15,7 @@
     {{>navbar}}
     <form action="/platformAnchorage/addGuestDetails" method="POST">
     <input type="text" name="pname" placeholder="enter name"><br>
-    <input type="number" name="phoneNumber" placeholder="enter Phone Number"><br>
+    <input type="telephone" name="phoneNumber" placeholder="enter Phone Number"><br>
     <input type="text" name="email" placeholder="enter email address"><br>
     <input type="text" name="companyName" placeholder="enter company"><br>
     <input type="text" name="rank" placeholder="enter rank"><br>
@@ -23,15 +23,15 @@
     </form>
 
     <div>
-        {{#each listings as |listing|}}
-            <div>{{listing.title}}</div>
-            <div>{{listing.description}}</div>
-            <div>{{listing.ownerName}}</div>
-            <div>{{listing.ownerPhone}}</div>
-            <div><img src="{{listing.pictureURL}}"></img></div>
-
-            <button class="deleteBtn"  id={{listing._id}}>
-                Delete listing
+        {{#each guests as |guest|}}
+            <div>{{guest.pname}}</div>
+            <div>{{guest.email}}</div>
+            <div>{{guest.rank}}</div>
+            <div>{{guest.phoneNumber}}</div>
+            <div>{{guest.companyName}}</div>
+            {{!-- <div>{{guest._id}}</div> --}}
+            <button class="deleteBtn"  id={{guest._id}}>
+                Delete guest
             </button>
         {{/each}}
     </div>
