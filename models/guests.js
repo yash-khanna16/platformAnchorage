@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const listingsSchema = new Schema({
-    title: String,
-    description: String,
-    ownerName: String,
-    ownerPhone: Number,
-    pictureURL: String
+const guestSchema = new Schema({
+    pname: String,
+    email: String,
+    rank: String,
+    phoneNumber: Number,
+    companyName: String
 });
 
 // const UserSchema = new Schema({
@@ -18,5 +18,5 @@ const listingsSchema = new Schema({
 
 // module.exports = Users;
 
-module.exports = mongoose.model('listings',listingsSchema);
+module.exports = mongoose.model('guests',guestSchema);
 

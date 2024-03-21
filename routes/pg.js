@@ -3,10 +3,10 @@ const express = require('express');
 const pgController = require('../controller/pg');
 const router = express.Router();
 
-router.get('/listings',pgController.getListings)
+router.get('/guests',pgController.getGuests)
 router.get('/admin',pgController.getAdmin)
-router.post('/addListing',pgController.addListing)
-router.post('/admin/deleteListing',pgController.deleteListing)
+router.post('/addGuestDetails',pgController.addGuestDetails)
+router.post('/admin/deleteGuestDetails',pgController.deleteGuestDetails)
 
 
 
