@@ -13,12 +13,12 @@
 </head>
 <body>
     {{>navbar}}
-    <form action="/platformAnchorage/addListing" method="POST">
-    <input type="text" name="title" placeholder="enter title"><br>
-    <input type="text" name="description" placeholder="enter description"><br>
-    <input type="text" name="ownerName" placeholder="enter owner Name"><br>
-    <input type="number" name="ownerPhone" placeholder="enter owners phone number"><br>
-    <input type="text" name="pictureURL" placeholder="enter property picture"><br>
+    <form action="/platformAnchorage/addGuestDetails" method="POST">
+    <input type="text" name="pname" placeholder="enter name"><br>
+    <input type="number" name="phoneNumber" placeholder="enter Phone Number"><br>
+    <input type="text" name="email" placeholder="enter email address"><br>
+    <input type="text" name="companyName" placeholder="enter company"><br>
+    <input type="text" name="rank" placeholder="enter rank"><br>
     <button type="submit">Add details</button>
     </form>
 

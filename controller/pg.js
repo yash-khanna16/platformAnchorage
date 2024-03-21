@@ -1,28 +1,28 @@
 
-const listings = require('../models/listings')
-module.exports.getListings = (req,res,next)=>{
-    listings.find({})
-        .then((listings)=>{
-            res.render('listings',{
-                listings
+const guests = require('../models/guests')
+module.exports.getGuests = (req,res,next)=>{
+    guests.find({})
+        .then((guests)=>{
+            res.render('guests',{
+                guests
             }); 
         })
         .catch(err=>{
-            res.send("no listings found");
+            res.send("no guests found");
         })
 }
 
 module.exports.getAdmin = (req,res,next)=>{
     if(req.user){
-        listings.find({})
-            .then((listings)=>{
-                console.log(listings);
+        guests.find({})
+            .then((guests)=>{
+                console.log(guests);
                 res.render('admin',{
-                    listings
+                    guests
                 });
             })
             .catch(err=>{
-                res.send("no listings found");
+                res.send("no guests found");
             })
     }
     else{
@@ -30,25 +30,25 @@ module.exports.getAdmin = (req,res,next)=>{
     }
 }
 
-module.exports.addListing =  (req,res,next)=>{
-    const {title, description,ownerName,ownerPhone,pictureURL} = req.body;
-    let newListing = new listings({title, description,ownerName,ownerPhone,pictureURL});
+module.exports.addGuestDetails =  (req,res,next)=>{
+    const {pname, email,rank,phoneNumber,companyName} = req.body;
+    let newGuest = new guests({pname, email,rank,phoneNumber,companyName});
 
-    newListing.save()
+    newGuest.save()
         .then(()=>{
-            console.log("listing added successfully");
+            console.log("guest details added successfully");
             res.redirect('/platformAnchorage/admin');
         })
         .catch(err=>{
             res.send(err);
         })
 }
-module.exports.deleteListing = (req,res,next)=>{
+module.exports.deleteGuestDetails = (req,res,next)=>{
     const {id}=req.body;
     console.log(id);
     listings.deleteOne({_id:id})
         .then(()=>{
-            res.render('listings')
+            res.render('guests')
         })
         .catch(err=>{
             console.log("could not delete")
