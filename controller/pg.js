@@ -16,7 +16,7 @@ module.exports.getAdmin = (req,res,next)=>{
     if(req.user){
         guests.find({})
             .then((guests)=>{
-                console.log(guests);
+                // console.log(guests);
                 res.render('admin',{
                     guests
                 });
@@ -30,18 +30,23 @@ module.exports.getAdmin = (req,res,next)=>{
     }
 }
 
-module.exports.addGuestDetails =  (req,res,next)=>{
-    const {pname, email,rank,phoneNumber,companyName} = req.body;
-    let newGuest = new guests({pname, email,rank,phoneNumber,companyName});
-
-    newGuest.save()
-        .then(()=>{
+module.exports.addGuestDetails = async (req, res, next) => {
+    const { pname, email, rank, phoneNumber, companyName } = req.body;
+    let newGuest = new guests({ pname, email, rank, phoneNumber, companyName });
+    
+    try {
+        const existingGuest = await guests.findOne({ phoneNumber: phoneNumber });
+        if (existingGuest) {
+            console.log("existing guest");
+        } else {
+            await newGuest.save();
             console.log("guest details added successfully");
             res.redirect('/platformAnchorage/admin');
-        })
-        .catch(err=>{
-            res.send(err);
-        })
+        }
+    } catch (err) {
+        console.log("Error:", err);
+        res.send(err);
+    }
 }
 module.exports.deleteGuestDetails = (req,res,next)=>{
     const {id}=req.body;
