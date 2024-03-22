@@ -5,8 +5,6 @@
 }
 
 .navbar {
-  /* position: relative;
-  top:-30px; */
   background-color: #003366;
 }
 .navItem{
@@ -22,9 +20,6 @@
 }
 
 body {
-  /* background-image: url("https://anchorage-mahipalpur.hotels-newdelhi.com/data/Photos/OriginalPhoto/11419/1141915/1141915351/new-delhi-anchorage-mahipalpur-photo-7.JPEG");
-  background-size: cover;
-  background-repeat: no-repeat; */
   background-color: white;
 }
 .nav-container>img{

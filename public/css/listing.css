@@ -1,179 +1,87 @@
 * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body{
+    background-color:rgb(64, 63, 63)
+  }
+  .navbar {
+    background-color: #003366;
+  }
+  .navItem{
+    color: white;
+    text-decoration: none;
+  
+  }
+  .nav-container{
+    width:50%;
+    display:flex;
+    align-items: center;
+    justify-content: space-evenly;
+  }
+  
+  .nav-container>img{
+    height:7vh;
+    width:4vw;
+  }
+.details{
+    width:35%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 1%;
+    border: 2px solid none;
+    border-radius: 20px;
+    margin:3% auto;
+    background-color: rgb(133, 133, 202);
 }
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
+.guest_form{
+    display: flex;
+    width: 100%;
 }
-
-main {
-  padding: 15px;
+.left{
+    padding: 2%;
+    width:50%;
 }
-
-/* .listings {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  grid-gap: 20px;
-} */
-
-/* .listings {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+.left>label{
+    display: block;
+    padding: 1.5%;
+    margin:1%;
 }
-
-.listing-item {
-  background-color: #f8f8f8;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  width: 400px;
+.right{
+    padding: 2%;
 }
-
-.image-container {
-  height: 200px;
-  width: 400px;
-  overflow: hidden;
+.right>input{
+    margin: 1%;
+    padding: 1%;
 }
-
-.image-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s;
+.addbtn{
+    padding: 1%;
 }
-
-.listing-details {
-  padding: 20px;
+.table1{
+    margin:auto;
+    width: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: bisque;
 }
-
-.listing-details h2 {
-  font-size: 24px;
-  margin-bottom: 10px;
+table{
+    width: 100%;
 }
-
-.listing-details p {
-  margin-bottom: 20px;
+.long{
+    width:20%;
+    text-align: center;
+    border: 1px solid black;
 }
-
-.btn {
-  display: inline-block;
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #3498db;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-} */
-
-.listing-item {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  border: 1px solid black;
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 5px;
-  box-shadow: 4px 4px 10px black;
-  transition: transform 0.3s ease-in-out;
+.small{
+    width:15%;
+    text-align: center;
+    border:1px  solid black;
 }
-
-.listing-item:hover {
-  transform: translateY(-3px);
-}
-
-.listing-item h3 {
-  font-size: 20px;
-  margin-bottom: 10px;
-}
-
-.listing-item p {
-  font-size: 14px;
-  margin-bottom: 10px;
-}
-.section {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-evenly;
-  /* border: 1px solid black; */
-  box-shadow: 4px 4px 10px black;
-  gap: 20px;
-}
-
-.image-container {
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-}
-
-.image-container img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.listing-details {
-  margin-top: 10px;
-}
-
-.card-title {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.card-description {
-  margin-top: 5px;
-  font-size: 14px;
-}
-
-.toggleButton {
-  display: inline-block;
-  padding: 5px 10px;
-  background-color: #007bff;
-  color: #fff;
-  text-decoration: none;
-  border-radius: 3px;
-}
-
-.toggleButton:hover {
-  background-color: #297fb8;
-}
-
-/* Footer */
-.site-footer {
-  background-color: #2d3748;
-  color: #fff;
-  text-align: center;
-  padding: 20px;
-}
-
-.site-footer p {
-  margin: 0;
-}
-
-.site-footer a {
-  color: #fff;
-  text-decoration: none;
-}
-
-.site-footer a:hover {
-  text-decoration: underline;
-}
-
-/* show or hide details */
-
-#toggleButton {
-  margin-bottom: 20px;
-}
-
-.navbar {
-  background-color: #003366;
-}
-
-.navItem {
-  text-decoration: black;
+.medium{
+    width:18%;
+    text-align: center;
+    border:1px  solid black;
 }
