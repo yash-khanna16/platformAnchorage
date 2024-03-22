@@ -15,19 +15,19 @@
   <main>
     
     <div class="section">
-      {{#each listings as |listing|}}
+      {{#each guests as |guest|}}
     <section class="listings">
       <article class="listing-item">
-        <div class="image-container">
+        {{!-- <div class="image-container">
             <img src={{listing.pictureURL}}>
-        </div>
+        </div> --}}
         <div class="listing-details">
-            <h2>Title: {{listing.title}}</h2>
-            <p>Description: {{listing.description}}</p>
+            <h2>Title: {{guest.pname}}</h2>
+            <p>Description: {{guest.email}}</p>
             {{!-- <a href="#" class="btn">View Details</a> --}}
-            <button id={{listing._id}} class="toggleButton">View Details</button>
-            <div id={{listing._id}} class="details" style="display: none;">
-            <p><strong>{{listing.ownerName}} : {{listing.ownerPhone}}</strong></p>
+            <button id={{guest._id}} class="toggleButton">View Details</button>
+            <div id={{guest._id}} class="details" style="display: none;">
+            <p><strong>{{guest.pname}} : {{guest.phoneNumber}}</strong></p>
             </div>
         </div>
     </article>

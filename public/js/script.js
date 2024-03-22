@@ -1,9 +1,11 @@
 $(() => {
   const deleteBtn = $(".deleteBtn");
   deleteBtn.on("click", (ev) => {
-    console.log(ev);
+    // console.log("click hua")
+    // console.log(ev);
     let id = ev.target.id;
-    console.log(ev.target.id);
+    // console.log(ev.target.id);
+    
     // let attribute = ev.target.getAttribute('class');
     // console.log(attribute);
     $.post(
