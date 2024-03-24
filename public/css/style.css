@@ -37,7 +37,7 @@ body {
   justify-content: center;
 }
 .carousel{
-  width:75%;
+  width:99%;
 }
 .data-container{
   display: flex;
@@ -74,4 +74,17 @@ body {
   height: 24%;
   border-radius: 1%;
   padding: 1% 0%;
+  transition: transform 1.1s ease-in-out;
+}
+#right>img:hover{
+  transform: scale(1.3);
+}
+.location{
+  display: flex;
+  width: 50%;
+  margin: 3% auto;
+  justify-content: space-between;
+}
+.location>div{
+  font-size: 125%;
 }
