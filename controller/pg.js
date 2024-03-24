@@ -38,6 +38,7 @@ module.exports.addGuestDetails = async (req, res, next) => {
         const existingGuest = await guests.findOne({ phoneNumber: phoneNumber });
         if (existingGuest) {
             console.log("existing guest");
+            res.redirect('/platformAnchorage/admin'); 
         } else {
             await newGuest.save();
             console.log("guest details added successfully");
