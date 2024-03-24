@@ -34,7 +34,13 @@
             </div>
         </form>
     </div>
-    <div class="sendEmail"><button class="sendEmail">sendEmail</button></div>
+    <form action="/platformAnchorage/admin/sendEmails" method="POST" class="sendEmailForm">
+        <input type="text" name="customMailSubject" id="customMailSubject" placeholder="Enter subject">
+        <input type="text" name="customMailBody" id="customMailBody" placeholder="Enter body">
+        <div class="sendEmail">
+            <button type="submit" class="sendEmail">sendEmail</button>
+        </div>
+    </form>
     <div class="table1">
         <table>
             <tr class="rows">

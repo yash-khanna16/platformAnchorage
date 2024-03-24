@@ -1,4 +1,3 @@
-
 const guests = require('../models/guests')
 module.exports.getGuests = (req, res, next) => {
     guests.find({})
@@ -71,51 +70,109 @@ const SES_CONFIG = {
 };
 const AWS_SES = new AWS.SES(SES_CONFIG);
 module.exports.sendEmails = async (req, res, next) => {
-    let emailList = []
-    guests.find({})
-        .then((guests) => {
-            console.log(guests)
-            guests.forEach(guest => {
-                console.log(guest.email)
-                emailList.push(guest.email)
-            });
-            console.log(emailList)
-            // console.log(guests[0].email)
-        })
-        .catch(err => {
-            res.send("no guests found");
-        })
-    let recipientEmail='yashkhanna16062002@gmail.com'
-    let params = {
-        Source: process.env.AWS_SES_SENDER,
-        Destination: {
-            ToAddresses: [
-                recipientEmail
-            ],
-        },
-        ReplyToAddresses: [],
-        Message: {
-            Body: {
-                Html: {
-                    Charset: 'UTF-8',
-                    Data: '<h1>This is the body of my email!</h1>',
-                },
-                Text: {
-                    Charset: "UTF-8",
-                    Data: "This is the body of my email!"
-                },
+    try {
+        const { customMailBody, customMailSubject } = req.body;
+        // console.log(customMailBody);
+        let emailList = [];
+
+        const gotUser = await guests.find({})
+        gotUser.forEach(guest => {
+            // console.log(guest.email);
+            if (guest.email !== '') {
+                emailList.push(guest.email.trim());
+            }
+        });
+        // console.log(guests)
+        
+        const params = {
+            Source: process.env.AWS_SES_SENDER,
+            Destination: {
+                ToAddresses: emailList,
             },
+            ReplyToAddresses: [],
+            Message: {
+                Body: {
+                    // Html: {
+                    //     Charset: 'UTF-8',
+                    //     Data: customMailBody ? customMailBody : '<h1>This is the body of my email!</h1>',
+                    // },
+                    Text: {
+                        Charset: "UTF-8",
+                        Data: customMailBody ? customMailBody : "This is the body of my email!",
+                    },
+                },
                 Subject: {
                     Charset: 'UTF-8',
-                    Data: "Hello, yash!",
-                }
-        },
-    };
-        try {
-            const res = await AWS_SES.sendEmail(params).promise();
-            console.log('Email has been sent!', res);
-        }    
-        catch(error) {
-                console.error(error);
-            }
+                    Data: customMailSubject ? customMailSubject : "default subject",
+                },
+            },
+        };
+
+        // Send email using AWS SES
+        const response = await AWS_SES.sendEmail(params).promise();
+        console.log('Email has been sent!', response);
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error sending email');
+    }
+};
+
+// module.exports.sendEmails = async (req, res, next) => {
+//     try {
+//         const { customMailBody, customMailSubject } = req.body;
+//         console.log(customMailBody);
+//         let emailList = [];
+        
+//         // Fetch guests data from the database
+//         const guests = await guests.find({});
+
+//         // Process the guests data to extract email addresses
+//         guests.forEach(guest => {
+//             console.log(guest.email);
+//             if (guest.email !== '') {
+//                 emailList.push(guest.email.trim());
+//             }
+//         });
+
+//         if (emailList.length === 0) {
+//             res.send("No guests found with valid email addresses.");
+//             return;
+//         }
+
+//         const params = {
+//             Source: process.env.AWS_SES_SENDER,
+//             Destination: {
+//                 ToAddresses: emailList,
+//             },
+//             ReplyToAddresses: [],
+//             Message: {
+//                 Body: {
+//                     Html: {
+//                         Charset: 'UTF-8',
+//                         Data: customMailBody ? customMailBody : '<h1>This is the body of my email!</h1>',
+//                     },
+//                     Text: {
+//                         Charset: "UTF-8",
+//                         Data: customMailBody ? customMailBody : "This is the body of my email!",
+//                     },
+//                 },
+//                 Subject: {
+//                     Charset: 'UTF-8',
+//                     Data: customMailSubject ? customMailSubject : "default subject",
+//                 },
+//             },
+//         };
+
+//         // Send email using AWS SES
+//         const response = await AWS_SES.sendEmail(params).promise();
+//         console.log('Email has been sent!', response);
+//         res.send('Email sent successfully!');
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).send('Error sending email');
+//     }
+// };
+module.exports.getAboutUs = (req, res, next) => {
+    res.render('about')
 }
