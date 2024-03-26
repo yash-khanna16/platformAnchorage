@@ -62,21 +62,21 @@ $(() => {
 });
 
 
-$(() => {
-  const sendEmail = $(".sendEmail");
-  sendEmail.on("click", (ev) => {
-    // console.log(ev);
-    // let id = ev.target.id;
-    // console.log(ev.target.id);
-    console.log("click confirmed")
-    // let attribute = ev.target.getAttribute('class');
-    // console.log(attribute);
-    $.post(
-        '/platformAnchorage/admin/sendEmails',{
-        }).done((data)=>{
-          // updateListings
-          console.log(data);
-        })
-    location.reload();
-  });
-});
+// $(() => {
+//   const sendEmail = $(".sendEmail");
+//   sendEmail.on("click", (ev) => {
+//     // console.log(ev);
+//     // let id = ev.target.id;
+//     // console.log(ev.target.id);
+//     console.log("click confirmed")
+//     // let attribute = ev.target.getAttribute('class');
+//     // console.log(attribute);
+//     $.post(
+//         '/platformAnchorage/admin/sendEmails',{
+//         }).done((data)=>{
+//           // updateListings
+//           console.log(data);
+//         })
+//     location.reload();
+//   });
+// });

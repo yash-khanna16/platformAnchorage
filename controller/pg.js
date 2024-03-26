@@ -98,12 +98,12 @@ module.exports.sendEmails = async (req, res, next) => {
                     // },
                     Text: {
                         Charset: "UTF-8",
-                        Data: customMailBody ? customMailBody : "This is the body of my email!",
+                        Data: customMailBody?customMailBody:"This is the body of my email!",
                     },
                 },
                 Subject: {
                     Charset: 'UTF-8',
-                    Data: customMailSubject ? customMailSubject : "default subject",
+                    Data: customMailSubject?customMailSubject:"default subject",
                 },
             },
         };
@@ -118,61 +118,6 @@ module.exports.sendEmails = async (req, res, next) => {
     }
 };
 
-// module.exports.sendEmails = async (req, res, next) => {
-//     try {
-//         const { customMailBody, customMailSubject } = req.body;
-//         console.log(customMailBody);
-//         let emailList = [];
-        
-//         // Fetch guests data from the database
-//         const guests = await guests.find({});
-
-//         // Process the guests data to extract email addresses
-//         guests.forEach(guest => {
-//             console.log(guest.email);
-//             if (guest.email !== '') {
-//                 emailList.push(guest.email.trim());
-//             }
-//         });
-
-//         if (emailList.length === 0) {
-//             res.send("No guests found with valid email addresses.");
-//             return;
-//         }
-
-//         const params = {
-//             Source: process.env.AWS_SES_SENDER,
-//             Destination: {
-//                 ToAddresses: emailList,
-//             },
-//             ReplyToAddresses: [],
-//             Message: {
-//                 Body: {
-//                     Html: {
-//                         Charset: 'UTF-8',
-//                         Data: customMailBody ? customMailBody : '<h1>This is the body of my email!</h1>',
-//                     },
-//                     Text: {
-//                         Charset: "UTF-8",
-//                         Data: customMailBody ? customMailBody : "This is the body of my email!",
-//                     },
-//                 },
-//                 Subject: {
-//                     Charset: 'UTF-8',
-//                     Data: customMailSubject ? customMailSubject : "default subject",
-//                 },
-//             },
-//         };
-
-//         // Send email using AWS SES
-//         const response = await AWS_SES.sendEmail(params).promise();
-//         console.log('Email has been sent!', response);
-//         res.send('Email sent successfully!');
-//     } catch (error) {
-//         console.error(error);
-//         res.status(500).send('Error sending email');
-//     }
-// };
 module.exports.getAboutUs = (req, res, next) => {
     res.render('about')
 }

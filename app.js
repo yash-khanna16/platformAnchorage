@@ -1,3 +1,4 @@
+require('dotenv').config();
 const path = require("path");
 const express = require("express");
 const session = require("express-session");
@@ -6,7 +7,7 @@ const passport = require("./passport");
 // const { mongoConnect } = require("./database/database");
 // const MongoDBStore = require("connect-mongodb-session")(session);
 const app = express();
-const PORT = 4445;
+const PORT = process.env.PORT || 4445;
 const hbs = require("hbs");
 const postRouter = require("./routes/pg");
 const allRoutes = require("./routes/routes");
@@ -42,7 +43,7 @@ app.use("/platformAnchorage", postRouter);
 
 app.use("/", allRoutes);
 mongoose
-  .connect("mongodb://127.0.0.1:27017/mydb")
+  .connect(process.env.MONGO_URL)
   .then(() => {
     app.listen(PORT, () => {
       console.log(`http://localhost:` + PORT);
