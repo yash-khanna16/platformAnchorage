@@ -38,7 +38,7 @@ input[type="text"],
 input[type="email"],
 input[type="password"] {
   padding: 10px;
-  margin-bottom: 20px;
+  margin: 20px;
   border-radius: 5px;
   border: none;
   background-color: #f9f9f9;
@@ -75,9 +75,9 @@ button[type="submit"]:hover {
 
 .logo {
   display: block;
-  margin: 0 auto;
-  width: 190px;
-  height: 120px;
+  margin:auto;
+  width: 20%;
+  height: 20%;
   object-fit: cover;
   /* border-radius: 50%; */
 }

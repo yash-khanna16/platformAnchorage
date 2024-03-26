@@ -33,7 +33,7 @@
     padding: 1%;
     border: 2px solid none;
     border-radius: 20px;
-    margin:3% auto;
+    margin:2% auto;
     background-color: rgb(133, 133, 202);
 }
 .guest_form{
@@ -84,4 +84,26 @@ table{
     width:18%;
     text-align: center;
     border:1px  solid black;
+}
+.mails{
+    width:75%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 1%;
+    border: 2px solid none;
+    border-radius: 20px;
+    margin:2% auto;
+    background-color: rgb(133, 133, 202);
+}
+.mails_left{
+    padding: 2%;
+}
+.mails_left>label{
+    margin:10% 1%;
+    padding: 2%;
+}
+.sendEmailForm{
+    display: flex;
+    width: 100%;
 }

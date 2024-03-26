@@ -111,11 +111,12 @@ module.exports.sendEmails = async (req, res, next) => {
         // Send email using AWS SES
         const response = await AWS_SES.sendEmail(params).promise();
         console.log('Email has been sent!', response);
-        
+        res.redirect('/platformAnchorage/admin');
     } catch (error) {
         console.error(error);
         res.status(500).send('Error sending email');
     }
+    
 };
 
 module.exports.getAboutUs = (req, res, next) => {

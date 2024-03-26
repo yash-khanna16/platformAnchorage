@@ -26,7 +26,7 @@
             </div>
             <div class="right">
                 <input type="text" name="pname" id="pname" placeholder="Enter Name"><br>
-                <input type="telephone" name="phoneNumber" id="phoneNumber"  placeholder="Enter Phone Number"><br>
+                <input type="telephone" name="phoneNumber" id="phoneNumber" placeholder="Enter Phone Number"><br>
                 <input type="text" name="email" id="email" placeholder="Enter Email Address"><br>
                 <input type="text" name="companyName" id="companyName" placeholder="Enter Company"><br>
                 <input type="text" name="rank" id="rank" placeholder="Enter Rank"><br>
@@ -34,13 +34,21 @@
             </div>
         </form>
     </div>
-    <form action="/platformAnchorage/admin/sendEmails" method="POST" class="sendEmailForm">
-        <input type="text" name="customMailSubject" id="customMailSubject" placeholder="Enter subject">
-        <input type="text" name="customMailBody" id="customMailBody" placeholder="Enter body">
-        <div class="sendEmail">
-            <button type="submit" class="sendEmail">sendEmail</button>
+    <div class="mails">
+        <h2>Send Mails</h2>
+        <form action="/platformAnchorage/admin/sendEmails" method="POST" class="sendEmailForm">
+        <div class="mails_left">
+                <label for="pname">Enter Custom Subject:</label>
+                <label for="phoneNumber">Enter Custom Body:</label>
         </div>
-    </form>
+        <div class="right"><textarea name="customMailSubject" id="customMailSubject" placeholder="Enter Subject" rows="2" cols="100"></textarea>
+            <textarea name="customMailBody" id="customMailBody" placeholder="Enter Body" rows="10" cols="100"></textarea>
+            <div class="sendEmail mx-4 my-2">
+                <button type="submit" class="sendEmail">Send Emails</button>
+            </div></div>
+            
+        </form>
+    </div>
     <div class="table1">
         <table>
             <tr class="rows">
