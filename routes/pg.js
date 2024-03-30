@@ -9,7 +9,7 @@ router.post('/addGuestDetails',pgController.addGuestDetails)
 router.post('/admin/deleteGuestDetails',pgController.deleteGuestDetails)
 router.post('/admin/sendEmails',pgController.sendEmails)
 router.get('/aboutUs',pgController.getAboutUs)
-
+router.get('/roomScheduling',pgController.getRooms)
 
 
 

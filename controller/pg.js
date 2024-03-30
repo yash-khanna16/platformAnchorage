@@ -53,7 +53,7 @@ module.exports.deleteGuestDetails = (req, res, next) => {
     console.log(id);
     guests.deleteOne({ _id: id })
         .then(() => {
-            res.render('guests')
+            res.render('admin')
         })
         .catch(err => {
             console.log("could not delete")
@@ -121,4 +121,9 @@ module.exports.sendEmails = async (req, res, next) => {
 
 module.exports.getAboutUs = (req, res, next) => {
     res.render('about')
+}
+
+
+module.exports.getRooms = (req, res, next) => {
+    res.render('rooms')
 }

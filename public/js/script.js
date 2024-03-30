@@ -5,16 +5,16 @@ $(() => {
     // console.log(ev);
     let id = ev.target.id;
     // console.log(ev.target.id);
-    
+
     // let attribute = ev.target.getAttribute('class');
     // console.log(attribute);
     $.post(
-        '/platformAnchorage/admin/deleteGuestDetails',{
-          id
-        }).done((data)=>{
-          // updateListings
-          console.log(data);
-        })
+      '/platformAnchorage/admin/deleteGuestDetails', {
+      id
+    }).done((data) => {
+      // updateListings
+      console.log(data);
+    })
     location.reload();
   });
 });
@@ -80,3 +80,13 @@ $(() => {
 //     location.reload();
 //   });
 // });
+
+
+$(() => {
+  const guest_form = $(".addbtn my-2 mx-4");
+  guest_form.on("submit", (ev) => {
+    ev.preventDefault()
+    console.log("click confirmed")
+
+  });
+});
