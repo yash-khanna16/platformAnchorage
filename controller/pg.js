@@ -1,4 +1,5 @@
 const guests = require('../models/guests')
+const rooms = require('../models/rooms')
 module.exports.getGuests = (req, res, next) => {
     guests.find({})
         .then((guests) => {
@@ -83,7 +84,7 @@ module.exports.sendEmails = async (req, res, next) => {
             }
         });
         // console.log(guests)
-        
+
         const params = {
             Source: process.env.AWS_SES_SENDER,
             Destination: {
@@ -98,12 +99,12 @@ module.exports.sendEmails = async (req, res, next) => {
                     // },
                     Text: {
                         Charset: "UTF-8",
-                        Data: customMailBody?customMailBody:"This is the body of my email!",
+                        Data: customMailBody ? customMailBody : "This is the body of my email!",
                     },
                 },
                 Subject: {
                     Charset: 'UTF-8',
-                    Data: customMailSubject?customMailSubject:"default subject",
+                    Data: customMailSubject ? customMailSubject : "default subject",
                 },
             },
         };
@@ -116,7 +117,7 @@ module.exports.sendEmails = async (req, res, next) => {
         console.error(error);
         res.status(500).send('Error sending email');
     }
-    
+
 };
 
 module.exports.getAboutUs = (req, res, next) => {
@@ -125,5 +126,95 @@ module.exports.getAboutUs = (req, res, next) => {
 
 
 module.exports.getRooms = (req, res, next) => {
-    res.render('rooms')
+    rooms.find({})
+        .then((rooms) => {
+            res.render('rooms', {
+                rooms
+            });
+        })
+        .catch(err => {
+            res.send("no room details found");
+        })
+}
+
+
+async function isRoomAvailable(roomNumber, checkInDateTime, checkOutDateTime) {
+    const existingBooking = await rooms.findOne({
+        roomNumber: roomNumber,
+        $or:[
+            {
+                bookings: {
+                    $elemMatch: {
+                        $and: [
+                            { checkInDateTime: { $lte: checkInDateTime } },
+                            { checkOutDateTime: { $lte: checkInDateTime } },
+                            { checkInDateTime: { $lte: checkOutDateTime } },
+                            { checkOutDateTime: { $lte: checkOutDateTime } },
+                        ],
+                    },
+                },
+            },
+            {
+                bookings: {
+                    $elemMatch: {
+                        $and: [
+                            { checkInDateTime: { $gte: checkOutDateTime } },
+                            { checkOutDateTime: { $gte: checkOutDateTime } },
+                            { checkInDateTime: { $gte: checkInDateTime } },
+                            { checkOutDateTime: { $gte: checkInDateTime } },
+                        ],
+                    },
+                },
+            },
+        ]
+    });
+    return existingBooking;
+}
+module.exports.addBooking = async (req, res, next) => {
+    const { roomNumber, guestName, guestPhone, checkInDateTime, checkOutDateTime } = req.body
+    const objcheckInDateTime = new Date(checkInDateTime);
+    const objcheckOutDateTime = new Date(checkOutDateTime);
+    console.log("inside addBooking")
+    let newRoomDetail = new rooms({
+        roomNumber, bookings: [
+            {
+                guestName,
+                guestPhone,
+                checkInDateTime,
+                checkOutDateTime
+            },
+        ]
+    })
+    const atleastOneEntry = await rooms.findOne({ roomNumber: roomNumber });
+    if (!atleastOneEntry) {
+        await newRoomDetail.save();
+        console.log("room details added successfully");
+        res.redirect('/platformAnchorage/roomScheduling');
+    }
+    else {
+        const roomAvailable = await isRoomAvailable(roomNumber, objcheckInDateTime, objcheckOutDateTime)
+        console.log(roomAvailable)
+        if (!roomAvailable) {
+            console.log('Room is not available for the specified date and time range');
+        }
+
+        else {
+            await rooms.updateOne(
+                { roomNumber: roomNumber },
+                {
+                    $push: {
+                        bookings: {
+                            guestName,
+                            guestPhone,
+                            checkInDateTime: checkInDateTime,
+                            checkOutDateTime: checkOutDateTime
+                        },
+                    },
+                }
+                // options
+            );
+        }
+    }
+    let sample = await rooms.find({})
+    console.log(sample[2].bookings);
 }

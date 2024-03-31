@@ -1,11 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="/../css/listing.css">
 </head>
+
 <body>
+    {{>navbar}}
     <h1>rooms page</h1>
+    <div class="roomCommon" id="1">
+        <form action="/platformAnchorage/roomScheduling/addBooking" method="post">
+            <input type="text" name="guestName" id="guestName" placeholder="Enter Name">
+            <input type="number" name="guestPhone" id="guestPhone" placeholder="Enter phone">
+            <input type="datetime-local" name="checkInDateTime" id="checkInDateTime" placeholder="Enter checkin">
+            <input type="datetime-local" name="checkOutDateTime" id="checkOutDateTime" placeholder="Enter checkout">
+            <input type="number" name="roomNumber" id="roomNumber" placeholder="Enter room number">
+
+            <button type="submit" class="addBookingBtn"></button>
+        </form>
+    </div>
+
+
+    <div class="table1">
+        <table>
+            <tr class="rows">
+                <th class="medium">Room Number</th>
+                <th class="long">Guest Name</th>
+                <th class="small">Guest Phone</th>
+                <th class="small">Check In </th>
+                <th class="medium">Check Out </th>
+                {{!-- <th class="small">Delete </th> --}}
+            </tr>
+            {{#each rooms as |room|}}
+            {{#each room.bookings as |booking|}}
+            <tr class="rows">
+                <td class="medium">{{room.roomNumber}}</td>
+                <td class="small">{{booking.guestName}}</td>
+                <td class="small">{{booking.guestPhone}}</td>
+                <td class="medium">{{booking.checkInDateTime}}</td>
+                <td class="medium">{{booking.checkOutDateTime}}</td>
+
+                {{!-- <td class="small">
+                    <button class="deleteBtn" id={{guest._id}}>
+                        Delete Guest
+                    </button>
+                </td> --}}
+            </tr>
+            {{/each}}
+            {{/each}}
+        </table>
 </body>
+
 </html>
