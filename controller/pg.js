@@ -172,6 +172,7 @@ async function isRoomAvailable(roomNumber, checkInDateTime, checkOutDateTime) {
 }
 module.exports.addBooking = async (req, res, next) => {
     const { roomNumber, guestName, guestPhone, checkInDateTime, checkOutDateTime } = req.body
+    console.log(req.body)
     const objcheckInDateTime = new Date(checkInDateTime);
     const objcheckOutDateTime = new Date(checkOutDateTime);
     console.log("inside addBooking")
@@ -218,3 +219,54 @@ module.exports.addBooking = async (req, res, next) => {
     let sample = await rooms.find({})
     console.log(sample[2].bookings);
 }
+
+
+module.exports.sendMulticastEmails = async (req, res, next) => {
+    try {
+        const { id } = req.body;
+        // console.log(customMailBody);
+        let emailList = [];
+
+        const gotUser = await guests.find({_id:id})
+        gotUser.forEach(guest => {
+            // console.log(guest.email);
+            if (guest.email !== '') {
+                emailList.push(guest.email.trim());
+            }
+        });
+        // console.log(guests)
+
+        const params = {
+            Source: process.env.AWS_SES_SENDER,
+            Destination: {
+                ToAddresses: emailList,
+            },
+            ReplyToAddresses: [],
+            Message: {
+                Body: {
+                    // Html: {
+                    //     Charset: 'UTF-8',
+                    //     Data: customMailBody ? customMailBody : '<h1>This is the body of my email!</h1>',
+                    // },
+                    Text: {
+                        Charset: "UTF-8",
+                        Data:"Welcome to Anchorage by Captain Vishal Khanna!",
+                    },
+                },
+                Subject: {
+                    Charset: 'UTF-8',
+                    Data: "Check In",
+                },
+            },
+        };
+
+        // Send email using AWS SES
+        const response = await AWS_SES.sendEmail(params).promise();
+        console.log('Email has been sent!', response);
+        res.redirect('/platformAnchorage/admin');
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Error sending email');
+    }
+
+};

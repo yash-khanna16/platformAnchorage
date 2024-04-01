@@ -13,17 +13,27 @@
     <h1>rooms page</h1>
     <div class="roomCommon" id="1">
         <form action="/platformAnchorage/roomScheduling/addBooking" method="post">
+            <input type="number" name="roomNumber" id="roomNumber" placeholder="Enter room number">
+
+            <button type="submit" class="addBookingBtn">Submit Now</button>
+        </form>
+    </div>
+
+    <div>
+        {{#each rooms as |room|}}
+        <div>{{room.roomNumber}}</div>
+        <div class="roomCommon" id={{room.roomNumber}}>
+        <form action="/platformAnchorage/roomScheduling/addBooking" method="post">
+            <input type="hidden" name="roomNumber" id="{{room.roomNumber}}" value="{{room.roomNumber}}">
             <input type="text" name="guestName" id="guestName" placeholder="Enter Name">
             <input type="number" name="guestPhone" id="guestPhone" placeholder="Enter phone">
             <input type="datetime-local" name="checkInDateTime" id="checkInDateTime" placeholder="Enter checkin">
             <input type="datetime-local" name="checkOutDateTime" id="checkOutDateTime" placeholder="Enter checkout">
-            <input type="number" name="roomNumber" id="roomNumber" placeholder="Enter room number">
-
-            <button type="submit" class="addBookingBtn"></button>
+            <button type="submit" class="addBookingBtn">Submit Now</button>
         </form>
+        {{/each}}
     </div>
-
-
+        
     <div class="table1">
         <table>
             <tr class="rows">
@@ -52,6 +62,7 @@
             {{/each}}
             {{/each}}
         </table>
+    </div>
 </body>
 
 </html>

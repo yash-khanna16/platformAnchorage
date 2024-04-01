@@ -9,10 +9,10 @@ const roomSchema = new Schema({
     },
     bookings: [
       {
-        guestName: { type: String, required: true },
-        guestPhone: { type: String, required: true },
-        checkInDateTime: { type: Date, required: true },
-        checkOutDateTime: { type: Date, required: true },
+        guestName: { type: String /*, required: true */},
+        guestPhone: { type: String/*, required: true */ },
+        checkInDateTime: { type: Date/*, required: true */ },
+        checkOutDateTime: { type: Date/*, required: true */},
       },
     ],
   });
