@@ -111,3 +111,25 @@ $(() => {
     location.reload();
   });
 });
+
+
+$(() => {
+  const deleteRoom = $(".deleteRoom");
+  deleteRoom.on("click", (ev) => {
+    // console.log("click hua")
+    // console.log(ev);
+    let id = ev.target.id;
+    // console.log(ev.target.id);
+
+    // let attribute = ev.target.getAttribute('class');
+    // console.log(attribute);
+    $.post(
+      '/platformAnchorage/roomScheduling/deleteRooms', {
+      id
+    }).done((data) => {
+      // updateListings
+      // console.log(data);
+    })
+    location.reload();
+  });
+});

@@ -12,7 +12,7 @@ router.get('/aboutUs',pgController.getAboutUs)
 router.get('/roomScheduling',pgController.getRooms)
 router.post('/roomScheduling/addBooking',pgController.addBooking)
 router.post('/admin/sendMulticastEmails',pgController.sendMulticastEmails)
-
+router.post('/roomScheduling/deleteRooms',pgController.deleteRooms)
 
 
 

@@ -172,7 +172,6 @@ async function isRoomAvailable(roomNumber, checkInDateTime, checkOutDateTime) {
 }
 module.exports.addBooking = async (req, res, next) => {
     const { roomNumber, guestName, guestPhone, checkInDateTime, checkOutDateTime } = req.body
-    console.log(req.body)
     const objcheckInDateTime = new Date(checkInDateTime);
     const objcheckOutDateTime = new Date(checkOutDateTime);
     console.log("inside addBooking")
@@ -270,3 +269,14 @@ module.exports.sendMulticastEmails = async (req, res, next) => {
     }
 
 };
+module.exports.deleteRooms= (req, res, next) => {
+    const { id } = req.body;
+    console.log(id);
+    rooms.deleteOne({ roomNumber: id })
+        .then(() => {
+            res.render('rooms')
+        })
+        .catch(err => {
+            console.log("could not delete")
+        })
+}

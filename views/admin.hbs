@@ -35,7 +35,7 @@
         </form>
     </div>
     <div class="mails">
-        <h2>Send Bulk Mails</h2>
+        <h2>Send Mails</h2>
         <form action="/platformAnchorage/admin/sendEmails" method="POST" class="sendEmailForm">
         <div class="mails_left">
                 <label for="pname">Enter Custom Subject:</label>
@@ -43,22 +43,6 @@
         </div>
         <div class="right"><textarea name="customMailSubject" id="customMailSubject" placeholder="Enter Subject" rows="2" cols="100"></textarea>
             <textarea name="customMailBody" id="customMailBody" placeholder="Enter Body" rows="10" cols="100"></textarea>
-            <div class="sendEmail mx-4 my-2">
-                <button type="submit" class="sendEmail">Send Emails</button>
-            </div></div>
-            
-        </form>
-    </div>
-    <div class="mails">
-        <h2>Send Multicast Mails</h2>
-        <form action="/platformAnchorage/admin/sendMulticastEmails" method="POST" class="sendEmailForm">
-        <div class="mails_left">
-                <label for="pname">Enter Custom Subject:</label>
-                <label for="phoneNumber">Enter Custom Body:</label>
-        </div>
-        <div class="right"><textarea name="customMailSubject" id="customMailSubject" placeholder="Enter Subject" rows="2" cols="100"></textarea>
-            <textarea name="customMailBody" id="customMailBody" placeholder="Enter Body" rows="10" cols="100"></textarea>
-            {{!-- <div>{{}}</div> --}}
             <div class="sendEmail mx-4 my-2">
                 <button type="submit" class="sendEmail">Send Emails</button>
             </div></div>
@@ -77,7 +61,6 @@
             </tr>
             {{#each guests as |guest|}}
             <tr class="rows">
-                <td class="small"><button class="selectGuest" id={{guest._id}}>select</button></td>
                 <td class="medium">{{guest.pname}}</td>
                 <td class="long">{{guest.email}}</td>
                 <td class="small">{{guest.rank}}</td>
