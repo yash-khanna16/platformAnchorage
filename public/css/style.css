@@ -66,8 +66,10 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width:35%;
-  height: 100%;
+  justify-content: center;
+  width:50%;
+  height: 80vh;
+  background-color: rgb(51, 58, 76);;
 }
 #right>img{
   width:80%;
@@ -87,4 +89,27 @@ body {
 }
 .location>div{
   font-size: 125%;
+}
+.aboutUs{
+  display: flex;
+  height: 80vh;
+}
+.aboutUsLeft{
+  display: flex;
+  background-color:rgb(135, 107, 70);
+  width:50%;
+  align-items: center;
+  justify-content: center;
+}
+.aboutUsRight{
+  display: flex;
+  color:aliceblue;
+  width:50%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 5%;
+}
+.aboutUsLeft>img{
+  width: 80%;
 }
