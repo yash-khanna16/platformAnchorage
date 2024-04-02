@@ -4,13 +4,27 @@
   padding: 0;
 }
 
-.navbar {
-  background-color: #003366;
+.navbar{
+  background-color: rgb(32, 32, 32);
+  animation: 1s navbar ease-in;
+}
+@keyframes navbar {
+  0%{
+    position: relative;
+    top:-50px;
+  }
+  100%{
+    position: relative;
+    top:0px;
+  }
 }
 .navItem{
   color: white;
   text-decoration: none;
-
+}
+.navbar-brand{
+  color: white;
+  text-decoration: none;
 }
 .nav-container{
   width:50%;
@@ -18,41 +32,56 @@
   align-items: center;
   justify-content: space-evenly;
 }
-
 body {
-  background-color: white;
+  background-color: rgb(32, 32, 32);
 }
 .nav-container>img{
   height:7vh;
-  width:4vw;
+  width:7vw;
 }
-.image-container img{
-  height: 75vh;
-  border-radius: 50px;
-  margin: 20px 0px;
+.firstLook{
+  display: flex;
+  color: rgb(255, 255, 255);
+  align-items: center;
 }
-.image-container{
+.firstLookText{
+  position: relative;
+  right:-5%;
+  width:40%;
+  font-size: 400%;
+  z-index: 2;
+}
+.imageContainer{
+  position: relative;
+  right:10%;
+  margin:2% auto;
+  height: 90vh;
+  width: 70%;
+}
+.carousel-item{
+  padding: 2%;
+  height: 80vh;
+}
+.data{
+  background-color: aliceblue;
+  height: 80vh;
   display: flex;
   align-items: center;
-  justify-content: center;
-}
-.carousel{
-  width:99%;
 }
 .data-container{
   display: flex;
   width:100%;
-  height:120vh;
 }
 #left{
   display: flex;
   flex-direction: column;
   align-items: center;
-  width:65%;
+  width:50%;
   height: 130%;
   color:rgb(65, 77, 77);
 }
 .content{
+  margin: 2%;;
   padding: 2% 5% ;
   text-align: justify;
 }
@@ -66,23 +95,29 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width:35%;
-  height: 100%;
+  justify-content: center;
+  width:50%;
+  height: 80vh;
+  background-color: coral;
 }
 #right>img{
   width:80%;
-  height: 24%;
+  height: 60vh;
   border-radius: 1%;
   padding: 1% 0%;
-  transition: transform 1.1s ease-in-out;
+  transition: transform 1.1s ease-in;
 }
 #right>img:hover{
   transform: scale(1.3);
 }
+.outerLocation{
+  height:60vh;
+  background-color: darkgrey;
+}
 .location{
   display: flex;
   width: 50%;
-  margin: 3% auto;
+  margin:  auto;
   justify-content: space-between;
 }
 .location>div{

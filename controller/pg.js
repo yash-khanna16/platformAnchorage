@@ -141,39 +141,39 @@ module.exports.getRooms = (req, res, next) => {
 async function isRoomAvailable(roomNumber, checkInDateTime, checkOutDateTime) {
     const existingBooking = await rooms.findOne({
         roomNumber: roomNumber,
-        $or:[
-            {
-                bookings: {
-                    $elemMatch: {
-                        $and: [
-                            { checkInDateTime: { $lte: checkInDateTime } },
-                            { checkOutDateTime: { $lte: checkInDateTime } },
-                            { checkInDateTime: { $lte: checkOutDateTime } },
-                            { checkOutDateTime: { $lte: checkOutDateTime } },
-                        ],
-                    },
-                },
-            },
-            {
-                bookings: {
-                    $elemMatch: {
-                        $and: [
-                            { checkInDateTime: { $gte: checkOutDateTime } },
-                            { checkOutDateTime: { $gte: checkOutDateTime } },
-                            { checkInDateTime: { $gte: checkInDateTime } },
-                            { checkOutDateTime: { $gte: checkInDateTime } },
-                        ],
-                    },
-                },
-            },
-        ]
+        bookings: {
+            $not: {
+                $elemMatch: {
+                    $or: [
+                        {
+                            $and: [
+                                { checkInDateTime: { $lte: checkInDateTime } },
+                                { checkOutDateTime: { $gte: checkInDateTime } },
+                            ]
+                        },
+                        {
+                            $and: [
+                                { checkInDateTime: { $lte: checkOutDateTime } },
+                                { checkOutDateTime: { $gte: checkOutDateTime } },
+                            ]
+                        },
+                        {
+                            $and: [
+                                { checkInDateTime: { $gte: checkInDateTime } },
+                                { checkOutDateTime: { $lte: checkOutDateTime } },
+                            ]
+                        }
+                    ]
+                }
+            }
+        }
     });
     return existingBooking;
 }
 module.exports.addBooking = async (req, res, next) => {
     const { roomNumber, guestName, guestPhone, checkInDateTime, checkOutDateTime } = req.body
-    const objcheckInDateTime = new Date(checkInDateTime);
-    const objcheckOutDateTime = new Date(checkOutDateTime);
+    // const objcheckInDateTime = new Date(checkInDateTime);
+    // const objcheckOutDateTime = new Date(checkOutDateTime);
     console.log("inside addBooking")
     let newRoomDetail = new rooms({
         roomNumber, bookings: [
@@ -192,7 +192,7 @@ module.exports.addBooking = async (req, res, next) => {
         res.redirect('/platformAnchorage/roomScheduling');
     }
     else {
-        const roomAvailable = await isRoomAvailable(roomNumber, objcheckInDateTime, objcheckOutDateTime)
+        const roomAvailable = await isRoomAvailable(roomNumber, checkInDateTime, checkOutDateTime)
         console.log(roomAvailable)
         if (!roomAvailable) {
             console.log('Room is not available for the specified date and time range');
@@ -215,8 +215,9 @@ module.exports.addBooking = async (req, res, next) => {
             );
         }
     }
-    let sample = await rooms.find({})
-    console.log(sample[2].bookings);
+    res.redirect('/platformAnchorage/roomScheduling');
+    // let sample = await rooms.find({})
+    // console.log(sample[2].bookings);
 }
 
 
@@ -274,7 +275,7 @@ module.exports.deleteRooms= (req, res, next) => {
     console.log(id);
     rooms.deleteOne({ roomNumber: id })
         .then(() => {
-            res.render('rooms')
+            res.render('rooms',{rooms})
         })
         .catch(err => {
             console.log("could not delete")
