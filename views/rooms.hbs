@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="/../css/listing.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 
 <body>
@@ -14,7 +15,8 @@
     <div class="roomCommon" id="1">
         <form action="/platformAnchorage/roomScheduling/addBooking" method="post">
             <input type="number" name="roomNumber" id="roomNumber" placeholder="Enter room number">
-
+            <input type="datetime-local" name="checkInDateTime" id="checkInDateTime" placeholder="Enter checkin">
+            <input type="datetime-local" name="checkOutDateTime" id="checkOutDateTime" placeholder="Enter checkout">
             <button type="submit" class="addBookingBtn">Submit Now</button>
         </form>
     </div>
@@ -29,11 +31,11 @@
             <input type="number" name="guestPhone" id="guestPhone" placeholder="Enter phone">
             <input type="datetime-local" name="checkInDateTime" id="checkInDateTime" placeholder="Enter checkin">
             <input type="datetime-local" name="checkOutDateTime" id="checkOutDateTime" placeholder="Enter checkout">
-            <input type="number" name="roomNumber" id="roomNumber" placeholder="Enter room number">
 
             <button type="submit" class="addBookingBtn">Submit Now</button>
-        </form>
 
+        </form>
+        <button id={{room.roomNumber}} class="deleteRoom">Delete Room</button>
         {{/each}}
     </div>
 
@@ -67,6 +69,11 @@
             {{/each}}
         </table>
     </div>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="../js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>
