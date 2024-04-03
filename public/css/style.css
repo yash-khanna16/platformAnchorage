@@ -76,11 +76,16 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   width:50%;
-  height: 130%;
+  height: 80vh;
   color:rgb(65, 77, 77);
 }
 .content{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   margin: 2%;;
   padding: 2% 5% ;
   text-align: justify;
@@ -111,8 +116,11 @@ body {
   transform: scale(1.3);
 }
 .outerLocation{
-  height:60vh;
-  background-color: darkgrey;
+  height:10vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgb(221, 221, 221);
 }
 .location{
   display: flex;
