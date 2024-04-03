@@ -142,6 +142,13 @@ $(() => {
     console.log(ev);
     const checkInDateTime = $("#checkInDateTime").val();
     const checkOutDateTime = $("#checkOutDateTime").val();
+    $.post(
+      '/platformAnchorage/roomScheduling/checkAvailability', {
+        checkInDateTime,checkOutDateTime
+    }).done((data) => {
+      // updateListings
+      // console.log(data);
+    })
     console.log(checkOutDateTime)
     // console.log(ev.target.id);
 

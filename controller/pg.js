@@ -1,5 +1,6 @@
 const guests = require('../models/guests')
 const rooms = require('../models/rooms')
+
 module.exports.getGuests = (req, res, next) => {
     guests.find({})
         .then((guests) => {
@@ -10,6 +11,7 @@ module.exports.getGuests = (req, res, next) => {
         .catch(err => {
             res.send("no guests found");
         })
+
 }
 
 module.exports.getAdmin = (req, res, next) => {
@@ -137,6 +139,31 @@ module.exports.getRooms = (req, res, next) => {
         })
 }
 
+module.exports.checkAvailability = async (req, res, next) => {
+    const { checkInDateTime, checkOutDateTime } = req.body;
+
+    try {
+        const allRooms = await rooms.find({}); // Get all rooms
+
+        const availableRooms = await Promise.all(allRooms.map(async (room) => {
+            const roomAvailable = await isRoomAvailable(room.roomNumber, checkInDateTime, checkOutDateTime);
+            if (roomAvailable) {
+                // console.log(room)
+                return room; // Return the room if available
+            }
+        }));
+
+        const filteredRooms = availableRooms.filter(room => room); // Remove undefined elements
+        // console.log(filteredRooms);
+        console.log(filteredRooms)
+        res.render('rooms', {
+            filteredRooms: filteredRooms 
+        });
+    } catch (error) {
+        console.error('Error fetching rooms:', error);
+        res.status(500).send('Error fetching rooms');
+    }
+};
 
 async function isRoomAvailable(roomNumber, checkInDateTime, checkOutDateTime) {
     const existingBooking = await rooms.findOne({
@@ -170,10 +197,9 @@ async function isRoomAvailable(roomNumber, checkInDateTime, checkOutDateTime) {
     });
     return existingBooking;
 }
+
 module.exports.addBooking = async (req, res, next) => {
     const { roomNumber, guestName, guestPhone, checkInDateTime, checkOutDateTime } = req.body
-    // const objcheckInDateTime = new Date(checkInDateTime);
-    // const objcheckOutDateTime = new Date(checkOutDateTime);
     console.log("inside addBooking")
     let newRoomDetail = new rooms({
         roomNumber, bookings: [
@@ -197,6 +223,8 @@ module.exports.addBooking = async (req, res, next) => {
         if (!roomAvailable) {
             console.log('Room is not available for the specified date and time range');
             res.redirect('/platformAnchorage/roomScheduling');
+            // location.reload();
+
         }
 
         else {
@@ -215,11 +243,11 @@ module.exports.addBooking = async (req, res, next) => {
                 // options
             );
             res.redirect('/platformAnchorage/roomScheduling');
+            // location.reload();
         }
     }
     
-    // let sample = await rooms.find({})
-    // console.log(sample[2].bookings);
+    
 }
 
 
