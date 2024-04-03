@@ -4,71 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Listings</title>
-  {{!-- <link rel="stylesheet" href="/../css/style.css"> --}}
   <link rel="stylesheet" href="../public/css/style.css">
   <link rel="stylesheet" href="/../css/listing.css">
-  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
 </head>
 <body>
   {{> navbar}}
   <main>
-    
     <div class="section">
-      {{#each guests as |guest|}}
-    <section class="listings">
-      <article class="listing-item">
-        {{!-- <div class="image-container">
-            <img src={{listing.pictureURL}}>
-        </div> --}}
-        <div class="listing-details">
-            <h2>Title: {{guest.pname}}</h2>
-            <p>Description: {{guest.email}}</p>
-            {{!-- <a href="#" class="btn">View Details</a> --}}
-            <button id={{guest._id}} class="toggleButton">View Details</button>
-            <div id={{guest._id}} class="details" style="display: none;">
-            <p><strong>{{guest.pname}} : {{guest.phoneNumber}}</strong></p>
+      {{#each filteredRooms}}
+        <section class="listings">
+          <article class="listing-item">
+            <div class="listing-details">
+              <h2>Room Number: {{roomNumber}}</h2>
+              <ul>
+                {{#each bookings}}
+                  <li>Check-in: {{this.checkInDateTime}}, Check-out: {{this.checkOutDateTime}}</li>
+                {{/each}}
+              </ul>
             </div>
-        </div>
-    </article>
-    </section>
-    {{/each}}
+          </article>
+        </section>
+      {{/each}}
     </div>
-
-
-
-      {{!-- <article class="listing-item">
-        <div class="image-container">
-          <img src="" alt="Listing Image">
-        </div>
-        <div class="listing-details">
-          <h2>Listing Title 2</h2>
-          <p>Listing Description 2</p>
-          <a href="#" class="btn">View Details</a>
-        </div>
-      </article> --}}
-
-
-      
-    </section>
   </main>
-      <!-- Footer -->
-</div>
-<footer class="site-footer">
-  <p>&copy; 2024 platformAnchorage. All rights reserved.</p>
-</footer>
-</div>
-<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
-    <script src="../js/script.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
-        integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"
-        integrity="sha384-mQ93GR66B00ZXjt0YO5KlohRA5SY2XofN4zfuZxLkoj1gXtW8ANNCe9d5Y3eG5eD"
-        crossorigin="anonymous"></script>
+  <footer class="site-footer">
+    <p>&copy; 2024 platformAnchorage. All rights reserved.</p>
+  </footer>
 </body>
 </html>

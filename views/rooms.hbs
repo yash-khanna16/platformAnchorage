@@ -15,7 +15,12 @@
 
 <body>
     {{>navbar}}
-    <h1>Rooms page</h1>
+    <h1>rooms page</h1>
+    <div class="RoomAvailable"><h5>Check Rooms Available within the given date range</h5> 
+        <input type="datetime-local" name="checkInDateTime" id="checkInDateTime" placeholder="Enter checkin">
+        <input type="datetime-local" name="checkOutDateTime" id="checkOutDateTime" placeholder="Enter checkout">
+        <button class="checkAvailableRoomsForRange">Check Rooms</button>
+    </div>
     <div class="roomCommon" id="1">
         <form action="/platformAnchorage/roomScheduling/addBooking" method="post">
             <input type="number" name="roomNumber" id="roomNumber" placeholder="Enter room number">
@@ -38,7 +43,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <form id="bookingForm">
+                        <form action="/platformAnchorage/roomScheduling/addBooking" method="post">
                             <input type="hidden" name="roomNumber" id="{{room.roomNumber}}" value="{{room.roomNumber}}">
                             <input type="text" name="guestName" id="guestName" placeholder="Enter Name">
                             <input type="number" name="guestPhone" id="guestPhone" placeholder="Enter phone">
