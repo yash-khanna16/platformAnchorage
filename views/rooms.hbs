@@ -12,6 +12,11 @@
 <body>
     {{>navbar}}
     <h1>rooms page</h1>
+    <div class="RoomAvailable"><h5>Check Rooms Available within the given date range</h5> 
+        <input type="datetime-local" name="checkInDateTime" id="checkInDateTime" placeholder="Enter checkin">
+        <input type="datetime-local" name="checkOutDateTime" id="checkOutDateTime" placeholder="Enter checkout">
+        <button class="checkAvailableRoomsForRange">Check Rooms</button>
+    </div>
     <div class="roomCommon" id="1">
         <form action="/platformAnchorage/roomScheduling/addBooking" method="post">
             <input type="number" name="roomNumber" id="roomNumber" placeholder="Enter room number">

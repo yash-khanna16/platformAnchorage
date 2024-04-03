@@ -196,6 +196,7 @@ module.exports.addBooking = async (req, res, next) => {
         console.log(roomAvailable)
         if (!roomAvailable) {
             console.log('Room is not available for the specified date and time range');
+            res.redirect('/platformAnchorage/roomScheduling');
         }
 
         else {
@@ -213,9 +214,10 @@ module.exports.addBooking = async (req, res, next) => {
                 }
                 // options
             );
+            res.redirect('/platformAnchorage/roomScheduling');
         }
     }
-    res.redirect('/platformAnchorage/roomScheduling');
+    
     // let sample = await rooms.find({})
     // console.log(sample[2].bookings);
 }

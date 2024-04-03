@@ -133,3 +133,20 @@ $(() => {
     location.reload();
   });
 });
+
+$(() => {
+  const checkAvailableRoomsForRange = $(".checkAvailableRoomsForRange");
+  checkAvailableRoomsForRange.on("click", (ev) => {
+    // console.log("click hua")
+    // console.log(ev);
+    console.log(ev);
+    const checkInDateTime = $("#checkInDateTime").val();
+    const checkOutDateTime = $("#checkOutDateTime").val();
+    console.log(checkOutDateTime)
+    // console.log(ev.target.id);
+
+    // let attribute = ev.target.getAttribute('class');
+    // console.log(attribute);
+    
+  });
+});
