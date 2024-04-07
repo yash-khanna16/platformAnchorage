@@ -94,9 +94,11 @@ h1,h5{
 }
 .right{
   padding: 2%;
+  height:20vh;
 }
 .right>input{
-  margin: 1%;
+  display: block;
+  margin: 5%;
   padding: 1%;
 }
 
