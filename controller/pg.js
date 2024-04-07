@@ -156,7 +156,7 @@ module.exports.checkAvailability = async (req, res, next) => {
         const filteredRooms = availableRooms.filter(room => room); // Remove undefined elements
         // console.log(filteredRooms);
         console.log(filteredRooms)
-        res.render('rooms', {
+        res.render('rooms', {rooms,
             filteredRooms: filteredRooms 
         });
     } catch (error) {
@@ -226,7 +226,6 @@ module.exports.addBooking = async (req, res, next) => {
             // location.reload();
 
         }
-
         else {
             await rooms.updateOne(
                 { roomNumber: roomNumber },
@@ -245,9 +244,11 @@ module.exports.addBooking = async (req, res, next) => {
             res.redirect('/platformAnchorage/roomScheduling');
             // location.reload();
         }
+        
     }
-    
-    
+    // res.redirect('/platformAnchorage/roomScheduling');
+    // let sample = await rooms.find({})
+    // console.log(sample[2].bookings);
 }
 
 

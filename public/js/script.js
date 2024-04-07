@@ -61,6 +61,25 @@ $(() => {
   });
 });
 
+// $(() => {
+//   let formData = $('#bookingForm').serialize();
+//   console.log(formData);
+// });
+
+  // $.ajax({
+  //     type: 'POST',
+  //     url: '/platformAnchorage/roomScheduling/addBooking',
+  //     data: formData,
+  //     success: function(response) {
+  //         // Handle success, for example update modal content or display a success message
+  //         console.log('Booking submitted successfully');
+  //     },
+  //     error: function(xhr, status, error) {
+  //         // Handle error
+  //         console.error('Error submitting booking:', error);
+  //     }
+  // });
+
 
 // $(() => {
 //   const sendEmail = $(".sendEmail");
@@ -82,14 +101,14 @@ $(() => {
 // });
 
 
-$(() => {
-  const guest_form = $(".addbtn my-2 mx-4");
-  guest_form.on("submit", (ev) => {
-    ev.preventDefault()
-    console.log("click confirmed")
+// $(() => {
+//   const guest_form = $(".addbtn my-2 mx-4");
+//   guest_form.on("submit", (ev) => {
+//     ev.preventDefault()
+//     console.log("click confirmed")
 
-  });
-});
+//   });
+// });
 
 $(() => {
   const selectGuest = $(".selectGuest");

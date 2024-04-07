@@ -1,0 +1,102 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  body{
+    background-color:rgb(64, 63, 63)
+  }
+  .navbar {
+    background-color: #003366;
+  }
+  .navItem{
+    color: white;
+    text-decoration: none;
+  
+  }
+  .nav-container{
+    width:50%;
+    display:flex;
+    align-items: center;
+    justify-content: space-evenly;
+  }
+  
+  .nav-container>img{
+    height:7vh;
+    width:4vw;
+  }
+  .table1{
+    margin:auto;
+    width: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: bisque;
+}
+table{
+    width: 100%;
+}
+.long{
+    width:20%;
+    text-align: center;
+    border: 1px solid black;
+}
+.small{
+    width:15%;
+    text-align: center;
+    border:1px  solid black;
+}
+.medium{
+    width:18%;
+    text-align: center;
+    border:1px  solid black;
+}
+.custom-modal-dialog {
+    max-width: 75vw; /* Adjust the width as per your requirement */
+    margin: 1.75rem auto;
+}
+.roomDiv{
+  display: grid;
+  grid-template-columns: 20vw 20vw 20vw 20vw 20vw;
+}
+.roomModal{
+  margin:2%;
+  height:10vh;
+  border: 2px solid white;
+}
+h1,h5{
+  text-align: center;
+}
+.RoomAvailable{
+  width:50vw;
+  margin:auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: rgb(59, 137, 215);
+  border-radius: 20px;
+  padding: 1%;
+}
+.room_form{
+  display: flex;
+  width:50vw;
+}
+.left{
+  padding: 2%;
+  width:50%;
+  text-align: center;
+}
+.left>label{
+  display: block;
+  padding: 1.5%;
+  margin:1%;
+}
+.right{
+  padding: 2%;
+}
+.right>input{
+  margin: 1%;
+  padding: 1%;
+}
+
