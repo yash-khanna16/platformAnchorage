@@ -14,6 +14,7 @@ const allRoutes = require("./routes/routes");
 
 
 app.set("view engine", "hbs");
+app.set('views', path.join(__dirname, 'views'));
 hbs.registerPartials(__dirname + "/views/partials");
 
 app.use(express.urlencoded({ extended: true }));

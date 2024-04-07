@@ -130,6 +130,7 @@ module.exports.getAboutUs = (req, res, next) => {
 module.exports.getRooms = (req, res, next) => {
     rooms.find({})
         .then((rooms) => {
+            // console.log(rooms)
             res.render('rooms', {
                 rooms
             });
@@ -138,6 +139,7 @@ module.exports.getRooms = (req, res, next) => {
             res.send("no room details found");
         })
 }
+
 
 module.exports.checkAvailability = async (req, res, next) => {
     const { checkInDateTime, checkOutDateTime } = req.body;
@@ -155,10 +157,9 @@ module.exports.checkAvailability = async (req, res, next) => {
 
         const filteredRooms = availableRooms.filter(room => room); // Remove undefined elements
         // console.log(filteredRooms);
-        console.log(filteredRooms)
-        res.render('rooms', {rooms,
-            filteredRooms: filteredRooms 
-        });
+        // console.log(filteredRooms)
+        // const data = JSON.stringify(filteredRooms)
+        res.send(filteredRooms)
     } catch (error) {
         console.error('Error fetching rooms:', error);
         res.status(500).send('Error fetching rooms');
@@ -244,7 +245,7 @@ module.exports.addBooking = async (req, res, next) => {
             res.redirect('/platformAnchorage/roomScheduling');
             // location.reload();
         }
-        
+
     }
     // res.redirect('/platformAnchorage/roomScheduling');
     // let sample = await rooms.find({})
@@ -258,7 +259,7 @@ module.exports.sendMulticastEmails = async (req, res, next) => {
         // console.log(customMailBody);
         let emailList = [];
 
-        const gotUser = await guests.find({_id:id})
+        const gotUser = await guests.find({ _id: id })
         gotUser.forEach(guest => {
             // console.log(guest.email);
             if (guest.email !== '') {
@@ -281,7 +282,7 @@ module.exports.sendMulticastEmails = async (req, res, next) => {
                     // },
                     Text: {
                         Charset: "UTF-8",
-                        Data:"Welcome to Anchorage by Captain Vishal Khanna!",
+                        Data: "Welcome to Anchorage by Captain Vishal Khanna!",
                     },
                 },
                 Subject: {
@@ -301,12 +302,12 @@ module.exports.sendMulticastEmails = async (req, res, next) => {
     }
 
 };
-module.exports.deleteRooms= (req, res, next) => {
+module.exports.deleteRooms = (req, res, next) => {
     const { id } = req.body;
     console.log(id);
     rooms.deleteOne({ roomNumber: id })
         .then(() => {
-            res.render('rooms',{rooms})
+            res.render('rooms', { rooms })
         })
         .catch(err => {
             console.log("could not delete")

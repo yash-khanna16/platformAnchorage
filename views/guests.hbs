@@ -11,15 +11,17 @@
   {{> navbar}}
   <main>
     <div class="section">
-      {{#each filteredRooms}}
+      <h1>hello</h1>
+      {{#each dummy as |filteredRoom|}}
+      <h1>hello</h1>
         <section class="listings">
           <article class="listing-item">
             <div class="listing-details">
-              <h2>Room Number: {{roomNumber}}</h2>
+              <h2>Room Number: {{filteredRoom.roomNumber}}</h2>
               <ul>
-                {{#each bookings}}
-                  <li>Check-in: {{this.checkInDateTime}}, Check-out: {{this.checkOutDateTime}}</li>
-                {{/each}}
+                {{!-- {{#each bookings}}
+                  <li>Check-in: {{filteredRoom.booking.checkInDateTime}}, Check-out: {{filteredRoom.checkOutDateTime}}</li>
+                {{/each}} --}}
               </ul>
             </div>
           </article>
