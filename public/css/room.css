@@ -101,4 +101,12 @@ h1,h5{
   margin: 5%;
   padding: 1%;
 }
-
+.Available{
+  display: grid;
+  grid-template-columns: 15vw 15vw 15vw 15vw 15vw;
+}
+.Available> .roomModal{
+  margin:2%;
+  height:10vh;
+  border: 2px solid white;
+}

@@ -164,62 +164,15 @@ $(() => {
       checkOutDateTime
     }).done((data) => {
       console.log(data)
-      $('.roomDiv').empty(); // Clear previous data
+      $('.Available').empty(); // Clear previous data
       data.forEach(room => {
         const roomHTML = `
           <button type="button" class="btn btn-primary roomModal" data-bs-toggle="modal"
             data-bs-target="#room-${room.roomNumber}">
             ${room.roomNumber}
           </button>
-          <div class="modal fade" id="room-${room.roomNumber}" data-bs-backdrop="static" data-bs-keyboard="false"
-            tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog custom-modal-dialog">
-              <div class="modal-content">
-                <div class="modal-header">
-                  <h1 class="modal-title fs-5" id="staticBackdropLabel">${room.roomNumber}</h1>
-                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                  <!-- Form and room details -->
-                  <form action="/platformAnchorage/roomScheduling/addBooking" method="post">
-                    <input type="hidden" name="roomNumber" id="${room.roomNumber}" value="${room.roomNumber}">
-                    <input type="text" name="guestName" id="guestName" placeholder="Enter Name">
-                    <input type="number" name="guestPhone" id="guestPhone" placeholder="Enter phone">
-                    <input type="datetime-local" name="checkInDateTime" id="checkInDateTime"
-                      placeholder="Enter checkin">
-                    <input type="datetime-local" name="checkOutDateTime" id="checkOutDateTime"
-                      placeholder="Enter checkout">
-
-                    <button type="submit" class="addBookingBtn">Submit Now</button>
-                  </form>
-                  <!-- Table for room bookings -->
-                  <div class="table1">
-                    <table>
-                      <tr class="rows">
-                        <th class="medium">Room Number</th>
-                        <th class="long">Guest Name</th>
-                        <th class="small">Guest Phone</th>
-                        <th class="small">Check In</th>
-                        <th class="medium">Check Out</th>
-                      </tr>
-                      ${room.bookings.forEach(booking=>{`
-                        <tr class="rows">
-                        <td class="medium">${room.roomNumber}</td>
-                        <td class="small">${booking.guestName}</td>
-                        <td class="small">${booking.guestPhone}</td>
-                        <td class="medium">${booking.checkInDateTime}</td>
-                        <td class="medium">${booking.checkOutDateTime}</td>
-                      </tr>
-                      `
-                      })}
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        `;
-        $('.roomDiv').append(roomHTML);
+          `
+        $('.Available').append(roomHTML);
       });
     });
   });
