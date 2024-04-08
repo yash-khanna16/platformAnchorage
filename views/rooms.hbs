@@ -98,8 +98,14 @@
                                     <td class="small">{{booking.guestPhone}}</td>
                                     <td class="medium">{{booking.checkInDateTime}}</td>
                                     <td class="medium">{{booking.checkOutDateTime}}</td>
+                                    <td>
+                                        <button class="deleteBookingBtn" data-room-number="{{room.roomNumber}}"
+                                            data-check-in-datetime="{{booking.checkInDateTime}}"
+                                            data-check-out-datetime="{{booking.checkOutDateTime}}">Delete Booking</button>
+                                    </td>
                                 </tr>
                                 {{/each}}
+                                
                             </table>
                         </div>
                     </div>

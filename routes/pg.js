@@ -14,7 +14,7 @@ router.post('/roomScheduling/checkAvailability',pgController.checkAvailability)
 router.post('/roomScheduling/addBooking',pgController.addBooking)
 router.post('/admin/sendMulticastEmails',pgController.sendMulticastEmails)
 router.post('/roomScheduling/deleteRooms',pgController.deleteRooms)
-
+router.post('/roomScheduling/deleteBooking',pgController.deleteBooking)
 
 
 

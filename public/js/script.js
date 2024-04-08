@@ -146,10 +146,11 @@ $(() => {
       '/platformAnchorage/roomScheduling/deleteRooms', {
       id
     }).done((data) => {
+      location.reload();
       // updateListings
       // console.log(data);
     })
-    location.reload();
+    
   });
 });
 
@@ -176,4 +177,41 @@ $(() => {
       });
     });
   });
+});
+
+$(() => {
+  const deleteRoom = $(".deleteRoom");
+  deleteRoom.on("click", (ev) => {
+    // console.log("click hua")
+    // console.log(ev);
+    let id = ev.target.id;
+    // console.log(ev.target.id);
+
+    // let attribute = ev.target.getAttribute('class');
+    // console.log(attribute);
+    $.post(
+      '/platformAnchorage/roomScheduling/deleteRooms', {
+      id
+    }).done((data) => {
+      location.reload();
+      // updateListings
+      // console.log(data);
+    })
+    
+  });
+});
+
+$('.deleteBookingBtn').on('click', function() {
+  const roomNumber = $(this).data('room-number');
+  const checkInDateTime = $(this).data('check-in-datetime'); 
+  const checkOutDateTime = $(this).data('check-out-datetime'); 
+  // console.log(checkOutDateTime)
+  $.post(
+    '/platformAnchorage/roomScheduling/deleteBooking', {
+      roomNumber,checkInDateTime,checkOutDateTime
+  }).done((data)=>{
+    // location.reload();
+    console.log("deleted")
+  })
+  
 });

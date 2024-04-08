@@ -313,3 +313,35 @@ module.exports.deleteRooms = (req, res, next) => {
             console.log("could not delete")
         })
 }
+
+module.exports.deleteBooking = async (req, res, next) => {
+    const { roomNumber, checkInDateTime, checkOutDateTime } = req.body;
+    console.log(roomNumber)
+    try {
+        // Find the room by room number
+        const room = await rooms.findOne({ roomNumber });
+        if (!room) {
+            return res.status(404).json({ error: 'Room not found' });
+        }
+        
+        // Find the index of the booking to be deleted within the bookings array
+        const index = room.bookings.findIndex(booking => 
+            booking.checkInDateTime === checkInDateTime && 
+            booking.checkOutDateTime === checkOutDateTime
+        );
+
+        if (index === -1) {
+            return res.status(404).json({ error: 'Booking not found' });
+        }
+
+        // Remove the booking from the bookings array
+        room.bookings.splice(index, 1);
+        await room.save();
+
+        // Booking successfully deleted
+        return res.status(200).json({ message: 'Booking deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
