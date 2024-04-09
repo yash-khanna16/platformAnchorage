@@ -84,21 +84,21 @@
                         <div class="table1">
                             <table>
                                 <tr class="rows">
-                                    <th class="medium">Room Number</th>
+                                    <th class="small">Room Number</th>
                                     <th class="long">Guest Name</th>
                                     <th class="small">Guest Phone</th>
                                     <th class="small">Check In </th>
                                     <th class="medium">Check Out </th>
-                                    {{!-- <th class="small">Delete </th> --}}
+                                    <th class="long">Delete </th>
                                 </tr>
                                 {{#each room.bookings as |booking|}}
                                 <tr class="rows">
-                                    <td class="medium">{{room.roomNumber}}</td>
-                                    <td class="small">{{booking.guestName}}</td>
+                                    <td class="small">{{room.roomNumber}}</td>
+                                    <td class="long">{{booking.guestName}}</td>
                                     <td class="small">{{booking.guestPhone}}</td>
                                     <td class="medium">{{booking.checkInDateTime}}</td>
                                     <td class="medium">{{booking.checkOutDateTime}}</td>
-                                    <td>
+                                    <td class="long">
                                         <button class="deleteBookingBtn" data-room-number="{{room.roomNumber}}"
                                             data-check-in-datetime="{{booking.checkInDateTime}}"
                                             data-check-out-datetime="{{booking.checkOutDateTime}}">Delete Booking</button>

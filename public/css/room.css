@@ -12,7 +12,6 @@
   .navItem{
     color: white;
     text-decoration: none;
-  
   }
   .nav-container{
     width:50%;
@@ -20,7 +19,6 @@
     align-items: center;
     justify-content: space-evenly;
   }
-  
   .nav-container>img{
     height:7vh;
     width:4vw;

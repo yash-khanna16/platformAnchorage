@@ -126,18 +126,18 @@ module.exports.getAboutUs = (req, res, next) => {
     res.render('about')
 }
 
-
 module.exports.getRooms = (req, res, next) => {
     rooms.find({})
         .then((rooms) => {
-            // console.log(rooms)
-            res.render('rooms', {
-                rooms
+            // Sort the bookings array within each room based on check-in date time
+            rooms.forEach(room => {
+                room.bookings.sort((a, b) => a.checkInDateTime - b.checkInDateTime);
             });
+            res.render('rooms', { rooms });
         })
         .catch(err => {
-            res.send("no room details found");
-        })
+            res.send("No room details found");
+        });
 }
 
 
@@ -316,29 +316,20 @@ module.exports.deleteRooms = (req, res, next) => {
 
 module.exports.deleteBooking = async (req, res, next) => {
     const { roomNumber, checkInDateTime, checkOutDateTime } = req.body;
-    console.log(roomNumber)
     try {
-        // Find the room by room number
         const room = await rooms.findOne({ roomNumber });
         if (!room) {
             return res.status(404).json({ error: 'Room not found' });
         }
-
-        // Find the index of the booking to be deleted within the bookings array
-        const index = room.bookings.findIndex(booking => 
-            booking.checkInDateTime === checkInDateTime && 
-            booking.checkOutDateTime === checkOutDateTime
+        const index = room.bookings.findIndex(booking =>
+            booking.checkInDateTime.toString() === new Date(checkInDateTime).toString() &&
+            booking.checkOutDateTime.toString() === new Date(checkOutDateTime).toString()
         );
-
         if (index === -1) {
             return res.status(404).json({ error: 'Booking not found' });
         }
-
-        // Remove the booking from the bookings array
         room.bookings.splice(index, 1);
         await room.save();
-
-        // Booking successfully deleted
         return res.status(200).json({ message: 'Booking deleted successfully' });
     } catch (error) {
         console.error(error);

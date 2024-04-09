@@ -202,16 +202,23 @@ $(() => {
 });
 
 $('.deleteBookingBtn').on('click', function() {
+  const row = $(this).closest('tr'); // Get the closest row containing the booking details
+
   const roomNumber = $(this).data('room-number');
   const checkInDateTime = $(this).data('check-in-datetime'); 
   const checkOutDateTime = $(this).data('check-out-datetime'); 
-  // console.log(checkOutDateTime)
-  $.post(
-    '/platformAnchorage/roomScheduling/deleteBooking', {
-      roomNumber,checkInDateTime,checkOutDateTime
-  }).done((data)=>{
-    // location.reload();
-    console.log("deleted")
-  })
-  
+
+  $.ajax({
+      url: '/platformAnchorage/roomScheduling/deleteBooking', // Update the URL as per your backend route
+      method: 'POST',
+      data: { roomNumber, checkInDateTime, checkOutDateTime },
+      success: function(response) {
+          row.remove(); // Remove the corresponding row from the table upon successful deletion
+          console.log("Booking deleted successfully");
+      },
+      error: function(xhr, status, error) {
+          console.error(error);
+          alert('Failed to delete booking');
+      }
+  });
 });
