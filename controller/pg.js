@@ -95,10 +95,10 @@ module.exports.sendEmails = async (req, res, next) => {
             ReplyToAddresses: [],
             Message: {
                 Body: {
-                    // Html: {
-                    //     Charset: 'UTF-8',
-                    //     Data: customMailBody ? customMailBody : '<h1>This is the body of my email!</h1>',
-                    // },
+                    Html: {
+                        Charset: 'UTF-8',
+                        Data: customMailBody ? customMailBody : '<h1>This is the body of my email!</h1>',
+                    },
                     Text: {
                         Charset: "UTF-8",
                         Data: customMailBody ? customMailBody : "This is the body of my email!",
@@ -323,7 +323,7 @@ module.exports.deleteBooking = async (req, res, next) => {
         if (!room) {
             return res.status(404).json({ error: 'Room not found' });
         }
-        
+
         // Find the index of the booking to be deleted within the bookings array
         const index = room.bookings.findIndex(booking => 
             booking.checkInDateTime === checkInDateTime && 
