@@ -57,9 +57,10 @@ display: flex;
 /* justify-content: space-around; */
 }
 .main2{
-  width: 80%;
+  width: 90%;
 margin: 10% auto; 
 display: flex;
+flex-direction: row;
   /* justify-content: space-around; */
 }
 .about span{
@@ -98,9 +99,16 @@ color: #ffcc74;
   flex-direction: column;
 }
 .main2 img{
-  height: 40%;
-  width:70%;
+  height: 90vh;
+  width:80%;
 }
 .main2 .about{
-  width: 60%;
+  width: 100%;
+  position: relative;
+  top:40px;
+  align-items: flex-start;
+}
+.main2 h1{
+  font-size: 80px;
+  margin: 0px;
 }
