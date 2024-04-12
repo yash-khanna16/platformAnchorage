@@ -159,7 +159,7 @@ module.exports.getRooms = async (req, res, next) => {
                 });
             }
 
-            console.log(`Room ${room.roomNumber} - Available: ${isRoomAvailable}`);
+            // console.log(`Room ${room.roomNumber} - Available: ${isRoomAvailable}`);
 
             const obj= {
                 ...room.toObject(),
@@ -234,18 +234,27 @@ async function isRoomAvailable(roomNumber, checkInDateTime, checkOutDateTime) {
 }
 
 module.exports.addBooking = async (req, res, next) => {
-    const { roomNumber, guestName, guestPhone, checkInDateTime, checkOutDateTime } = req.body
-    console.log("inside addBooking")
+    const { roomNumber, guestName, guestPhone, checkInDateTime, checkOutDateTime,companyName,vessel,remark,additional } = req.body
+    let guestName1=guestName;
+    if(guestName!==undefined){
+        guestName1=guestName.trim();
+    guestName1=guestName1.toLowerCase();
+    }
     let newRoomDetail = new rooms({
         roomNumber, bookings: [
             {
-                guestName,
+                guestName1:guestName1,
                 guestPhone,
                 checkInDateTime,
-                checkOutDateTime
+                checkOutDateTime,
+                companyName,
+                vessel,
+                remark,
+                additional
             },
         ]
     })
+    console.log(newRoomDetail);
     const atleastOneEntry = await rooms.findOne({ roomNumber: roomNumber });
     if (!atleastOneEntry) {
         await newRoomDetail.save();
@@ -267,10 +276,14 @@ module.exports.addBooking = async (req, res, next) => {
                 {
                     $push: {
                         bookings: {
-                            guestName,
+                            guestName:guestName1,
                             guestPhone,
                             checkInDateTime: checkInDateTime,
-                            checkOutDateTime: checkOutDateTime
+                            checkOutDateTime: checkOutDateTime,
+                            companyName: companyName,
+                            vessel:vessel,
+                            remark:remark,
+                            additional:additional
                         },
                     },
                 }
@@ -369,5 +382,26 @@ module.exports.deleteBooking = async (req, res, next) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+
+module.exports.searchguest = async (req, res, next) => {
+    const { guestName } = req.body;
+    let guestName1=guestName.trim();
+    guestName1=guestName1.toLowerCase();
+    
+    try {
+        // Find all entries in the bookings array where guestName matches
+        const book = await rooms.aggregate([
+            { $unwind: "$bookings" }, // Unwind the bookings array
+            { $match: { "bookings.guestName": guestName1 } }, // Match the guestName
+            { $project: { roomNumber: 1, "bookings": 1 } } // Project roomNumber and bookings
+        ]);
+        console.log(book);
+        res.json(book); // Send the bookings data as JSON response
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
     }
 }

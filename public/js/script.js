@@ -223,3 +223,26 @@ $('.deleteBookingBtn').on('click', function() {
       }
   });
 });
+$('.checkForGuest').on('click', function() {
+  const guestName = $('#guest_name').val();
+  
+  // Send a POST request to the server
+  $.post('/platformAnchorage/roomScheduling/findGuest', { guestName })
+    .done((data) => {
+      console.log(data);
+      let tableHTML = '<table class="table2"><tr class="rows2"><th>Room Number</th><th>Guest Name</th><th>Guest Phone</th><th>Check-In Date</th><th>Check-Out Date</th><th>Company Name</th><th>Vessel</th><th>Remark</th><th>Additional</th></tr><tbody>';
+      data.forEach(booking => {
+        tableHTML += `<tr class="rows2"><td>${booking.roomNumber}</td><td>${booking.bookings.guestName}</td><td>${booking.bookings.guestPhone}</td><td>${booking.bookings.checkInDateTime}</td><td>${booking.bookings.checkOutDateTime}</td><td>${booking.bookings.companyName}</td><td>${booking.bookings.vessel}</td><td>${booking.bookings.remark}</td><td>${booking.bookings.additional}</td></tr>`;
+      });
+      tableHTML += '</tbody></table>';
+
+      // Append the table to the guestAvailable div
+      $('.guestAvailable').html(tableHTML);
+    })
+    .fail((xhr, status, error) => {
+      console.error(error);
+      alert('Failed to search for guest');
+    });
+});
+
+

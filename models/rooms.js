@@ -13,6 +13,10 @@ const roomSchema = new Schema({
         guestPhone: { type: String, /*required: true*/ },
         checkInDateTime: { type: Date, /*required: true*/ },
         checkOutDateTime: { type: Date, /*required: true*/ },
+        companyName: { type: String, /*required: true*/ },
+        vessel: { type: String, /*required: true*/ },
+        remark: { type: String, /*required: true*/ },
+        additional: { type: String, /*required: true*/ },
       },
     ],
   });
