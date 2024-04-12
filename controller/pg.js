@@ -126,20 +126,54 @@ module.exports.getAboutUs = (req, res, next) => {
     res.render('about')
 }
 
-module.exports.getRooms = (req, res, next) => {
-    rooms.find({})
-        .then((rooms) => {
-            // Sort the bookings array within each room based on check-in date time
-            rooms.forEach(room => {
-                room.bookings.sort((a, b) => a.checkInDateTime - b.checkInDateTime);
-            });
-            res.render('rooms', { rooms });
-        })
-        .catch(err => {
-            res.send("No room details found");
-        });
-}
+// module.exports.getRooms = (req, res, next) => {
+//     rooms.find({})
+//         .then((rooms) => {
+//             // Sort the bookings array within each room based on check-in date time
+//             rooms.forEach(room => {
+//                 room.bookings.sort((a, b) => a.checkInDateTime - b.checkInDateTime);
+//             });
+//             res.render('rooms', { rooms });
+//         })
+//         .catch(err => {
+//             res.send("No room details found");
+//         });
+// }
 
+module.exports.getRooms = async (req, res, next) => {
+    try {
+        const allRooms = await rooms.find({})
+        allRooms.forEach(room => {
+            room.bookings.sort((a, b) => a.checkInDateTime - b.checkInDateTime);
+        });
+        const currentDate = new Date();
+
+        const roomsWithAvailability = allRooms.map(room => {
+            let isRoomAvailable = true;
+            if (room.bookings.length > 0) {
+                const bookingsToCheck = room.bookings.slice(1); // Exclude the first booking
+                isRoomAvailable = bookingsToCheck.every(booking => {
+                    const bookingStart = new Date(booking.checkInDateTime);
+                    const bookingEnd = new Date(booking.checkOutDateTime);
+                    return currentDate < bookingStart || currentDate > bookingEnd;
+                });
+            }
+
+            console.log(`Room ${room.roomNumber} - Available: ${isRoomAvailable}`);
+
+            const obj= {
+                ...room.toObject(),
+                availabilityStatus: isRoomAvailable ? 1 : 0,
+            };
+            return obj
+        });
+
+        res.render('rooms', { rooms: roomsWithAvailability });
+    } catch (error) {
+        console.error('Error fetching rooms:', error);
+        res.status(500).send('Error fetching rooms');
+    }
+};
 
 module.exports.checkAvailability = async (req, res, next) => {
     const { checkInDateTime, checkOutDateTime } = req.body;
@@ -322,6 +356,7 @@ module.exports.deleteBooking = async (req, res, next) => {
             return res.status(404).json({ error: 'Room not found' });
         }
         const index = room.bookings.findIndex(booking =>
+            booking.checkInDateTime && booking.checkOutDateTime &&
             booking.checkInDateTime.toString() === new Date(checkInDateTime).toString() &&
             booking.checkOutDateTime.toString() === new Date(checkOutDateTime).toString()
         );

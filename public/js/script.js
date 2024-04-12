@@ -214,6 +214,7 @@ $('.deleteBookingBtn').on('click', function() {
       data: { roomNumber, checkInDateTime, checkOutDateTime },
       success: function(response) {
           row.remove(); // Remove the corresponding row from the table upon successful deletion
+          location.reload()
           console.log("Booking deleted successfully");
       },
       error: function(xhr, status, error) {
