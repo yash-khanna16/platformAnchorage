@@ -51,6 +51,30 @@ module.exports.addGuestDetails = async (req, res, next) => {
         res.send(err);
     }
 }
+
+// module.exports.addGuestDetails = async (req, res, next) => {
+//     const { pname, email, rank, phoneNumber, companyName } = req.body;
+
+//     // Trim and lowercase guestName
+//     let guestNameTrimmed = pname ? pname.trim().toLowerCase() : '';
+    
+//     // Check if the guest already exists
+//     let existingGuest = await guests.findOne({ phoneNumber: phoneNumber });
+    
+//     // If the guest doesn't exist, add them to the guest list
+//     if (!existingGuest) {
+//         const newGuest = new guests({ pname: guestNameTrimmed, email,phoneNumber, companyName });
+//         try {
+//             await newGuest.save();
+//             console.log("Guest added successfully");
+//         } catch (err) {
+//             console.error("Error adding guest:", err);
+//             // Handle error if needed
+//         }
+//     }
+// }
+
+
 module.exports.deleteGuestDetails = (req, res, next) => {
     const { id } = req.body;
     console.log(id);
@@ -289,8 +313,10 @@ module.exports.addBooking = async (req, res, next) => {
                 }
                 // options
             );
+            // const pname=guestName1
+            // const phoneNumber=guestPhone
+            // res.redirect('/platformAnchorage/addGuestDetails')
             res.redirect('/platformAnchorage/roomScheduling');
-            // location.reload();
         }
 
     }
