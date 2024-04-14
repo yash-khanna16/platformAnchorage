@@ -3,13 +3,20 @@
   margin: 0;
   padding: 0;
 }
-
 body {
-  background-color: rgb(64, 63, 63)
+  background-color: #FEFAF6;
+}
+.total{
+  display: flex;
+  flex-direction: column;
 }
 
 .navbar {
-  background-color: #003366;
+  background-color: #102C57;
+  position: sticky;
+  top:0;
+  width: 100vw;
+  z-index: 2;
 }
 
 .navItem {
@@ -50,7 +57,7 @@ table {
 }
 
 .small {
-  width:2%;
+  width: 2%;
   text-align: center;
   border: 1px solid black;
 }
@@ -66,10 +73,16 @@ table {
   /* Adjust the width as per your requirement */
   margin: 1.75rem auto;
 }
+.rightdiv{
+  display: flex;
+  flex-direction: column;
+  width: 59%;
+}
 
 .roomDiv {
+  width: 100%;
   display: grid;
-  grid-template-columns: 20vw 20vw 20vw 20vw 20vw;
+  grid-template-columns: 20% 20% 20% 20% 20%   ;
 }
 
 .roomModal {
@@ -78,49 +91,86 @@ table {
   border: 2px solid white;
 }
 
-h1,h3,
+h1,
+h3,
 h5 {
   text-align: center;
 }
 
 .RoomAvailable {
-  width: 49%;
-  margin: 1%;
+  width: 100%;
+  height: 49.5%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  background-color: rgb(59, 137, 215);
-  border-radius: 20px;
+  background-color: #EADBC8;
   padding: 1%;
+  color: #102C57;
+  margin-bottom: 1%;
+}
+
+.roomFormInner {
+  display: flex;
+  margin: 1%;
+  font-size: large;
 }
 
 .room_form {
   display: flex;
-  width: 50vw;
+  width: 100%;
+  flex-direction: column;
 }
 
 .left {
-  padding: 2%;
-  width: 50%;
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+  margin: auto;
   text-align: center;
 }
 
-.left>label {
+.left label {
   display: block;
-  padding: 1.5%;
-  margin: 1%;
+  margin: 6% 0%;
+  text-align: left;
 }
 
-.right {
-  padding: 2%;
-  height: 20vh;
+.btn1 {
+  background-color: #102C57;
+  width: 50%;
+  margin: auto;
+  padding: 3%;
+  border-radius: 20px;
+  color: #FEFAF6;
 }
-
-.right>input {
-  display: block;
-  margin: 5%;
+.btn1:hover{
+  background-color: #2b65bc;
+}
+.btn2 {
+  background-color: #102C57;
+  width: 10%;
+  margin: auto;
   padding: 1%;
+  border-radius: 20px;
+  color: #FEFAF6;
+}
+.btn2:hover{
+  background-color: #2b65bc;
+}
+.right {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  margin: auto;
+  text-align: center;
+}
+
+.right input {
+  display: block;
+  margin: 3% 0%;
+  text-align: center;
+  border-radius: 5px;
 }
 
 .Available {
@@ -136,48 +186,87 @@ h5 {
 
 .formsRoom {
   display: flex;
-}
-.Search{
-  display:flex;
-  margin: 1%;
-  width:49%;
-  background-color: aliceblue;
+  position: sticky;
+  top:10vh;
+  background-color: white;
   flex-direction: column;
-  border-radius: 20px;
+  width: 39%;
+  height: 88.5vh;
 }
-.Search h3{
-  margin:3%;
+
+.Search {
+  width: 100%;
+  height: 49.5%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: #EADBC8;
+  padding: 1%;
+  color: #102C57;
 }
-.guest_form{
+
+.Search h3 {
+  margin: 3%;
+}
+
+.guest_form {
   display: flex;
   width: 100%;
+  flex-direction: column;
 }
 
 .table2 {
-  width:100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   background-color: bisque;
 }
-.rows2{
+
+.rows2 {
   display: grid;
   grid-template-columns: 4.5% 11.109% 7% 11.109% 11.109% 11.109% 11.109% 11.109% 21.9%;
 }
-.rows2 th,td{
+
+.rows2 th,
+td {
   text-align: center;
   border: 1px solid black;
 }
-.guestAvailable{
-  width:100%;
+
+.guestAvailable {
+  width: 100%;
 }
+
 .roomStatus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: bold;
+  width: 80%;
+  height: 6vh;
+  margin: 1vw auto;
+  background-color: #EADBC8;
+  color: #102C57;
 }
 
 .roomStatusAvailable {
-  background-color: green;
+  background-color: rgb(30, 160, 30);
 }
 
 .roomStatusUnavailable {
-  background-color: red;
+  background-color: #dc2626;
 }
+
+.RoomPage {
+  margin: 1% auto;
+}
+.circle{
+  height: 3vh;
+  width: 3vh;
+  display: block;
+  border-radius: 50%;
+  position: relative;
+  left: 30%;
+}
+
