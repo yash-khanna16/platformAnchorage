@@ -12,161 +12,180 @@
 </head>
 
 <body>
-    {{>navbar}}
-    <h1>Rooms page</h1>
-    <div class="formsRoom">
-        <div class="RoomAvailable">
-            <h3>Check Available Rooms</h3>
-            <div class="room_form">
-                <div class="left">
-                    <label for="checkInDateTime">Enter Check In:</label>
-                    <label for="checkOutDateTime">Enter Check Out:</label>
+    <div class="total">
+        {{>navbar}}
+        <div class="content">
+            <div class="formsRoom ">
+                <div class="RoomAvailable">
+                    <h3><strong> Check Available Rooms</strong></h3>
+                    <div class="room_form">
+                        <div class="roomFormInner">
+                            <div class="left">
+                                <label for="checkInDateTime"><strong>Enter Check In:</strong> </label>
+                                <label for="checkOutDateTime"><strong>Enter Check Out:</strong> </label>
+                            </div>
+                            <div class="right">
+                                <input type="datetime-local" name="checkInDateTime" id="checkInDateTime"
+                                    placeholder="Enter checkin">
+                                <input type="datetime-local" name="checkOutDateTime" id="checkOutDateTime"
+                                    placeholder="Enter checkout">
+                            </div>
+                        </div>
+                        <button type="button" class="checkAvailableRoomsForRange btn1 btn-primary"
+                            data-bs-toggle="modal" data-bs-target="#checkAvailableRooms">
+                            Check Rooms
+                        </button>
+                    </div>
                 </div>
-                <div class="right">
-                    <input type="datetime-local" name="checkInDateTime" id="checkInDateTime"
-                        placeholder="Enter checkin">
-                    <input type="datetime-local" name="checkOutDateTime" id="checkOutDateTime"
-                        placeholder="Enter checkout">
-                    <button type="button" class="checkAvailableRoomsForRange btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#checkAvailableRooms">
-                        Check Rooms
+                <div class="Search">
+                    <h3><strong>Search Guest</strong></h3>
+                    <div class="guest_form">
+                        <div class="roomFormInner" style="margin:4% 0% ;">
+                            <div class="left">
+                                <label for="guest_name"><strong> Enter Name:</strong></label>
+                            </div>
+                            <div class="right">
+                                <input type="text" name="guest_name" id="guest_name" placeholder="Enter Guest Name">
+                            </div>
+                        </div>
+                        <button type="button" class="checkForGuest btn1 btn-primary" data-bs-toggle="modal"
+                            data-bs-target="#checkGuest" data-guest-name="{{guest_name}}">
+                            Check Guest
+                        </button>
+
+
+                    </div>
+                </div>
+            </div>
+
+            {{!-- <div class="roomCommon" id="1">
+                <form action="/platformAnchorage/roomScheduling/addBooking" method="post">
+                    <input type="number" style="background-color: #EADBC8; padding:1%; border-radius:30px;"
+                        name="roomNumber" id="roomNumber" placeholder="Enter Room Number">
+                    <button type="submit" class="addBookingBtn btn2">Submit Now</button>
+                </form>
+            </div> --}}
+
+            <div class="rightdiv">
+                <h1 style="color: #102C57;" class="RoomPage"><strong> Rooms Page </strong></h1>
+                <div class="roomDiv">
+                    {{#each rooms}}
+                    <button type="button" class="  roomStatus " data-bs-toggle="modal"
+                        data-bs-target="#room-{{roomNumber}}">
+                        {{roomNumber}}
+                        <div
+                            class="circle {{#if availabilityStatus}}roomStatusAvailable{{else}}roomStatusUnavailable{{/if}}">
+                        </div>
                     </button>
-                    <div class="modal fade" id="checkAvailableRooms" data-bs-backdrop="static" data-bs-keyboard="false"
+                    <div class="modal fade" id="room-{{roomNumber}}" data-bs-backdrop="static" data-bs-keyboard="false"
                         tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
                         <div class="modal-dialog custom-modal-dialog">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Available Rooms</h1>
+                                    <h1 class="modal-title fs-5" id="staticBackdropLabel">{{roomNumber}}</h1>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                                         aria-label="Close"></button>
                                 </div>
-                                <div class="Available">
+                                <div class="modal-body">
+                                    <div>
+                                        <form action="/platformAnchorage/roomScheduling/addBooking" method="post">
+                                            <input type="hidden" name="roomNumber" id="{{roomNumber}}"
+                                                value="{{roomNumber}}">
+                                            <input type="text" name="guestName" id="guestName" placeholder="Enter Name">
+                                            <input type="number" name="guestPhone" id="guestPhone"
+                                                placeholder="Enter phone">
+                                            <input type="datetime-local" name="checkInDateTime" id="checkInDateTime"
+                                                placeholder="Enter checkin">
+                                            <input type="datetime-local" name="checkOutDateTime" id="checkOutDateTime"
+                                                placeholder="Enter checkout">
+                                            <input type="text" name="companyName" id="companyname"
+                                                placeholder="Enter Company Name">
+                                            <input type="text" name="vessel" id="vessel" placeholder="Enter Vessel">
+                                            <input type="text" name="remark" id="remark" placeholder="Enter Remark">
+                                            <input type="text" name="additional" id="additional"
+                                                placeholder="Enter Additional Info">
+                                            <button type="submit" class="addBookingBtn">Submit Now</button>
+
+                                        </form>
+                                        <button id={{roomNumber}} class="deleteRoom">Delete Room</button>
+                                    </div>
+                                    <div class="table1">
+                                        <table>
+                                            <tr class="rows">
+                                                <th class="small">Room Number</th>
+                                                <th class="medium">Guest Name</th>
+                                                <th class="small">Guest Phone</th>
+                                                <th class="medium">Check In </th>
+                                                <th class="medium">Check Out </th>
+                                                <th class="medium">Company </th>
+                                                <th class="medium">Vessel </th>
+                                                <th class="medium">Remark </th>
+                                                <th class="long">Additional</th>
+                                                <th class="small">Delete </th>
+                                            </tr>
+                                            {{#each bookings}}
+                                            <tr class="rows">
+                                                <td class="small">{{../roomNumber}}</td>
+                                                <td class="medium">{{guestName}}</td>
+                                                <td class="small">{{guestPhone}}</td>
+                                                <td class="medium">{{checkInDateTime}}</td>
+                                                <td class="medium">{{checkOutDateTime}}</td>
+                                                <td class="medium">{{companyName}}</td>
+                                                <td class="medium">{{vessel}}</td>
+                                                <td class="medium">{{remark}}</td>
+                                                <td class="long">{{additional}}</td>
+                                                <td class="small">
+                                                    <button class="deleteBookingBtn"
+                                                        data-room-number="{{../roomNumber}}"
+                                                        data-check-in-datetime="{{checkInDateTime}}"
+                                                        data-check-out-datetime="{{checkOutDateTime}}">Delete
+                                                        Booking</button>
+                                                </td>
+                                            </tr>
+                                            {{/each}}
+                                        </table>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    {{/each}}
                 </div>
             </div>
         </div>
-        <div class="Search">
-            <h3 >Search Guest</h3> 
-            <div class="guestSearch">
-                <div class="guest_form">
-                <div class="left">
-                    <label for="guest_name">Enter Name</label>
+    </div>
+    <div class="modal fade " id="checkAvailableRooms" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog custom-modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Available Rooms</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="right">
-                    <input type="text" name="guest_name" id="guest_name"
-                        placeholder="Enter Guest Name">
-                    <button type="button" class="checkForGuest btn btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#checkGuest" data-guest-name="{{guest_name}}">
-                        Check Guest
-                    </button>
-                    <div class="modal fade" id="checkGuest" data-bs-backdrop="static" data-bs-keyboard="false"
-                        tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-                        <div class="modal-dialog custom-modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Information for the Guest</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="guestAvailable">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="Available">
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="modal fade" id="checkGuest" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog custom-modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Information for the Guest
+                    </h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="guestAvailable">
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="roomCommon" id="1">
-        <form action="/platformAnchorage/roomScheduling/addBooking" method="post">
-            <input type="number" name="roomNumber" id="roomNumber" placeholder="Enter room number">
-            <button type="submit" class="addBookingBtn">Submit Now</button>
-        </form>
-    </div>
 
 
-    <div class="roomDiv">
-        {{#each rooms}}
-        <button type="button"
-            class="btn btn-primary roomModal roomStatus {{#if availabilityStatus}}roomStatusAvailable{{else}}roomStatusUnavailable{{/if}}"
-            data-bs-toggle="modal" data-bs-target="#room-{{roomNumber}}">
-            {{roomNumber}}
-        </button>
-        <div class="modal fade" id="room-{{roomNumber}}" data-bs-backdrop="static" data-bs-keyboard="false"
-            tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog custom-modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="staticBackdropLabel">{{roomNumber}}</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <form action="/platformAnchorage/roomScheduling/addBooking" method="post">
-                            <input type="hidden" name="roomNumber" id="{{roomNumber}}" value="{{roomNumber}}">
-                            <input type="text" name="guestName" id="guestName" placeholder="Enter Name">
-                            <input type="number" name="guestPhone" id="guestPhone" placeholder="Enter phone">
-                            <input type="datetime-local" name="checkInDateTime" id="checkInDateTime"
-                                placeholder="Enter checkin">
-                            <input type="datetime-local" name="checkOutDateTime" id="checkOutDateTime"
-                                placeholder="Enter checkout">
-                            <input type="text" name="companyName" id="companyname"
-                                placeholder="Enter Company Name">
-                           <input type="text" name="vessel" id="vessel"
-                                placeholder="Enter Vessel">
-                            <input type="text" name="remark" id="remark"
-                                placeholder="Enter Remark">
-                            <input type="text" name="additional" id="additional"
-                                placeholder="Enter Additional Info">
-                            <button type="submit" class="addBookingBtn">Submit Now</button>
 
-                        </form>
-                        <button id={{roomNumber}} class="deleteRoom">Delete Room</button>
-                        <div class="table1">
-                            <table>
-                                <tr class="rows">
-                                    <th class="small">Room Number</th>
-                                    <th class="medium">Guest Name</th>
-                                    <th class="small">Guest Phone</th>
-                                    <th class="medium">Check In </th>
-                                    <th class="medium">Check Out </th>
-                                    <th class="medium">Company </th>
-                                    <th class="medium">Vessel </th>
-                                    <th class="medium">Remark </th>
-                                    <th class="long">Additional</th>
-                                    <th class="small">Delete </th>
-                                </tr>
-                                {{#each bookings}}
-                                <tr class="rows">
-                                    <td class="small">{{../roomNumber}}</td>
-                                    <td class="medium">{{guestName}}</td>
-                                    <td class="small">{{guestPhone}}</td>
-                                    <td class="medium">{{checkInDateTime}}</td>
-                                    <td class="medium">{{checkOutDateTime}}</td>
-                                    <td class="medium">{{companyName}}</td>
-                                    <td class="medium">{{vessel}}</td>
-                                    <td class="medium">{{remark}}</td>
-                                    <td class="long">{{additional}}</td>
-                                    <td class="small">
-                                        <button class="deleteBookingBtn" data-room-number="{{../roomNumber}}"
-                                            data-check-in-datetime="{{checkInDateTime}}"
-                                            data-check-out-datetime="{{checkOutDateTime}}">Delete Booking</button>
-                                    </td>
-                                </tr>
-                                {{/each}}
 
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{/each}}
-    </div>
 
 
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
@@ -177,6 +196,14 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
         crossorigin="anonymous"></script>
+
+
+
+
+
+
+
+
 
 </body>
 
