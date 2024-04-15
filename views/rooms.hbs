@@ -61,6 +61,14 @@
                 </div>
             </div>
 
+            {{!-- <div class="roomCommon" id="1">
+                <form action="/platformAnchorage/roomScheduling/addBooking" method="post">
+                    <input type="number" style="background-color: #EADBC8; padding:1%; border-radius:30px;"
+                        name="roomNumber" id="roomNumber" placeholder="Enter Room Number">
+                    <button type="submit" class="addBookingBtn btn2">Submit Now</button>
+                </form>
+            </div> --}}
+
             <div class="rightdiv">
                 <h1 style="color: #5484cb;" class="RoomPage"><strong> Rooms Page </strong></h1>
                 <div class="roomDiv">
@@ -83,11 +91,11 @@
                                 </div>
                                 <div class="modal-body">
                                     <div>
-                                        <form>
-                                            <input type="hidden" name="roomNumberBooking" id="roomNumberBooking"
+                                        <form action="/platformAnchorage/roomScheduling/addBooking" method="post">
+                                            <input type="hidden" name="roomNumber" id="{{roomNumber}}"
                                                 value="{{roomNumber}}">
-                                            <input type="text" name="guestNameBooking" id="guestNameBooking" placeholder="Enter Name">
-                                            <input type="number" name="guestPhoneBooking" id="guestPhoneBooking"
+                                            <input type="text" name="guestName" id="guestName" placeholder="Enter Name">
+                                            <input type="number" name="guestPhone" id="guestPhone"
                                                 placeholder="Enter phone">
                                             <input type="datetime-local" name="checkInDateTime"
                                                 id="checkInDateTimeBooking" placeholder="Enter checkin">
@@ -99,12 +107,8 @@
                                             <input type="text" name="remark" id="remark" placeholder="Enter Remark">
                                             <input type="text" name="additional" id="additional"
                                                 placeholder="Enter Additional Info">
-                                            <button class="addBookingBtn">Submit Now</button>
-                                             {{!-- <button class="addBookingBtn"
-                                                        data-room-number="{{roomNumber}}"
-                                                        data-check-in-datetime=<script></script>
-                                                        data-check-out-datetime="{{checkOutDateTime}}">add
-                                                        Booking</button> --}}
+                                            <button type="submit" class="addBookingBtn">Submit Now</button>
+
                                         </form>
 
                                         <button id={{roomNumber}} class="deleteRoom">Delete Room</button>

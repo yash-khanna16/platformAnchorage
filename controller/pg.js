@@ -51,30 +51,6 @@ module.exports.addGuestDetails = async (req, res, next) => {
         res.send(err);
     }
 }
-
-// module.exports.addGuestDetails = async (req, res, next) => {
-//     const { pname, email, rank, phoneNumber, companyName } = req.body;
-
-//     // Trim and lowercase guestName
-//     let guestNameTrimmed = pname ? pname.trim().toLowerCase() : '';
-    
-//     // Check if the guest already exists
-//     let existingGuest = await guests.findOne({ phoneNumber: phoneNumber });
-    
-//     // If the guest doesn't exist, add them to the guest list
-//     if (!existingGuest) {
-//         const newGuest = new guests({ pname: guestNameTrimmed, email,phoneNumber, companyName });
-//         try {
-//             await newGuest.save();
-//             console.log("Guest added successfully");
-//         } catch (err) {
-//             console.error("Error adding guest:", err);
-//             // Handle error if needed
-//         }
-//     }
-// }
-
-
 module.exports.deleteGuestDetails = (req, res, next) => {
     const { id } = req.body;
     console.log(id);
@@ -259,8 +235,6 @@ async function isRoomAvailable(roomNumber, checkInDateTime, checkOutDateTime) {
 
 module.exports.addBooking = async (req, res, next) => {
     const { roomNumber, guestName, guestPhone, checkInDateTime, checkOutDateTime,companyName,vessel,remark,additional } = req.body
-    console.log(req.body)
-    if(checkInDateTime>checkOutDateTime){res.status(400).send('Error check out value smaller than check in ');}
     let guestName1=guestName;
     if(guestName!==undefined){
         guestName1=guestName.trim();
@@ -285,14 +259,14 @@ module.exports.addBooking = async (req, res, next) => {
     if (!atleastOneEntry) {
         await newRoomDetail.save();
         console.log("room details added successfully");
-        res.status(200).json({ message: 'Booking added successfully' });
+        res.redirect('/platformAnchorage/roomScheduling');
     }
     else {
         const roomAvailable = await isRoomAvailable(roomNumber, checkInDateTime, checkOutDateTime)
         console.log(roomAvailable)
         if (!roomAvailable) {
             console.log('Room is not available for the specified date and time range');
-            res.status(200).json({ message: 'Booking added successfully' });
+            res.redirect('/platformAnchorage/roomScheduling');
             // location.reload();
 
         }
@@ -315,10 +289,8 @@ module.exports.addBooking = async (req, res, next) => {
                 }
                 // options
             );
-            // const pname=guestName1
-            // const phoneNumber=guestPhone
-            // res.redirect('/platformAnchorage/addGuestDetails')
-            res.status(200).json({ message: 'Booking added successfully' });
+            res.redirect('/platformAnchorage/roomScheduling');
+            // location.reload();
         }
 
     }
