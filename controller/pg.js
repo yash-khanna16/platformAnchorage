@@ -235,6 +235,9 @@ async function isRoomAvailable(roomNumber, checkInDateTime, checkOutDateTime) {
 
 module.exports.addBooking = async (req, res, next) => {
     const { roomNumber, guestName, guestPhone, checkInDateTime, checkOutDateTime,companyName,vessel,remark,additional } = req.body
+    if (checkInDateTime > checkOutDateTime) {
+        return res.status(400).send("You just entered CheckIn Date  greater than CheckOut Date go back and enter the correct CheckIn and CheckOut Dates ");
+    }
     let guestName1=guestName;
     if(guestName!==undefined){
         guestName1=guestName.trim();
