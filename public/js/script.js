@@ -246,3 +246,27 @@ $('.checkForGuest').on('click', function() {
 });
 
 
+$('.addBookingBtn').on('click', function() {
+  const roomNumber = $('#roomNumberBooking').val();
+  const guestName = $('#guestNameBooking').val();
+  const checkInDateTime = $('#checkInDateTimeBooking').val();
+  const checkOutDateTime = $('#checkOutDateTimeBooking').val();
+  console.log(roomNumber)
+  console.log(123)
+    $.ajax({
+      url: '/platformAnchorage/roomScheduling/addBooking', // Update the URL as per your backend route
+      method: 'POST',
+      data: { roomNumber, guestName,checkInDateTime, checkOutDateTime },
+      success: function(response) {
+          console.log(response)
+          location.reload()
+          console.log("Booking added successfully");
+      },
+      error: function(xhr, status, error) {
+          console.error(error);
+          alert('Failed to add booking');
+      }
+  });
+});
+
+

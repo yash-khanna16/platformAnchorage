@@ -259,6 +259,8 @@ async function isRoomAvailable(roomNumber, checkInDateTime, checkOutDateTime) {
 
 module.exports.addBooking = async (req, res, next) => {
     const { roomNumber, guestName, guestPhone, checkInDateTime, checkOutDateTime,companyName,vessel,remark,additional } = req.body
+    console.log(req.body)
+    if(checkInDateTime>checkOutDateTime){res.status(400).send('Error check out value smaller than check in ');}
     let guestName1=guestName;
     if(guestName!==undefined){
         guestName1=guestName.trim();
@@ -283,14 +285,14 @@ module.exports.addBooking = async (req, res, next) => {
     if (!atleastOneEntry) {
         await newRoomDetail.save();
         console.log("room details added successfully");
-        res.redirect('/platformAnchorage/roomScheduling');
+        res.status(200).json({ message: 'Booking added successfully' });
     }
     else {
         const roomAvailable = await isRoomAvailable(roomNumber, checkInDateTime, checkOutDateTime)
         console.log(roomAvailable)
         if (!roomAvailable) {
             console.log('Room is not available for the specified date and time range');
-            res.redirect('/platformAnchorage/roomScheduling');
+            res.status(200).json({ message: 'Booking added successfully' });
             // location.reload();
 
         }
@@ -316,7 +318,7 @@ module.exports.addBooking = async (req, res, next) => {
             // const pname=guestName1
             // const phoneNumber=guestPhone
             // res.redirect('/platformAnchorage/addGuestDetails')
-            res.redirect('/platformAnchorage/roomScheduling');
+            res.status(200).json({ message: 'Booking added successfully' });
         }
 
     }
