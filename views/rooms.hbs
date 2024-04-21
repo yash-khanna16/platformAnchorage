@@ -138,12 +138,20 @@
                                                 <td class="medium">{{remark}}</td>
                                                 <td class="long">{{additional}}</td>
                                                 <td class="small">
+                                                    <button class="editBookingBtn"
+                                                        data-room-number="{{../roomNumber}}"
+                                                        data-check-in-datetime="{{checkInDateTime}}"
+                                                        data-check-out-datetime="{{checkOutDateTime}}">edit
+                                                        Booking</button>
+                                                </td>
+                                                <td class="small">
                                                     <button class="deleteBookingBtn"
                                                         data-room-number="{{../roomNumber}}"
                                                         data-check-in-datetime="{{checkInDateTime}}"
                                                         data-check-out-datetime="{{checkOutDateTime}}">Delete
                                                         Booking</button>
                                                 </td>
+                                                
                                             </tr>
                                             {{/each}}
                                         </table>
@@ -158,7 +166,7 @@
         </div>
         <div class="modal fade " id="checkAvailableRooms" data-bs-backdrop="static" data-bs-keyboard="false"
             tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-            <div class="modal-dialog custom-modal-dialog1">
+            <div class="modal-dialog custom-modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h1 class="modal-title fs-5" id="staticBackdropLabel">Available Rooms</h1>
