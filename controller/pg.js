@@ -146,8 +146,8 @@ module.exports.getRooms = async (req, res, next) => {
         allRooms.forEach(room => {
             room.bookings.sort((a, b) => a.checkInDateTime - b.checkInDateTime);
         });
-        const currentDate = new Date();
-
+        const currentDateIST = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
+        const currentDate = new Date(currentDateIST);
         const roomsWithAvailability = allRooms.map(room => {
             let isRoomAvailable = true;
             if (room.bookings.length > 0) {
