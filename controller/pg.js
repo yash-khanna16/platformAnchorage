@@ -408,3 +408,10 @@ module.exports.searchguest = async (req, res, next) => {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }
+module.exports.editBooking = async (req, res, next) => {
+    const { inputValues,checkOutDateTime } = req.body;
+    console.log('hello');
+    console.log(inputValues);
+    console.log('hello');
+    console.log(checkOutDateTime);
+}

@@ -283,3 +283,23 @@ td {
   flex-direction: row;
   justify-content: space-between;
 }
+.long1 {
+  width: 95%;
+  text-align: center;
+  border: none;
+  background-color: bisque;
+}
+
+.small1 {
+  width: 95%;
+  text-align: center;
+  border: none;
+  background-color: bisque;
+}
+
+.medium1 {
+  width: 95%;
+  text-align: center;
+  border: none;
+  background-color: bisque;
+}
