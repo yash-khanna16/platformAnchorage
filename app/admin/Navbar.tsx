@@ -6,16 +6,10 @@ import { usePathname, useRouter } from "next/navigation";
 
 function Navbar() {
   const [search, setSearch] = useState("");
-  const [activeLink, setActiveLink] = useState("");
   const router = useRouter();
   const params = usePathname();
   const path = (params as string).split("/")[2];
-
-
-  useEffect(() => {
-    setActiveLink(window.location.pathname);
-  }, []);
-
+  
   const options = [
     { icon: searchIcon, route: "search-guests",value: "Search Guests" },
     { icon: addPersonIcon, route: "add-guest", value: "Add Guest" },
