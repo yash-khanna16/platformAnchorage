@@ -9,7 +9,7 @@ const config: Config = {
   theme: {
     extend: {
       gridTemplateColumns: {
-        'custom': '2fr 2fr 2fr 2fr 2fr 2fr 2fr',
+        'custom': '3fr 3fr 2fr 3fr 3fr 3fr 3fr',
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

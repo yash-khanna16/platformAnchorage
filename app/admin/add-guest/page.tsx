@@ -8,23 +8,23 @@ function AddGuest() {
         <div className='w-full  grid grid-cols-2 gap-7 mx-auto mt-[40px] '>
           <div className='flex flex-col'>
             <label htmlFor='guestName'>Name</label>
-            <input type="text" name='guestName' placeholder='Enter Name' id="guestName" className='border-2 mt-2 rounded-lg p-2' />
+            <input type="text" name='guestName' placeholder='Enter Name' id="guestName" className='border-2 focus:outline-[#1A80E5]  mt-2 rounded-lg p-2' />
           </div>
           <div className='flex flex-col'>
             <label htmlFor='guestPhone'>Phone No.</label>
-            <input type="tel" name='guestPhone' placeholder='Enter Phone No.' id="guestPhone" className='border-2 mt-2 rounded-lg p-2' />
+            <input type="tel" name='guestPhone' placeholder='Enter Phone No.' id="guestPhone" className='border-2 focus:outline-[#1A80E5]  mt-2 rounded-lg p-2' />
           </div>
           <div className='flex  flex-col'>
             <label htmlFor='guestEmail'>Email Address</label>
-            <input type="email" name='guestEmail' placeholder='Enter Email Address' id="guestEmail" className='border-2 mt-2 rounded-lg p-2' />
+            <input type="email" name='guestEmail' placeholder='Enter Email Address' id="guestEmail" className='border-2 focus:outline-[#1A80E5]  mt-2 rounded-lg p-2' />
           </div>
           <div className='flex  flex-col'>
             <label htmlFor='guestCompany'>Company</label>
-            <input type="text" name='guestCompany' placeholder='Enter Company' id="guestCompany" className='border-2 mt-2 rounded-lg p-2' />
+            <input type="text" name='guestCompany' placeholder='Enter Company' id="guestCompany" className='border-2 focus:outline-[#1A80E5]  mt-2 rounded-lg p-2' />
           </div>
           <div className='flex  flex-col'>
             <label htmlFor='guestRank'>Rank</label>
-            <input type="text" name='guestRank' placeholder='Enter Rank' id="guestRank" className='border-2 mt-2 rounded-lg p-2' />
+            <input type="text" name='guestRank' placeholder='Enter Rank' id="guestRank" className='border-2 focus:outline-[#1A80E5]  mt-2 rounded-lg p-2' />
           </div>
         </div>
         <button type='submit' className='mt-8 font-semibold px-3 py-2 w-[300px]  bg-[#1A80E5] rounded-md text-white p-2'>Add Guest</button>
