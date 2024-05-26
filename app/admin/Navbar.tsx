@@ -18,7 +18,7 @@ function Navbar() {
     { icon: mailIcon, route: "send-emails", value: "Send Emails" },
   ];
   return (
-    <div className="sticky flex flex-col space-y-8 top-0 left-0 h-screen w-80 border px-10 py-7">
+    <div className="fixed flex flex-col space-y-8 top-0 left-0 h-screen w-80 border px-10 py-7">
       <div className="font-medium text-xl ">Anchorage Admin</div>
       <div className="text-sm space-y-3">
         {options.map((option, index) => {

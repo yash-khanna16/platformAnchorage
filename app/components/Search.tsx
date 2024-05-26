@@ -14,11 +14,11 @@ const SearchInput = ({value='' ,onChange=()=>{}, placeholder="Input", icon}:Sear
   const [isFocused, setIsFocused] = useState(false);
 
   return (
-    <div className="text-sm">
-      <div className="flex space-x-2 rounded-xl cursor-pointer items-center px-3 py-2 bg-[#E8EDF5]">
+    <div className="">
+      <div className="flex space-x-2 rounded-xl cursor-pointer items-center px-4 py-3 bg-[#E8EDF5]">
         <div
-          className={`w-6 transition-all duration-300 ${
-            isFocused ? "transform opacity-0 w-0 -translate-x-2" : "transform opacity-100 translate-x-0"
+          className={` transition-all duration-300 ${
+            isFocused ? "transform opacity-0 w-0 -translate-x-2" : "w-6 transform opacity-100 translate-x-0"
           }`}
         >
          {icon}
