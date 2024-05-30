@@ -1,294 +1,209 @@
 import React, { useState } from "react";
 import SearchInput from "@/app/components/Search";
 import { searchIconSecondary } from "@/assets/icons";
-import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
-import { ButtonGroup } from "@mui/joy";
-import Button from "@mui/joy/Button";
+import {
+  DataGrid,
+  GridColDef,
+  GridColumnHeaderParams,
+  GridPaginationModel,
+} from "@mui/x-data-grid";
+import {
+  Box,
+  Typography,
+  IconButton,
+  DialogContent,
+  DialogActions,
+} from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit"; // Import the EditIcon
+import {
+  Button,
+  DialogTitle,
+  Divider,
+  Modal,
+  ModalClose,
+  ModalDialog,
+} from "@mui/joy";
+import EditBooking from "./EditBooking";
+import { DeleteForever } from "@mui/icons-material";
+import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 
-interface Reservation {
-  name: string;
-  email: string;
-  phone: string;
-  company: string;
-  vessel: string;
-  remarks: string;
-  additionalInfo: string;
+interface RowData {
+  [key: string]: any;
 }
 
-const Reservations: React.FC = () => {
-  const [search, setSearch] = useState<string>("");
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const itemsPerPage: number = 5;
+interface ReservationsProps {
+  rowsData: RowData[];
+  columns: string[];
+  headers: string[];
+}
 
-  // Dummy data
-  const dummyData: Reservation[] = [
+const Reservations: React.FC<ReservationsProps> = ({
+  rowsData,
+  columns,
+  headers,
+}) => {
+  const [search, setSearch] = useState<string>("");
+  const [filteredRows, setFilteredRows] = useState<RowData[]>(rowsData);
+  const [edit, setEdit] = useState(false);
+  const [del, setDel] = useState(false);
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setSearch(value);
+    const filtered = rowsData.filter((row) =>
+      Object.values(row).some(
+        (val) =>
+          typeof val === "string" &&
+          val.toLowerCase().includes(value.toLowerCase())
+      )
+    );
+    setFilteredRows(filtered);
+  };
+
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    pageSize: 10,
+    page: 0,
+  });
+
+  const BoldHeaderCell = (props: any) => (
+    <div style={{ fontWeight: "bold" }}>{props.colDef.headerName}</div>
+  );
+
+  const gridColumns: GridColDef[] = [
+    ...columns.map((columnName, index) => ({
+      field: columnName,
+      headerName: headers[index],
+      flex: index === 0 ? 0 : 1,
+      width: index === 0 ? 10 : 100,
+      renderHeader: (params: GridColumnHeaderParams) => (
+        <span className="text-[#0D141C] font-semibold pl-3">
+          {headers[index]}
+        </span>
+      ),
+    })),
     {
-      name: "John Doe",
-      email: "john.doe@example.com",
-      phone: "+1234567890",
-      company: "ABC Corporation",
-      vessel: "Ocean Explorer",
-      remarks: "Require vegetarian meals",
-      additionalInfo: "Special request: Need assistance with luggage",
-    },
-    {
-      name: "Jane Smith",
-      email: "jane.smith@example.com",
-      phone: "+1987654321",
-      company: "XYZ Enterprises",
-      vessel: "Island Hopper",
-      remarks: "Allergic to seafood",
-      additionalInfo: "Prefers a window seat",
-    },
-    {
-      name: "Michael Johnson",
-      email: "michael.johnson@example.com",
-      phone: "+1122334455",
-      company: "PQR Limited",
-      vessel: "River Cruiser",
-      remarks: "Celebrating anniversary",
-      additionalInfo: "Requires wheelchair assistance",
-    },
-    {
-      name: "Emily Brown",
-      email: "emily.brown@example.com",
-      phone: "+144332211",
-      company: "LMN Corp",
-      vessel: "Sailor's Dream",
-      remarks: "First-time sailor",
-      additionalInfo: "Interested in on-board activities",
-    },
-    {
-      name: "David Wilson",
-      email: "david.wilson@example.com",
-      phone: "+1999888777",
-      company: "RST Industries",
-      vessel: "Sunset Cruise",
-      remarks: "Group booking for team retreat",
-      additionalInfo: "Requests separate cabins for privacy",
-    },
-    {
-      name: "Sarah Lee",
-      email: "sarah.lee@example.com",
-      phone: "+1555666777",
-      company: "LMNOP Corp",
-      vessel: "Adventure Seeker",
-      remarks: "Scuba diving enthusiast",
-      additionalInfo: "Needs rental equipment",
-    },
-    {
-      name: "Daniel Kim",
-      email: "daniel.kim@example.com",
-      phone: "+1888777666",
-      company: "KLM Enterprises",
-      vessel: "Dreamliner",
-      remarks: "Traveling with pet dog",
-      additionalInfo: "Requires pet-friendly accommodation",
-    },
-    {
-      name: "Sophia Martinez",
-      email: "sophia.martinez@example.com",
-      phone: "+1666999888",
-      company: "NOPQ Corp",
-      vessel: "Moonlight Serenade",
-      remarks: "Honeymoon cruise",
-      additionalInfo: "Requests romantic dinner setup",
-    },
-    {
-      name: "Christopher White",
-      email: "christopher.white@example.com",
-      phone: "+1777333444",
-      company: "QRS Corp",
-      vessel: "Paradise Explorer",
-      remarks: "Adventure seeker",
-      additionalInfo: "Interested in hiking excursions",
-    },
-    {
-      name: "Olivia Garcia",
-      email: "olivia.garcia@example.com",
-      phone: "+1555444333",
-      company: "STU Corporation",
-      vessel: "Tropical Oasis",
-      remarks: "Family vacation",
-      additionalInfo: "Requires children's activities",
-    },
-    {
-      name: "William Brown",
-      email: "william.brown@example.com",
-      phone: "+1222111333",
-      company: "UVW Inc",
-      vessel: "Sunrise Cruise",
-      remarks: "Retirement celebration",
-      additionalInfo: "Requests special meal for dietary restrictions",
-    },
-    {
-      name: "Ava Rodriguez",
-      email: "ava.rodriguez@example.com",
-      phone: "+1444888999",
-      company: "WXYZ Corporation",
-      vessel: "Coral Explorer",
-      remarks: "Marine biologist",
-      additionalInfo: "Interested in marine life excursions",
-    },
-    {
-      name: "James Taylor",
-      email: "james.taylor@example.com",
-      phone: "+1999444555",
-      company: "EFG Ltd",
-      vessel: "Northern Lights",
-      remarks: "Aurora borealis photography enthusiast",
-      additionalInfo: "Needs camera equipment rental",
-    },
-    {
-      name: "Mia Anderson",
-      email: "mia.anderson@example.com",
-      phone: "+1333222111",
-      company: "HIJ Enterprises",
-      vessel: "Crystal Waters",
-      remarks: "Destination wedding",
-      additionalInfo: "Requests wedding planner assistance",
-    },
-    {
-      name: "Alexander Martinez",
-      email: "alexander.martinez@example.com",
-      phone: "+1888333222",
-      company: "IJK Corporation",
-      vessel: "Mystic Journey",
-      remarks: "Spiritual retreat",
-      additionalInfo: "Interested in meditation sessions",
-    },
-    {
-      name: "Charlotte Walker",
-      email: "charlotte.walker@example.com",
-      phone: "+1222999888",
-      company: "LMN Limited",
-      vessel: "Enchanted Voyage",
-      remarks: "Solo traveler",
-      additionalInfo: "Requests single occupancy cabin",
-    },
-    {
-      name: "Ethan Thompson",
-      email: "ethan.thompson@example.com",
-      phone: "+1666111222",
-      company: "OPQ Corporation",
-      vessel: "Adventure Seeker",
-      remarks: "Extreme sports enthusiast",
-      additionalInfo: "Interested in skydiving and rock climbing",
-    },
-    {
-      name: "Amelia Hall",
-      email: "amelia.hall@example.com",
-      phone: "+1333777666",
-      company: "RST Enterprises",
-      vessel: "Blue Horizon",
-      remarks: "Sailing competition participant",
-      additionalInfo: "Needs storage space for sailing gear",
-    },
-    {
-      name: "Benjamin Green",
-      email: "benjamin.green@example.com",
-      phone: "+1999222111",
-      company: "UVW Corporation",
-      vessel: "Seaside Retreat",
-      remarks: "Nature lover",
-      additionalInfo: "Interested in birdwatching tours",
-    },
-    {
-      name: "Ella Baker",
-      email: "ella.baker@example.com",
-      phone: "+1888444222",
-      company: "XYZ Limited",
-      vessel: "Island Paradise",
-      remarks: "Beach vacation",
-      additionalInfo: "Requests beachfront accommodation",
+      field: "edit",
+      headerName: "Actions",
+      sortable: false,
+      align: "center",
+      headerAlign: "center",
+      width: 120, // Set width to accommodate both icons
+      renderHeader: (params: GridColumnHeaderParams) => (
+        <span
+          className="text-[#0D141C] font-semibold pl-3 text-center"
+          style={{ display: "block", width: "100%" }}
+        >
+          Actions
+        </span>
+      ),
+      renderCell: (params) => (
+        <div>
+          <IconButton
+            onClick={() => handleEdit(params.row.id)} // Implement your edit logic here
+            style={{ marginRight: 10 }}
+          >
+            <EditIcon className="scale-75" />
+          </IconButton>
+          <IconButton onClick={() => handleDelete(params.row.id)}>
+            {/* Add your delete icon component here */}
+            <DeleteForever className="scale-75 text-red-700" />
+          </IconButton>
+        </div>
+      ),
     },
   ];
 
-  // Filter data based on search query
-  const filteredData: Reservation[] = dummyData.filter((item) =>
-    Object.values(item).some((value) =>
-      value.toLowerCase().includes(search.toLowerCase())
-    )
-  );
-
-  const totalPages: number = Math.ceil(filteredData.length / itemsPerPage);
-  const indexOfLastItem: number = currentPage * itemsPerPage;
-  const indexOfFirstItem: number = indexOfLastItem - itemsPerPage;
-  const currentItems: Reservation[] = filteredData.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
+  const handleEdit = (id: any) => {
+    // Handle edit action here
+    setEdit(true);
+    console.log("Edit clicked for ID:", id);
+  };
+  const handleDelete = (id: any) => {
+    // Handle edit action here
+    setDel(true);
+    console.log("Edit clicked for ID:", id);
+  };
 
   return (
-    <div className="">
-      <div className="space-y-6">
-        <div className="text-3xl font-semibold mb-6  "> Search Reservations</div>
-        <div>
-          <SearchInput
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            icon={searchIconSecondary}
-            placeholder="Search by guest name"
-          />
-          <div className="border my-5 space-y-7 rounded-xl py-4 px-4">
-            <div className="grid font-medium  text-wrap gap-4 border-b grid-cols-custom   ">
-              <div className="p-2">Guest Name</div>
-              <div className="p-2">Email</div>
-              <div className="p-2">Phone No</div>
-              <div className="p-2">Company Name</div>
-              <div className="p-2">Vessel</div>
-              <div className="p-2">Remarks</div>
-              <div className="p-2">Additional Remarks</div>
-            </div>
-            {currentItems.map((item, index) => (
-              <div
-                key={index}
-                className="grid grid-cols-custom gap-4 break-all text-wrap text-slate-600 text-sm "
-              >
-                <div className="p-2">{item.name}</div>
-                <div className="p-2">{item.email}</div>
-                <div className="p-2">{item.phone}</div>
-                <div className="p-2">{item.company}</div>
-                <div className="p-2">{item.vessel}</div>
-                <div className="p-2">{item.remarks}</div>
-                <div className="p-2">{item.additionalInfo}</div>
-              </div>
-            ))}
-            <div className="text-sm  text-slate-600 font-semibold flex justify-between mt-4">
-              <div>
-                Page {currentPage} of {totalPages}
-              </div>
-              <div className="flex space-x-4">
-                <ButtonGroup>
-                  <Button
-                    size="sm"
-                    startDecorator={<KeyboardArrowLeft />}
-                    onClick={() =>
-                      setCurrentPage((prevPage) => Math.max(prevPage - 1, 1))
-                    }
-                    disabled={currentPage === 1}
-                  >
-                    Previous
-                  </Button>
-                  <Button
-                    size="sm"
-                    endDecorator={<KeyboardArrowRight />}
-                    onClick={() =>
-                      setCurrentPage((prevPage) =>
-                        Math.min(prevPage + 1, totalPages)
-                      )
-                    }
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </Button>
-                </ButtonGroup>
-              </div>
-            </div>
-          </div>
+    <>
+      <div>
+        <div className="mb-6">
+          <Typography variant="h3" component="div" fontWeight="bold">
+            Search Reservations
+          </Typography>
         </div>
+        <SearchInput
+          value={search}
+          onChange={handleSearch}
+          icon={searchIconSecondary}
+          placeholder="Search by guest name"
+        />
+        <br />
+        <DataGrid
+          rows={filteredRows}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          pageSizeOptions={[5, 10, 15]} // Use pageSizeOptions instead
+          autoHeight
+          autosizeOptions={{
+            columns: columns,
+            includeOutliers: true,
+            includeHeaders: true,
+          }}
+          columns={gridColumns}
+          pagination
+          sx={{
+            borderRadius: 3, // Adjust the value to achieve the desired rounding
+            overflow: "hidden",
+            "& .MuiDataGrid-root": {
+              borderRadius: "inherit",
+            },
+          }}
+          getRowClassName={() => "pl-3"} // Apply Tailwind padding utility class to rows
+        />
       </div>
-    </div>
+      <Modal
+        open={edit}
+        onClose={() => {
+          setEdit(false);
+        }}
+      >
+        <ModalDialog size="lg">
+          <ModalClose />
+          <DialogTitle>
+            <span className="text-2xl">Edit Booking</span>
+          </DialogTitle>
+          <DialogContent className="">
+            <EditBooking />
+          </DialogContent>
+        </ModalDialog>
+      </Modal>
+      <Modal
+        open={del}
+        onClose={() => {
+          setDel(false);
+        }}
+      >
+        <ModalDialog variant="outlined" size="md">
+          <DialogTitle>
+            <WarningRoundedIcon />
+            Confirmation
+          </DialogTitle>
+          <Divider />
+          {/* <DialogContent></DialogContent> */}
+
+          <div className="">Are you sure you want to delete this booking?</div>
+        <DialogActions>
+            <Button variant="solid" color="danger" onClick={() => setDel(false)}>
+              Confirm
+            </Button>
+            <Button variant="plain" color="neutral" onClick={() => setDel(false)}>
+              Cancel
+            </Button>
+          </DialogActions>
+        </ModalDialog>
+      </Modal>
+    </>
   );
 };
 

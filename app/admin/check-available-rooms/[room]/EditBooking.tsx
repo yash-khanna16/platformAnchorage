@@ -2,11 +2,11 @@ import { Button, FormControl, FormLabel } from "@mui/joy";
 import Input from "@mui/joy/Input";
 import React from "react";
 
-function NewBooking() {
+function EditBooking() {
   return (
     <div className="space-y-10 -w-full">
       {" "}
-      <div className="text-3xl font-semibold mb-6 ">New Booking</div>
+      {/* <div className="text-3xl font-semibold mb-6 ">New Booking</div> */}
       <div className="grid grid-cols-2 gap-4 w-full">
         <FormControl className="space-y-1">
           <FormLabel className="text-[#0D141C] font-medium">Name</FormLabel>
@@ -24,6 +24,7 @@ function NewBooking() {
             <Input
               type="date"
               fullWidth
+              disabled
               slotProps={{
                 input: {
                   // You can set min and max dates if needed
@@ -35,6 +36,7 @@ function NewBooking() {
             <Input
               type="time"
               fullWidth
+              disabled
               slotProps={{
                 input: {
                   // You can set min and max times if needed
@@ -100,11 +102,11 @@ function NewBooking() {
           <Input fullWidth size="lg" placeholder="Additional Information" />
         </FormControl>
       </div>
-      <Button size="lg" className="w-1/2">
-        Book Now
+      <Button size="lg" fullWidth className="" >
+        Edit Booking
       </Button>
     </div>
   );
 }
 
-export default NewBooking;
+export default EditBooking;
