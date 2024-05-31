@@ -145,11 +145,6 @@ const Reservations: React.FC<ReservationsProps> = ({
           onPaginationModelChange={setPaginationModel}
           pageSizeOptions={[5, 10, 15]} // Use pageSizeOptions instead
           autoHeight
-          autosizeOptions={{
-            columns: columns,
-            includeOutliers: true,
-            includeHeaders: true,
-          }}
           columns={gridColumns}
           pagination
           sx={{

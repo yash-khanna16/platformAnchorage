@@ -3,12 +3,19 @@ import React, { act, useEffect, useState } from "react";
 import SearchInput from "../components/Search";
 import { addIcon, addPersonIcon, analyticsIcon, calenderIcon, mailIcon, searchIcon } from "../../assets/icons";
 import { usePathname, useRouter } from "next/navigation";
+import { Logout } from "@mui/icons-material";
+import { deleteAuthAdmin } from "../actions/cookie";
 
 function Navbar() {
   const [search, setSearch] = useState("");
   const router = useRouter();
   const params = usePathname();
   const path = (params as string).split("/")[2];
+
+  async function handleLogout() {
+    await deleteAuthAdmin();
+    router.push("/")
+  }
   
   const options = [
     { icon: searchIcon, route: "search-guests",value: "Search Guests" },
@@ -33,6 +40,11 @@ function Navbar() {
             </>
           );
         })}
+              <div onClick={handleLogout}
+               className={`flex space-x-3 font-medium rounded-xl text-red-600  cursor-pointer items-center px-3 py-2 `}>
+                <Logout />
+                <div> Logout </div>
+              </div>
       </div>
     </div>
   );
