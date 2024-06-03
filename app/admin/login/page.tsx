@@ -1,6 +1,12 @@
 "use client";
 
-import { Backdrop, CircularProgress, TextField } from "@mui/material";
+import {
+  CircularProgress,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  TextField,
+} from "@mui/joy";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Input } from "@mui/joy";
@@ -20,14 +26,20 @@ export default function Home() {
     setLoading(true);
     try {
       const response = await loginAdmin(email, password);
-      await setAuthAdmin(response.token);
+      if(response.token) {
+        await setAuthAdmin(response.token);
+        setLoading(false);
+        router.push("/admin/search-guests");
+      } else {
+        setError(true);
+        setLoading(false)
+        setHelperText(response.message);
+      }
+    } catch (error) {
       setLoading(false);
-      router.push("/admin/search-guests");
-      console.log(response)
-    } catch(error) {
-      setLoading(false);
-      console.log(error)
-
+      setError(true);
+      setHelperText("Internal Server Error 2");
+      console.log(error);
     }
   }
 
@@ -44,42 +56,46 @@ export default function Home() {
           >
             {/* <Image height={130} className="-mb-4" src={logo} alt="logo" /> */}
             <div className="text-[32px] font-medium  ">Login</div>
-            <div className="mt-1 w-[100%]">
-              <Input
-                required
-                startDecorator={<Email />}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setHelperText("");
-                  setError(false);
-                }}
-                size="lg"
-                value={email}
-                error={error}
-                placeholder="Email Address"
-                id="myfilled-name"
-                fullWidth
-              />
+            <div className="space-y-3 w-full">
+              <FormControl className="space-y-2 w-full " error={error} >
+                <FormLabel>Email Address</FormLabel>
+                <Input
+                  required
+                  startDecorator={<Email />}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setHelperText("");
+                    setError(false);
+                  }}
+                  size="lg"
+                  value={email}
+                  error={error}
+                  placeholder="Enter Email Address"
+                  fullWidth
+                />
+                <FormHelperText>{helperText}</FormHelperText>
+              </FormControl>
+              <FormControl className="space-y-2 w-full" error={error} >
+                <FormLabel>Password</FormLabel>
+                <Input
+                  required
+                  startDecorator={<Lock />}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setHelperText("");
+                    setError(false);
+                  }}
+                  size="lg"
+                  value={password}
+                  error={error}
+                  type="password"
+                  placeholder="Enter Password"
+                  fullWidth
+                />
+                <FormHelperText>{helperText}</FormHelperText>
+              </FormControl>
             </div>
-            <div className="mt-1 w-[100%]">
-              <Input
-                required
-                startDecorator={<Lock />}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setHelperText("");
-                  setError(false);
-                }}
-                size="lg"
-                type="password"
-                placeholder="Password"
-                value={password}
-                error={error}
-                id="myfilled-name"
-                fullWidth
-              />
-            </div>
-            <Button type="submit"  loading={loading} size="lg"  fullWidth>
+            <Button type="submit" loading={loading} size="lg" fullWidth>
               Sign In
             </Button>
             {/* <div className="flex w-full justify-between">
