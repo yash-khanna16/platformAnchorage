@@ -3,7 +3,7 @@ import { Button, Input, Typography } from "@mui/joy";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { FormLabel } from "@mui/joy";
-import { getAvailableRooms } from "@/app/actions/api";
+import { getAvailableRooms, getInstantRooms } from "@/app/actions/api";
 import { CircularProgress } from "@mui/material";
 
 type Room = {
@@ -99,14 +99,14 @@ function CheckAvailableRooms() {
 
   useEffect(() => {
     setLoading(true)
-    getAvailableRooms(new Date(), new Date())
+    getInstantRooms()
       .then((res) => {
         setLoading(false)
         let newRooms: Room[] = [];
-        res.map((room: { room: string; condition_met: string }) => {
+        res.map((room: { room: string; status: string }) => {
           newRooms.push({
-            name: room.room,
-            status: "Available",
+            status: room.status,
+            name: room.room
           });
         });
         console.log("new rooms: ", newRooms)
@@ -227,8 +227,8 @@ function CheckAvailableRooms() {
                   <div className="text-[#1C1C21] font-bold">{room.name}</div>
                   <div
                     className={`${
-                      room.status === "Booked" ? "text-red-600" : "text-green-600"
-                    } text-sm font-normal`}
+                      room.status === "Booked" || room.status === "4/4" ? "text-red-600" : (room.status === "0/4" || room.status === "Available")?"text-green-600":"text-orange-500"
+                    } text-sm font-medium`}
                   >
                     {room.status}
                   </div>

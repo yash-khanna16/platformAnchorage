@@ -218,3 +218,23 @@ export async function deleteBooking(bookingId: string) {
     throw error;
   }
 }
+export async function getInstantRooms() {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/admin/instantAvailableRooms`,
+      {
+        method: "GET",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        cache: "no-cache",
+      }
+    );
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}

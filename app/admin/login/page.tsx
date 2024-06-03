@@ -38,7 +38,7 @@ export default function Home() {
     } catch (error) {
       setLoading(false);
       setError(true);
-      setHelperText("Internal Server Error 2");
+      setHelperText("Internal Server Error");
       console.log(error);
     }
   }
