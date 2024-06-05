@@ -238,3 +238,45 @@ export async function getInstantRooms() {
     throw error;
   }
 }
+export async function addNewRoom(room: string) {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/admin/addRoom`,
+      {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({room: room}),
+        cache: "no-cache",
+      }
+    );
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function deleteRoom(room: string) {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/admin/deleteRoom`,
+      {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({room: room}),
+        cache: "no-cache",
+      }
+    );
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}

@@ -10,11 +10,11 @@ import {
   ModalDialog,
 } from "@mui/joy";
 import Input from "@mui/joy/Input";
-import { FormHelperText, Snackbar } from "@mui/material";
+import { FormHelperText, Snackbar } from "@mui/joy";
 import { useParams, useRouter } from "next/navigation";
 import Lottie from "lottie-web";
-import React, { useEffect, useRef, useState } from "react";
-import { CheckCircle } from "@mui/icons-material";
+import React, { SetStateAction, useEffect, useRef, useState } from "react";
+import { CheckCircle, Close, Info, Warning } from "@mui/icons-material";
 
 interface FormData {
   name: string;
@@ -34,7 +34,7 @@ interface FormData {
   nonVeg: number;
 }
 
-function NewBooking(): JSX.Element {
+function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispatch<SetStateAction<boolean>>}): JSX.Element {
   const params = useParams();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -92,7 +92,7 @@ function NewBooking(): JSX.Element {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value, type} = e.target;
+    const { name, value, type } = e.target;
     if (type === "number") {
       setFormData((prevData) => ({
         ...prevData,
@@ -186,21 +186,22 @@ function NewBooking(): JSX.Element {
         breakfast: formData.breakfast,
       };
       try {
+        // setAlert(true)
         setLoading(true);
         const res = await addNewBooking(apiFormData);
         setLoading(false);
-        if (message === "Room booked successfully!") {
+        if (res.message === "Booking added suceessfull") {
           setOpen(true);
         } else {
-          setAlert(true)
-          setMessage(res.message)
+          setAlert(true);
+          setMessage(res.message);
         }
         // router.push("/check-available-rooms");
         console.log("res: ", res);
       } catch (error) {
         setLoading(false);
-        setAlert(true)
-        setMessage("Something went wrong, Please try again!")
+        setAlert(true);
+        setMessage("Something went wrong, Please try again!");
         console.log("error: ", error);
       }
 
@@ -237,9 +238,10 @@ function NewBooking(): JSX.Element {
             placeholder="Email Address"
           />
           {errors.email && (
-            <FormHelperText error>{errors.email}</FormHelperText>
+            <FormControl  error> <FormHelperText >{errors.email}</FormHelperText>
+            </FormControl>
           )}
-        </FormControl>
+          </FormControl>
 
         <div className="space-y-1">
           <FormControl size="lg">
@@ -278,7 +280,7 @@ function NewBooking(): JSX.Element {
           </div>
 
           {errors.checkinDate && (
-            <FormHelperText error>{errors.checkinDate}</FormHelperText>
+            <FormControl  error> <FormHelperText >{errors.checkinDate}</FormHelperText> </FormControl> 
           )}
         </div>
 
@@ -318,7 +320,7 @@ function NewBooking(): JSX.Element {
             />
           </div>
           {errors.checkoutDate && (
-            <FormHelperText error>{errors.checkoutDate}</FormHelperText>
+            <FormControl  error> <FormHelperText >{errors.checkoutDate}</FormHelperText> </FormControl>
           )}
         </div>
 
@@ -472,7 +474,8 @@ function NewBooking(): JSX.Element {
         open={open}
         onClose={() => {
           setOpen(false);
-          router.push("/admin/check-available-rooms");
+          setReload(!reload);          
+          // router.push("/admin/check-available-rooms");
         }}
       >
         <ModalDialog size="lg">
@@ -541,11 +544,22 @@ function NewBooking(): JSX.Element {
         </ModalDialog>
       </Modal>
       <Snackbar
-  open={alert}
-  autoHideDuration={5000}
-  onClose={()=>{setAlert(false)}}
-  message={message}
-/>
+        open={alert}
+        autoHideDuration={5000}
+        color="danger"
+        onClose={() => {
+          setAlert(false);
+        }}
+      >
+        {" "}
+        <Warning /> {message}{" "}
+        <span
+          onClick={() => setAlert(false)}
+          className="cursor-pointer hover:bg-[#f3eded]"
+        >
+          <Close />
+        </span>{" "}
+      </Snackbar>
     </form>
   );
 }

@@ -1,10 +1,24 @@
 "use client";
-import { Button, Input, Typography } from "@mui/joy";
+import {
+  Button,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  Input,
+  Modal,
+  ModalDialog,
+  Snackbar,
+  Stack,
+  Typography,
+  Divider
+} from "@mui/joy";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { FormLabel } from "@mui/joy";
-import { getAvailableRooms, getInstantRooms } from "@/app/actions/api";
+import { addNewBooking, addNewRoom, deleteRoom, getAvailableRooms, getInstantRooms } from "@/app/actions/api";
 import { CircularProgress } from "@mui/material";
+import { Add, Cancel, Close, DeleteForever, Info, WarningRounded } from "@mui/icons-material";
 
 type Room = {
   name: string;
@@ -25,7 +39,8 @@ function CheckAvailableRooms() {
   const [rooms, setRooms] = useState<Room[]>([]);
 
   const router = useRouter();
-
+  const [open, setOpen] = useState(false);
+  const [reload, setReload] = useState(false);
   const [minCheckinDate, setMinCheckinDate] = useState<string>("");
   const [minCheckinTime, setMinCheckinTime] = useState<string>("");
   const [checkinDate, setCheckinDate] = useState<string>("");
@@ -33,7 +48,29 @@ function CheckAvailableRooms() {
   const [checkoutTime, setCheckoutTime] = useState<string>("");
   const [checkoutDate, setCheckoutDate] = useState<string>("");
   const [error, setError] = useState<string>("");
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
+  const [room, setRoom] = useState("");
+  const [alert, setAlert] = useState(false);
+  const [message, setMessage] = useState("");
+  const [del, setDel] = useState(false);
+  const [delId, setDelId] = useState("")
+
+  async function handleDelete() {
+    try {
+      setLoading(true)
+      const res = await deleteRoom(delId);
+      setMessage(res.message)
+      setAlert(true);
+      setDel(false)
+      setLoading(false)
+      setReload(!reload);
+    } catch(error) {
+      setDel(false)
+      setLoading(false)
+      setMessage("Something went wrong, Please try again later!")
+      setAlert(true)
+    }
+  }
 
   useEffect(() => {
     const currentDate = new Date();
@@ -50,6 +87,23 @@ function CheckAvailableRooms() {
     }
     setError("");
   };
+
+  async function handleAddRoom() {
+    setLoading(true);
+    try {
+      const response = await addNewRoom(room);
+      setAlert(true);
+      setMessage(response.message)
+      setReload(!reload);
+      setLoading(false);
+      setOpen(false);
+    } catch(error) {
+      setAlert(true);
+      setLoading(false);
+      setMessage("Something went wrong, Please try again later!")
+      setOpen(false);
+    }
+  }
 
   const handleCheckoutTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedTime = e.target.value;
@@ -98,26 +152,26 @@ function CheckAvailableRooms() {
   };
 
   useEffect(() => {
-    setLoading(true)
+    setLoading(true);
     getInstantRooms()
       .then((res) => {
-        setLoading(false)
+        setLoading(false);
         let newRooms: Room[] = [];
         res.map((room: { room: string; status: string }) => {
           newRooms.push({
             status: room.status,
-            name: room.room
+            name: room.room,
           });
         });
-        console.log("new rooms: ", newRooms)
+        console.log("new rooms: ", newRooms);
         setRooms(newRooms);
         console.log(res);
       })
       .catch((error) => {
-        setLoading(false)
+        setLoading(false);
         console.log("errror");
       });
-  }, []);
+  }, [reload]);
 
   const handleSubmit = async () => {
     const checkinDateTime = new Date(`${checkinDate}T${checkinTime}`);
@@ -133,7 +187,7 @@ function CheckAvailableRooms() {
         setLoading(true);
         const res = await getAvailableRooms(checkinDateTime, checkoutDateTime);
         let newRooms: Room[] = [];
-        console.log(res)
+        console.log(res);
         res.map((room: { room: string; condition_met: string }) => {
           newRooms.push({
             name: room.room,
@@ -211,10 +265,26 @@ function CheckAvailableRooms() {
         </div>
       </div>
       <div className="px-8 w-[90%]">
-        <div className="text-2xl font-semibold mb-6">Choose room</div>
-        <div className={`${loading && "justify-center items-center"} flex gap-x-4 gap-y-4 flex-wrap`}>
+        <div className="flex justify-between">
+          <div className="text-2xl font-semibold mb-6">Choose room</div>
+          <div>
+            <Button
+              variant="outlined"
+              onClick={() => setOpen(true)}
+              color="neutral"
+              startDecorator={<Add />}
+            >
+              Add Room
+            </Button>
+          </div>
+        </div>
+        <div
+          className={`${
+            loading && "justify-center items-center"
+          } flex gap-x-4 gap-y-4 flex-wrap`}
+        >
           {loading && <CircularProgress />}
-          {!loading && (
+          {!loading &&
             rooms.map((room, key) => {
               return (
                 <div
@@ -222,22 +292,111 @@ function CheckAvailableRooms() {
                     router.push(`/admin/check-available-rooms/${room.name}`);
                   }}
                   key={key}
-                  className={`border hover:bg-slate-100 transition-all duration-500 space-y-1 p-4 w-[168px] cursor-pointer h-20 rounded-lg`}
-                >
-                  <div className="text-[#1C1C21] font-bold">{room.name}</div>
+                  className={`border relative hover:bg-slate-100 transition-all duration-500 space-y-1 p-4 w-[168px] cursor-pointer h-20 rounded-lg`}
+                  >
+                  <div onClick={(event)=>{event.stopPropagation();setDel(true);setDelId(room.name)}} className="absolute -right-[18px] rounded-full z-20 -top-[20px] text-slate-400 scale-[70%] hover:bg-red-50 p-2 "><Cancel /></div>
+                  {/* <div className="flex justify-between"> */}
+                  {/* </div> */}
+                    <div className="text-[#1C1C21] font-bold">{room.name}</div>
                   <div
                     className={`${
-                      room.status === "Booked" || room.status === "4/4" ? "text-red-600" : (room.status === "0/4" || room.status === "Available")?"text-green-600":"text-orange-500"
+                      room.status === "Booked" || room.status === "4/4"
+                        ? "text-red-600"
+                        : room.status === "0/4" || room.status === "Available"
+                        ? "text-green-600"
+                        : "text-orange-500"
                     } text-sm font-medium`}
                   >
                     {room.status}
                   </div>
                 </div>
               );
-            })
-          )}
+            })}
         </div>
       </div>
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <ModalDialog>
+          <DialogTitle>Add New Room</DialogTitle>
+          <DialogContent>Enter details of the new room. </DialogContent>
+          <form
+            onSubmit={(event: React.FormEvent<HTMLFormElement>) => {
+              event.preventDefault();
+              setOpen(false);
+            }}
+          >
+            <Stack spacing={2}>
+              <FormControl>
+                <FormLabel>Room Number</FormLabel>
+                <Input
+                  value={room}
+                  onChange={(e) => {
+                    setRoom(e.target.value);
+                  }}
+                  autoFocus
+                  required
+                />
+              </FormControl>
+              {/* <FormControl>
+                <FormLabel>Description</FormLabel>
+                <Input required />
+              </FormControl> */}
+              <Button onClick={handleAddRoom} loading={loading} type="submit">
+                Submit
+              </Button>
+            </Stack>
+          </form>
+        </ModalDialog>
+      </Modal>
+      <Snackbar
+        open={alert}
+        autoHideDuration={5000}
+        onClose={() => {
+          setAlert(false);
+        }}
+      >
+        {" "}
+        <Info /> {message}{" "}
+        <span
+          onClick={() => setAlert(false)}
+          className="cursor-pointer hover:bg-[#f3eded]"
+        >
+          <Close />
+        </span>{" "}
+      </Snackbar>
+      <Modal
+        open={del}
+        onClose={() => {
+          setDel(false);
+        }}
+      >
+        <ModalDialog variant="outlined" size="md">
+          <DialogTitle>
+            <WarningRounded />
+            Confirmation
+          </DialogTitle>
+          <Divider />
+          {/* <DialogContent></DialogContent> */}
+
+          <div className="">Are you sure you want to delete room {delId} ?</div>
+          <DialogActions>
+            <Button
+              variant="solid"
+              color="danger"
+              loading={loading}
+              onClick={handleDelete}
+            >
+              Confirm
+            </Button>
+            <Button
+              variant="plain"
+              color="neutral"
+              onClick={() => setDel(false)}
+            >
+              Cancel
+            </Button>
+          </DialogActions>
+        </ModalDialog>
+      </Modal>
     </div>
   );
 }

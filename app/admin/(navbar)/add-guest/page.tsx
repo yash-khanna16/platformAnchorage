@@ -1,9 +1,10 @@
 "use client";
 import { addGuest } from "@/app/actions/api";
 import { Button } from "@mui/joy";
-import { Alert, Snackbar } from "@mui/material";
+import { Snackbar } from "@mui/joy";
 import React, { useState } from "react";
 import {Input} from "@mui/joy";
+import { Close, Info } from "@mui/icons-material";
 
 type guestType = {
   guestEmail: string;
@@ -149,33 +150,33 @@ function AddGuest() {
               className=""
             />
           </div>
-        </div>
         <Button
           size="lg"
           loading={loading}
           type="submit"
-          className="mt-8 font-semibold px-3 py-2 w-[300px]  bg-[#1A80E5] rounded-md text-white p-2"
+          // className="w-1/2"
+          fullWidth
         >
           Add Guest
         </Button>
+        </div>
       </form>
       <Snackbar
         open={open}
-        autoHideDuration={6000}
+        autoHideDuration={5000}
+        // color="warning"
         onClose={() => {
           setOpen(false);
         }}
       >
-        <Alert
-          onClose={() => {
-            setOpen(false);
-          }}
-          severity={error === "success" ? "success" : "error"} // Corrected severity value
-          variant="filled"
-          sx={{ width: "100%" }}
+        {" "}
+        <Info /> {message}
+        <span
+          onClick={() => setOpen(false)}
+          className="cursor-pointer hover:bg-[#f3eded]"
         >
-          {message}
-        </Alert>
+          <Close />
+        </span>
       </Snackbar>
     </div>
   );

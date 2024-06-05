@@ -8,13 +8,15 @@ import {
   Modal,
   ModalClose,
   ModalDialog,
+  Snackbar
 } from "@mui/joy";
 import Input from "@mui/joy/Input";
-import { Alert, FormHelperText, Snackbar } from "@mui/material";
+import { Alert, FormHelperText } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import Lottie from "lottie-web";
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
-import { CheckCircle } from "@mui/icons-material";
+import { CheckCircle, Close, Info } from "@mui/icons-material";
+
 
 interface FormData {
   booking_id: string;
@@ -478,9 +480,20 @@ function EditBooking({
       <Snackbar
         open={alert}
         autoHideDuration={5000}
-        onClose={()=>{setAlert(false)}}
-        message={message}
-      />
+        // color="danger"
+        onClose={() => {
+          setAlert(false);
+        }}
+      >
+        {" "}
+        <Info /> {message}{" "}
+        <span
+          onClick={() => setAlert(false)}
+          className="cursor-pointer hover:bg-[#f3eded]"
+        >
+          <Close />
+        </span>{" "}
+      </Snackbar>
     </form>
   );
 }

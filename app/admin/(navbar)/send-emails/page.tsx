@@ -1,3 +1,4 @@
+import { Button } from '@mui/joy'
 import React from 'react'
 
 function SendEmails() {
@@ -14,7 +15,7 @@ function SendEmails() {
             <textarea name='guestCompany' rows={8} placeholder='Write a message here....' id="guestCompany" className='border-2 mt-2 focus:outline-[#1A80E5] rounded-lg p-4 bg-gray-100' />
           </div>
         </div>
-        <button type='submit' className='mt-8 block font-semibold w-full mx-auto bg-[#1A80E5] rounded-md text-white px-3 py-[7px]'>Send Email</button>
+        <Button fullWidth className='mt-4' type='submit'>Send Email</Button>
       </form>
     </div>
   )

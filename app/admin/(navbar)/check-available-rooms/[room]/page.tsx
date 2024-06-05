@@ -93,10 +93,10 @@ function Room() {
       console.log(error);
     }
   }
-  
+
   useEffect(() => {
     getBookings(room as string);
-  }, [room,reload]);
+  }, [room, reload]);
 
   const handleSearch = () => {
     if (search.trim() === "") {
@@ -109,7 +109,6 @@ function Room() {
       setFilteredRows(filtered);
     }
   };
-  
 
   useEffect(() => {
     handleSearch();
@@ -130,7 +129,7 @@ function Room() {
           <div>/</div>
           <div className="text-[#121417]"> {room} </div>
         </div>
-        <NewBooking />
+        <NewBooking setReload={setReload} reload={reload} />
         <Reservations
           rowsData={filteredRows}
           columns={columns}

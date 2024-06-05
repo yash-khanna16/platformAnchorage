@@ -14,7 +14,6 @@ import {
   IconButton,
   DialogContent,
   DialogActions,
-  Snackbar,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit"; // Import the EditIcon
 import {
@@ -24,9 +23,10 @@ import {
   Modal,
   ModalClose,
   ModalDialog,
+  Snackbar
 } from "@mui/joy";
 import EditBooking from "./EditBooking";
-import { DeleteForever } from "@mui/icons-material";
+import { Close, DeleteForever, Info } from "@mui/icons-material";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import { deleteBooking } from "@/app/actions/api";
 import { useRouter } from "next/navigation";
@@ -215,6 +215,7 @@ const Reservations: React.FC<ReservationsProps> = ({
     // console.log("Delete clicked for ID:", deleteId);
     try {
       setLoadingDelete(true);
+      // console.log(first)
       const res = await deleteBooking(deleteId);
       setLoadingDelete(false);
       setDel(false);
@@ -227,6 +228,7 @@ const Reservations: React.FC<ReservationsProps> = ({
       setDel(false);
       setDeleteId("");
       setAlert(true);
+      console.log("error: ", error);
       setMessage("Something went wrong, Please try again!");
     }
   };
@@ -327,8 +329,16 @@ const Reservations: React.FC<ReservationsProps> = ({
         onClose={() => {
           setAlert(false);
         }}
-        message={message}
-      />
+      >
+        {" "}
+        <Info /> {message}
+        <span
+          onClick={() => setAlert(false)}
+          className="cursor-pointer hover:bg-[#f3eded]"
+        >
+          <Close />
+        </span>
+      </Snackbar>
     </>
   );
 };

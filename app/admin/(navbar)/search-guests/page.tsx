@@ -33,6 +33,7 @@ function Guests() {
   const [search, setSearch] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<ReservationType[]>([]);
+  const [reload, setReload] = useState(false);
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -60,10 +61,15 @@ function Guests() {
       console.log(error);
     }
   }
-  
+
   useEffect(() => {
-    console.log("rows: ", rows)
-  },[rows])
+    if(search.trim() !== "") {
+      getSearch(search);
+    } else {
+      setRows([])
+    }
+  },[reload])
+  
 
   const handleSearch = useDebouncedCallback((search) => {
     if(search.trim() !== "") {
@@ -75,7 +81,7 @@ function Guests() {
 
   return (
     <div className=' my-11 mx-32'>
-      <Reservations loading={loading} handleSearch={handleSearch} search={search} setSearch={setSearch} rowsData={rows}  columns={columns} headers={headers} />
+      <Reservations reload={reload} setReload={setReload} loading={loading} handleSearch={handleSearch} search={search} setSearch={setSearch} rowsData={rows}  columns={columns} headers={headers} />
     </div>
   )
 }
