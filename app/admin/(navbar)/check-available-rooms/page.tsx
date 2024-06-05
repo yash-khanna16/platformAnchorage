@@ -16,9 +16,10 @@ import {
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { FormLabel } from "@mui/joy";
-import { addNewBooking, addNewRoom, deleteRoom, getAvailableRooms, getInstantRooms } from "@/app/actions/api";
+import { getRole, addNewBooking, addNewRoom, deleteRoom, getAvailableRooms, getInstantRooms } from "@/app/actions/api";
 import { CircularProgress } from "@mui/material";
 import { Add, Cancel, Close, DeleteForever, Info, WarningRounded } from "@mui/icons-material";
+
 
 type Room = {
   name: string;
@@ -54,6 +55,7 @@ function CheckAvailableRooms() {
   const [message, setMessage] = useState("");
   const [del, setDel] = useState(false);
   const [delId, setDelId] = useState("")
+  const [admin, setAdmin] = useState("admin")
 
   async function handleDelete() {
     try {
@@ -64,7 +66,7 @@ function CheckAvailableRooms() {
       setDel(false)
       setLoading(false)
       setReload(!reload);
-    } catch(error) {
+    } catch (error) {
       setDel(false)
       setLoading(false)
       setMessage("Something went wrong, Please try again later!")
@@ -73,11 +75,25 @@ function CheckAvailableRooms() {
   }
 
   useEffect(() => {
+    const getTokenData = async () => {
+      try {
+        const role = await getRole();
+        setAdmin(role);
+      } catch (error) {
+        console.error('Failed to parse token:', error);
+      }
+    };
+    getTokenData();
+  }, []);
+
+
+  useEffect(() => {
     const currentDate = new Date();
     const formattedDate = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD
     const formattedTime = currentDate.toTimeString().split(" ")[0].slice(0, 5); // HH:MM
     setMinCheckinDate(formattedDate);
     setMinCheckinTime(formattedTime);
+
   }, []);
 
   const handleCheckinDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,7 +113,7 @@ function CheckAvailableRooms() {
       setReload(!reload);
       setLoading(false);
       setOpen(false);
-    } catch(error) {
+    } catch (error) {
       setAlert(true);
       setLoading(false);
       setMessage("Something went wrong, Please try again later!")
@@ -267,7 +283,7 @@ function CheckAvailableRooms() {
       <div className="px-8 w-[90%]">
         <div className="flex justify-between">
           <div className="text-2xl font-semibold mb-6">Choose room</div>
-          <div>
+          {(admin==="superadmin")&&(<div>
             <Button
               variant="outlined"
               onClick={() => setOpen(true)}
@@ -276,12 +292,11 @@ function CheckAvailableRooms() {
             >
               Add Room
             </Button>
-          </div>
+          </div>)}
         </div>
         <div
-          className={`${
-            loading && "justify-center items-center"
-          } flex gap-x-4 gap-y-4 flex-wrap`}
+          className={`${loading && "justify-center items-center"
+            } flex gap-x-4 gap-y-4 flex-wrap`}
         >
           {loading && <CircularProgress />}
           {!loading &&
@@ -293,19 +308,18 @@ function CheckAvailableRooms() {
                   }}
                   key={key}
                   className={`border relative hover:bg-slate-100 transition-all duration-500 space-y-1 p-4 w-[168px] cursor-pointer h-20 rounded-lg`}
-                  >
-                  <div onClick={(event)=>{event.stopPropagation();setDel(true);setDelId(room.name)}} className="absolute -right-[18px] rounded-full z-20 -top-[20px] text-slate-400 scale-[70%] hover:bg-red-50 p-2 "><Cancel /></div>
+                >
+                  {(admin==="superadmin")&&(<div onClick={(event) => { event.stopPropagation(); setDel(true); setDelId(room.name) }} className="absolute -right-[18px] rounded-full z-20 -top-[20px] text-slate-400 scale-[70%] hover:bg-red-50 p-2 "><Cancel /></div>)}
                   {/* <div className="flex justify-between"> */}
                   {/* </div> */}
-                    <div className="text-[#1C1C21] font-bold">{room.name}</div>
+                  <div className="text-[#1C1C21] font-bold">{room.name}</div>
                   <div
-                    className={`${
-                      room.status === "Booked" || room.status === "4/4"
+                    className={`${room.status === "Booked" || room.status === "4/4"
                         ? "text-red-600"
                         : room.status === "0/4" || room.status === "Available"
-                        ? "text-green-600"
-                        : "text-orange-500"
-                    } text-sm font-medium`}
+                          ? "text-green-600"
+                          : "text-orange-500"
+                      } text-sm font-medium`}
                   >
                     {room.status}
                   </div>

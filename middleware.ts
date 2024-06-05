@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { parseJwt } from "./app/actions/utils";
+import {validate } from "./app/actions/utils";
 import { cookies } from "next/headers";
 
 
@@ -8,7 +8,7 @@ export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
   const adminRoutes = ["/admin/search-guests","/admin/check-available-rooms","/admin/send-email","/admin/add-guest","/admin/analytics"] ;
   const isAdminRoute = adminRoutes.includes(path);
-  const adminCookie = await parseJwt(cookies().get("admin")?.value);
+  const adminCookie = await validate(cookies().get("admin")?.value);
 
 
   if (path === "/") {

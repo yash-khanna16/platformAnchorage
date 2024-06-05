@@ -17,6 +17,8 @@
     "@mui/material": "^5.15.18",
     "@mui/x-data-grid": "^7.5.1",
     "autoprefixer": "^10.4.19",
+    "jose": "^5.4.0",
+    "jsonwebtoken": "^9.0.2",
     "lottie-web": "^5.12.2",
     "next": "14.2.3",
     "react": "^18",
@@ -24,6 +26,7 @@
     "use-debounce": "^10.0.1"
   },
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

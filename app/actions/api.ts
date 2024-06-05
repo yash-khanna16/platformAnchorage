@@ -1,5 +1,13 @@
 "use server";
 
+import { cookies } from "next/headers";
+import { parseJwt } from "@/app/actions/utils";
+
+export async function getRole(){
+  const parsedData = await parseJwt(cookies().get("admin")?.value);
+  return parsedData.role;
+}
+
 export async function loginAdmin(email: string, password: string) {
   try {
     const response = await fetch(
