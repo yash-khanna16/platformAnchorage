@@ -11,7 +11,7 @@ export async function getRole(){
 export async function loginAdmin(email: string, password: string) {
   try {
     const response = await fetch(
-      `${process.env.BACKEND_URL}/api/admin/loginAdmin`,
+      `${process.env.BACKEND_URL}/loginAdmin`,
       {
         method: "GET",
         mode: "cors",
@@ -31,7 +31,7 @@ export async function loginAdmin(email: string, password: string) {
     throw error;
   }
 }
-export async function searchAllGuests(guest: string) {
+export async function searchAllGuests(token:string, guest: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/searchAllGuest`,
@@ -41,6 +41,7 @@ export async function searchAllGuests(guest: string) {
         headers: {
           "Content-Type": "application/json",
           guestname: guest,
+          token: token,
         },
         cache: "no-cache",
       }
@@ -53,7 +54,7 @@ export async function searchAllGuests(guest: string) {
     throw error;
   }
 }
-export async function getAvailableRooms(checkin: Date, checkout: Date) {
+export async function getAvailableRooms(token:string, checkin: Date, checkout: Date) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/getAvailableRooms`,
@@ -62,6 +63,7 @@ export async function getAvailableRooms(checkin: Date, checkout: Date) {
         mode: "cors",
         headers: {
           "Content-Type": "application/json",
+          token: token,
         },
         body: JSON.stringify({
           checkData: { checkin: checkin, checkout: checkout },
@@ -77,7 +79,7 @@ export async function getAvailableRooms(checkin: Date, checkout: Date) {
     throw error;
   }
 }
-export async function addNewBooking(bookingData: {
+export async function addNewBooking(token:string, bookingData: {
   checkin: Date;
   checkout: Date;
   email: string;
@@ -102,6 +104,7 @@ export async function addNewBooking(bookingData: {
         mode: "cors",
         headers: {
           "Content-Type": "application/json",
+          token: token,
         },
         body: JSON.stringify({ bookingData: bookingData }),
         cache: "no-cache",
@@ -115,7 +118,7 @@ export async function addNewBooking(bookingData: {
   }
 }
 
-export async function getBookingsByRoom(room: string) {
+export async function getBookingsByRoom(token:string, room: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/getReserv`,
@@ -125,6 +128,7 @@ export async function getBookingsByRoom(room: string) {
         headers: {
           "Content-Type": "application/json",
           roomno: room,
+          token: token,
         },
         cache: "no-store",
       }
@@ -137,7 +141,7 @@ export async function getBookingsByRoom(room: string) {
     throw error;
   }
 }
-export async function addGuest(formData: {
+export async function addGuest(token:string, formData: {
   guestEmail: string;
   guestName: string;
   guestPhone: number | null;
@@ -153,6 +157,7 @@ export async function addGuest(formData: {
         mode: "cors",
         headers: {
           "Content-Type": "application/json",
+          token: token,
         },
         body: JSON.stringify({ guestData: formData }),
         cache: "no-cache",
@@ -167,7 +172,7 @@ export async function addGuest(formData: {
   }
 }
 
-export async function editBooking(bookingData: {
+export async function editBooking(token:string, bookingData: {
   bookingId: string;
   checkin: Date;
   checkout: Date;
@@ -193,6 +198,7 @@ export async function editBooking(bookingData: {
         mode: "cors",
         headers: {
           "Content-Type": "application/json",
+          token: token,
         },
         body: JSON.stringify({ bookingData: bookingData }),
         cache: "no-cache",
@@ -205,7 +211,7 @@ export async function editBooking(bookingData: {
     throw error;
   }
 }
-export async function deleteBooking(bookingId: string) {
+export async function deleteBooking(token:string, bookingId: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/deleteBooking`,
@@ -214,7 +220,8 @@ export async function deleteBooking(bookingId: string) {
         mode: "cors",
         headers: {
           "Content-Type": "application/json",
-          bookingid: bookingId
+          bookingid: bookingId,
+          token: token,
         },
         cache: "no-cache",
       }
@@ -226,7 +233,7 @@ export async function deleteBooking(bookingId: string) {
     throw error;
   }
 }
-export async function getInstantRooms() {
+export async function getInstantRooms(token:string, ) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/instantAvailableRooms`,
@@ -235,6 +242,7 @@ export async function getInstantRooms() {
         mode: "cors",
         headers: {
           "Content-Type": "application/json",
+          token: token,
         },
         cache: "no-cache",
       }
@@ -246,7 +254,7 @@ export async function getInstantRooms() {
     throw error;
   }
 }
-export async function addNewRoom(room: string) {
+export async function addNewRoom(token:string, room: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/addRoom`,
@@ -255,6 +263,7 @@ export async function addNewRoom(room: string) {
         mode: "cors",
         headers: {
           "Content-Type": "application/json",
+          token: token,
         },
         body: JSON.stringify({room: room}),
         cache: "no-cache",
@@ -267,7 +276,7 @@ export async function addNewRoom(room: string) {
     throw error;
   }
 }
-export async function deleteRoom(room: string) {
+export async function deleteRoom(token:string, room: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/deleteRoom`,
@@ -276,6 +285,7 @@ export async function deleteRoom(room: string) {
         mode: "cors",
         headers: {
           "Content-Type": "application/json",
+          token: token,
         },
         body: JSON.stringify({room: room}),
         cache: "no-cache",

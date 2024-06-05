@@ -7,6 +7,7 @@ import NewBooking from "./NewBooking";
 import Reservations from "./Reservations";
 import { useDebouncedCallback } from "use-debounce";
 import { getBookingsByRoom } from "@/app/actions/api";
+import { getAuthAdmin } from "@/app/actions/cookie";
 
 type ReservationType = {
   id: number;
@@ -64,6 +65,14 @@ function Room() {
   const [reload, setReload] = useState(false);
   const router = useRouter();
   const [filteredRows, setFilteredRows] = useState<ReservationType[]>([]);
+  const [token, setToken] = useState("")
+
+  useEffect(() => {
+    getAuthAdmin().then(auth => {
+      if(auth)
+        setToken(auth.value);
+    })
+  },[])
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -78,7 +87,7 @@ function Room() {
   async function getBookings(room: string) {
     try {
       setLoading(true);
-      let fetchedRows = await getBookingsByRoom(room);
+      let fetchedRows = await getBookingsByRoom(token, room);
       console.log(fetchedRows);
       fetchedRows = fetchedRows.map((row: ReservationType) => ({
         ...row,
@@ -95,8 +104,10 @@ function Room() {
   }
 
   useEffect(() => {
-    getBookings(room as string);
-  }, [room, reload]);
+    if (token !== "") {
+      getBookings(room as string);
+    }
+  }, [room, reload, token]);
 
   const handleSearch = () => {
     if (search.trim() === "") {

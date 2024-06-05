@@ -19,6 +19,7 @@ import { FormLabel } from "@mui/joy";
 import { getRole, addNewBooking, addNewRoom, deleteRoom, getAvailableRooms, getInstantRooms } from "@/app/actions/api";
 import { CircularProgress } from "@mui/material";
 import { Add, Cancel, Close, DeleteForever, Info, WarningRounded } from "@mui/icons-material";
+import { getAuthAdmin } from "@/app/actions/cookie";
 
 
 type Room = {
@@ -56,11 +57,19 @@ function CheckAvailableRooms() {
   const [del, setDel] = useState(false);
   const [delId, setDelId] = useState("")
   const [admin, setAdmin] = useState("admin")
+  const [token, setToken] = useState("")
+
+  useEffect(() => {
+    getAuthAdmin().then(auth => {
+      if(auth)
+        setToken(auth.value);
+    })
+  },[])
 
   async function handleDelete() {
     try {
       setLoading(true)
-      const res = await deleteRoom(delId);
+      const res = await deleteRoom(token,delId);
       setMessage(res.message)
       setAlert(true);
       setDel(false)
@@ -107,7 +116,7 @@ function CheckAvailableRooms() {
   async function handleAddRoom() {
     setLoading(true);
     try {
-      const response = await addNewRoom(room);
+      const response = await addNewRoom(token, room);
       setAlert(true);
       setMessage(response.message)
       setReload(!reload);
@@ -126,7 +135,10 @@ function CheckAvailableRooms() {
     const checkoutDateTime = new Date(`${checkinDate}T${selectedTime}`);
     const checkinDateTime = new Date(`${checkinDate}T${checkinTime}`);
 
-    if (checkoutDateTime <= checkinDateTime) {
+    // console.log(checkinDate)
+    // console.log(checkoutDate)
+
+    if (checkoutDate === checkinDate &&  selectedTime <= checkinTime) {
       setError(
         "Check-out date and time must be greater than check-in date and time."
       );
@@ -151,57 +163,49 @@ function CheckAvailableRooms() {
 
   const handleCheckoutDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedDate = e.target.value;
-
-    // If the selected date is the same as the check-in date,
-    // ensure that the check-out time is after the check-in time.
-    if (
-      selectedDate === checkinDate &&
-      checkinTime !== "" &&
-      checkinTime >= checkoutTime
-    ) {
-      setError("Check-out date must be after check-in date.");
+    if (selectedDate === checkinDate &&  checkoutTime <= checkinTime) {
+      setError(
+        "Check-out date and time must be greater than check-in date and time."
+      );
     } else {
       setError("");
     }
-
     setCheckoutDate(selectedDate);
   };
 
   useEffect(() => {
-    setLoading(true);
-    getInstantRooms()
-      .then((res) => {
-        setLoading(false);
-        let newRooms: Room[] = [];
-        res.map((room: { room: string; status: string }) => {
-          newRooms.push({
-            status: room.status,
-            name: room.room,
+    if(token !== "") {
+      setLoading(true);
+      getInstantRooms(token)
+        .then((res) => {
+          setLoading(false);
+          let newRooms: Room[] = [];
+          res.map((room: { room: string; status: string }) => {
+            newRooms.push({
+              status: room.status,
+              name: room.room,
+            });
           });
+          console.log("new rooms: ", newRooms);
+          setRooms(newRooms);
+          console.log(res);
+        })
+        .catch((error) => {
+          setLoading(false);
+          console.log("errror");
         });
-        console.log("new rooms: ", newRooms);
-        setRooms(newRooms);
-        console.log(res);
-      })
-      .catch((error) => {
-        setLoading(false);
-        console.log("errror");
-      });
-  }, [reload]);
+    }
+  }, [reload, token]);
 
   const handleSubmit = async () => {
     const checkinDateTime = new Date(`${checkinDate}T${checkinTime}`);
     const checkoutDateTime = new Date(`${checkoutDate}T${checkoutTime}`);
-    if (checkinDate === minCheckinDate && checkinTime < minCheckinTime) {
-      setError(
-        `Check-in time cannot be earlier than ${minCheckinTime} on the selected date.`
-      );
-    } else {
-      setError("");
+    if (error === "") {
+      // setError("");
       console.log("Search for available rooms");
       try {
         setLoading(true);
-        const res = await getAvailableRooms(checkinDateTime, checkoutDateTime);
+        const res = await getAvailableRooms(token,checkinDateTime, checkoutDateTime);
         let newRooms: Room[] = [];
         console.log(res);
         res.map((room: { room: string; condition_met: string }) => {

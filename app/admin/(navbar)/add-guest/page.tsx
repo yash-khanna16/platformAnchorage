@@ -2,9 +2,10 @@
 import { addGuest } from "@/app/actions/api";
 import { Button } from "@mui/joy";
 import { Snackbar } from "@mui/joy";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {Input} from "@mui/joy";
 import { Close, Info } from "@mui/icons-material";
+import { getAuthAdmin } from "@/app/actions/cookie";
 
 type guestType = {
   guestEmail: string;
@@ -19,6 +20,7 @@ function AddGuest() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [token, setToken] = useState("");
   const [formData, setFormData] = useState<guestType>({
     guestName: "",
     guestPhone: null,
@@ -28,6 +30,13 @@ function AddGuest() {
     guestRank: "",
   });
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    getAuthAdmin().then(auth => {
+      if(auth)
+        setToken(auth.value);
+    })
+  },[])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -43,7 +52,7 @@ function AddGuest() {
       console.log(formData);
       if (formData.guestPhone) {
         setLoading(true);
-        const res = await addGuest(formData);
+        const res = await addGuest(token,formData);
         setMessage(res.message);
         setError(
           res.message === "Guest Added Successfully!" ? "success" : "error"

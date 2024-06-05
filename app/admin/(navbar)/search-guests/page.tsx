@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import Reservations from '../check-available-rooms/[room]/Reservations'
 import { searchAllGuests } from '@/app/actions/api';
 import { useDebouncedCallback } from "use-debounce";
+import { getAuthAdmin } from '@/app/actions/cookie';
 
 
 type ReservationType = {
@@ -34,6 +35,14 @@ function Guests() {
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<ReservationType[]>([]);
   const [reload, setReload] = useState(false);
+  const [token, setToken] = useState("")
+
+  useEffect(() => {
+    getAuthAdmin().then(auth => {
+      if(auth)
+        setToken(auth.value);
+    })
+  },[])
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -48,7 +57,7 @@ function Guests() {
   async function getSearch(search:string) {
     try {
       setLoading(true);
-      let fetchedRows = await searchAllGuests(search);
+      let fetchedRows = await searchAllGuests(token, search);
       fetchedRows = fetchedRows.map((row:ReservationType)=> ({
         ...row,
         checkin: formatDate(row.checkin),

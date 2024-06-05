@@ -15,6 +15,7 @@ import { useParams, useRouter } from "next/navigation";
 import Lottie from "lottie-web";
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
 import { CheckCircle, Close, Info, Warning } from "@mui/icons-material";
+import { getAuthAdmin } from "@/app/actions/cookie";
 
 interface FormData {
   name: string;
@@ -44,6 +45,14 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
   const [minCheckinTime, setMinCheckinTime] = useState<string>("");
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
+  const [token, setToken] = useState("")
+
+  useEffect(() => {
+    getAuthAdmin().then(auth => {
+      if(auth)
+        setToken(auth.value);
+    })
+  },[])
 
   useEffect(() => {
     const currentDate = new Date();
@@ -188,7 +197,7 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
       try {
         // setAlert(true)
         setLoading(true);
-        const res = await addNewBooking(apiFormData);
+        const res = await addNewBooking(token, apiFormData);
         setLoading(false);
         if (res.message === "Booking added suceessfull") {
           setOpen(true);

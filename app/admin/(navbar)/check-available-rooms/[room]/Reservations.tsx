@@ -30,6 +30,7 @@ import { Close, DeleteForever, Info } from "@mui/icons-material";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import { deleteBooking } from "@/app/actions/api";
 import { useRouter } from "next/navigation";
+import { getAuthAdmin } from "@/app/actions/cookie";
 
 interface RowData {
   [key: string]: any;
@@ -86,6 +87,14 @@ const Reservations: React.FC<ReservationsProps> = ({
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
+  const [token, setToken] = useState("")
+
+  useEffect(() => {
+    getAuthAdmin().then(auth => {
+      if(auth)
+        setToken(auth.value);
+    })
+  },[])
 
   const mapToFormData = (id: any): FormDataReservation => {
     const formatDate = (dateStr: string) => {
@@ -216,7 +225,7 @@ const Reservations: React.FC<ReservationsProps> = ({
     try {
       setLoadingDelete(true);
       // console.log(first)
-      const res = await deleteBooking(deleteId);
+      const res = await deleteBooking(token, deleteId);
       setLoadingDelete(false);
       setDel(false);
       setDeleteId("");
