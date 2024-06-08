@@ -343,3 +343,69 @@ export async function getEmailTemplate(token: string, template:string) {
     throw error;
   }
 }
+export async function fetchRoomData(token:string) {
+  return true;
+  // try {
+  //   const response = await fetch(
+  //     `${process.env.BACKEND_URL}/api/admin/ghaphData`,
+  //     {
+  //       method: "get",
+  //       mode: "cors",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         token: token,
+  //       },
+  //       cache: "no-cache",
+  //     }
+  //   );
+  //   const data = await response.json(); // Parse the JSON response
+  //   return data;
+  // } catch (error) {
+  //   console.log(error);
+  //   throw error;
+  // }
+}
+export async function fetchMeals(token:string) {
+  return true;
+  // try {
+  //   const response = await fetch(
+  //     `${process.env.BACKEND_URL}/api/admin/ghaphData`,
+  //     {
+  //       method: "get",
+  //       mode: "cors",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         token: token,
+  //       },
+  //       cache: "no-cache",
+  //     }
+  //   );
+  //   const data = await response.json(); // Parse the JSON response
+  //   return data;
+  // } catch (error) {
+  //   console.log(error);
+  //   throw error;
+  // }
+}
+export async function fetchCompanies(token:string) {
+  return true;
+  // try {
+  //   const response = await fetch(
+  //     `${process.env.BACKEND_URL}/api/admin/ghaphData`,
+  //     {
+  //       method: "get",
+  //       mode: "cors",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         token: token,
+  //       },
+  //       cache: "no-cache",
+  //     }
+  //   );
+  //   const data = await response.json(); // Parse the JSON response
+  //   return data;
+  // } catch (error) {
+  //   console.log(error);
+  //   throw error;
+  // }
+}

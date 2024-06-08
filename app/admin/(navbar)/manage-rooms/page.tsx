@@ -224,13 +224,13 @@ function CheckAvailableRooms() {
   };
 
   return (
-    <div className="mx-4 p-4 my-5 flex h-[95vh] space-y-4 font-medium">
+    <div className="mx-4 p-4 my-5 max-[1050px]:mx-0 flex h-[95vh] space-y-4 font-medium">
       <div className="checkin-checkout-input flex flex-col w-[35vw] border-r h-full py-2 pr-6 space-y-2">
         <div className="text-2xl font-semibold mb-6">Check Available Rooms</div>
         <div>
           <div className="space-y-6">
             <div>Check-In </div>
-            <div className="flex space-x-2">
+            <div className="flex max-[1300px]:flex-col space-x-2 max-[1300px]:space-x-0 max-[1300px]:space-y-3">
               <Input
                 type="date"
                 fullWidth
@@ -255,7 +255,7 @@ function CheckAvailableRooms() {
               />
             </div>
             <div>Check-Out</div>
-            <div className="flex space-x-2">
+            <div className="flex max-[1300px]:flex-col space-x-2 max-[1300px]:space-x-0 max-[1300px]:space-y-3">
               <Input
                 fullWidth
                 type="date"
