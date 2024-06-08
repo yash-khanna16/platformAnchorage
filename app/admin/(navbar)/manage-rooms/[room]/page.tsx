@@ -131,7 +131,7 @@ function Room() {
         <div className="flex space-x-2 font-medium">
           <div
             onClick={() => {
-              router.push("/admin/check-available-rooms");
+              router.push("/admin/manage-rooms");
             }}
             className="text-[#637587] cursor-pointer hover:underline"
           >

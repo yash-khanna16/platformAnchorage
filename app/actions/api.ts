@@ -298,3 +298,48 @@ export async function deleteRoom(token:string, room: string) {
     throw error;
   }
 }
+export async function editEmailTemplate(token: string, template:string, content: string, subject: string) {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/admin/editEmailTempalate`,
+      {
+        method: "POST",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+        },
+        body: JSON.stringify({template: template, content: content, subject: subject}),
+        cache: "no-cache",
+      }
+    );
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function getEmailTemplate(token: string, template:string) {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/admin/getEmailTemplate`,
+      {
+        method: "GET",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          template: template,
+        },
+        // body: JSON.stringify({template: template, content: content}),
+        cache: "no-cache",
+      }
+    );
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
