@@ -344,68 +344,71 @@ export async function getEmailTemplate(token: string, template:string) {
   }
 }
 export async function fetchRoomData(token:string) {
-  return true;
-  // try {
-  //   const response = await fetch(
-  //     `${process.env.BACKEND_URL}/api/admin/ghaphData`,
-  //     {
-  //       method: "get",
-  //       mode: "cors",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         token: token,
-  //       },
-  //       cache: "no-cache",
-  //     }
-  //   );
-  //   const data = await response.json(); // Parse the JSON response
-  //   return data;
-  // } catch (error) {
-  //   console.log(error);
-  //   throw error;
-  // }
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/analytics/getRoomsBookedPerDay`,
+      {
+        method: "get",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          year:"2024",
+          month:"6"
+        },
+        cache: "no-cache",
+      }
+    );
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }
 export async function fetchMeals(token:string) {
-  return true;
-  // try {
-  //   const response = await fetch(
-  //     `${process.env.BACKEND_URL}/api/admin/ghaphData`,
-  //     {
-  //       method: "get",
-  //       mode: "cors",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         token: token,
-  //       },
-  //       cache: "no-cache",
-  //     }
-  //   );
-  //   const data = await response.json(); // Parse the JSON response
-  //   return data;
-  // } catch (error) {
-  //   console.log(error);
-  //   throw error;
-  // }
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDay`,
+      {
+        method: "get",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          year:"2024",
+          month:"6"
+        },
+        cache: "no-cache",
+      }
+    );
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }
 export async function fetchCompanies(token:string) {
-  return true;
-  // try {
-  //   const response = await fetch(
-  //     `${process.env.BACKEND_URL}/api/admin/ghaphData`,
-  //     {
-  //       method: "get",
-  //       mode: "cors",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //         token: token,
-  //       },
-  //       cache: "no-cache",
-  //     }
-  //   );
-  //   const data = await response.json(); // Parse the JSON response
-  //   return data;
-  // } catch (error) {
-  //   console.log(error);
-  //   throw error;
-  // }
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForMonthandYear`,
+      {
+        method: "get",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          year:"2024",
+          month:"6"
+        },
+        cache: "no-cache",
+      }
+    );
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }

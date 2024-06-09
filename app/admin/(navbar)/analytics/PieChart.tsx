@@ -1,23 +1,23 @@
 "use client";
 
 import React from "react";
-import { Pie } from "react-chartjs-2";
+import { Doughnut } from "react-chartjs-2"; // Changed Pie to Doughnut
 
-function PieChart(props: any) {
+function DonutChart(props: any) { // Renamed PieChart to DonutChart
   const chartData = {
     labels: props.chartData.map((data: any) => data.company),
     datasets: [
       {
         label: "Bookings",
-        data: props.chartData.map((data: any) => data.data),
+        data: props.chartData.map((data: any) => data.average_rooms_booked),
         backgroundColor: [
-          "rgba(75,192,192,0.2)",
-          "rgba(54,162,235,0.2)",
-          "rgba(255,206,86,0.2)",
-          "rgba(75,192,192,0.2)",
-          "rgba(153,102,255,0.2)",
-          "rgba(255,159,64,0.2)",
-          "rgba(255,99,132,0.2)"
+          "rgba(54,162,235,0.7)",
+          "rgba(255,206,86,0.7)",
+          "rgba(75,192,192,0.7)",
+          "rgba(75,192,192,0.7)",
+          "rgba(153,102,255,0.7)",
+          "rgba(255,159,64,0.7)",
+          "rgba(255,99,132,0.7)"
         ],
         borderColor: [
           "rgba(75,192,192,1)",
@@ -28,7 +28,10 @@ function PieChart(props: any) {
           "rgba(255,159,64,1)",
           "rgba(255,99,132,1)"
         ],
-        borderWidth: 1
+        borderWidth: 1,
+        offset:5,
+        hoverOffset:10,
+        cutout:120
       }
     ]
   };
@@ -36,7 +39,7 @@ function PieChart(props: any) {
   return (
     <div className="chart-container">
       <h2 style={{ textAlign: "center" }}>{props.title}</h2>
-      <Pie
+      <Doughnut // Changed Pie to Doughnut
         data={chartData}
         options={{
           plugins: {
@@ -48,11 +51,12 @@ function PieChart(props: any) {
               display: true,
               position: 'bottom'
             }
-          }
+          },
+          cutout: '50%' // Added to create a Donut chart
         }}
       />
     </div>
   );
 }
 
-export default PieChart;
+export default DonutChart; // Renamed export to DonutChart
