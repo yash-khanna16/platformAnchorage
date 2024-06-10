@@ -16,10 +16,10 @@ Chart.register(CategoryScale);
 function Analytics() {
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState("");
-  const [bookings, setBookings] = useState(270);
-  const [prevBookings, setPrevBookings] = useState(197);
-  const [meal, setMeal] = useState(190);
-  const [prevMeal, setPrevMeal] = useState(197);
+  const [bookings, setBookings] = useState(0.0);
+  const [prevBookings, setPrevBookings] = useState(0.0);
+  const [meal, setMeal] = useState(0.0);
+  const [prevMeal, setPrevMeal] = useState(0.0);
   const [time, setTime] = useState("Month");
   const [roomData, setRoomData] = useState([]);
   const [mealData, setMealData] = useState([]);
@@ -40,15 +40,18 @@ function Analytics() {
     const fetchGraph = async () => {
       try {
         setLoading(true);
-        const room = await fetchRoomData(token);
-        const meal = await fetchMeals(token);
-        const company = await fetchCompanies(token);
+        const currentDate = new Date();
+        const currentMonth = (currentDate.getMonth()+1).toString();
+        const currentYear = (currentDate.getFullYear()).toString();
+        const room = await fetchRoomData(token,currentMonth,currentYear);
+        const meal = await fetchMeals(token,currentMonth,currentYear);
+        const company = await fetchCompanies(token,currentMonth,currentYear);
         console.log(room, meal, company);
-        const transformedRoom = room.map((entry:{booking_date:string,rooms_booked:string}) => ({
+        const transformedRoom = room.map((entry: { booking_date: string, rooms_booked: string }) => ({
           date: entry.booking_date.slice(8, 10),
           data: entry.rooms_booked
         }));
-        const transformedMeal = meal.map((entry:{booking_date:string,average_meals_per_day:string}) => ({
+        const transformedMeal = meal.map((entry: { booking_date: string, average_meals_per_day: string }) => ({
           date: entry.booking_date.slice(8, 10),
           data: entry.average_meals_per_day
         }));
@@ -61,24 +64,68 @@ function Analytics() {
         console.error(error);
       }
     };
-
     if (token) {
       fetchGraph();
     }
   }, [token]);
 
+  useEffect(()=>{
+    const fetchUpDown=async()=>{
+      const currentDate = new Date();
+      const prevMonth = (currentDate.getMonth()).toString(); 
+      const currentYear = (currentDate.getFullYear()).toString();
+      const room = await fetchRoomData(token,prevMonth,currentYear);
+      let prevTotal:number=0;
+      let numberOfdays:number=0;
+      room.map((entry: { booking_date: string, rooms_booked: string })=>{
+        prevTotal=prevTotal+Number(entry.rooms_booked);
+        numberOfdays++;
+      });
+      const prevAvg = Number((prevTotal / numberOfdays).toFixed(2));
+      setPrevBookings(prevAvg);
+      let currentTotal=0;
+      numberOfdays=0;
+      roomData.map((entry: { date: string, data: string })=>{
+        currentTotal=currentTotal+Number(entry.data);
+        numberOfdays++;
+      });
+      const Avg = Number((currentTotal/ numberOfdays).toFixed(2));
+      setBookings(Avg);
+      const meal = await fetchMeals(token,prevMonth,currentYear);
+      let prevMeal:number=0;
+      meal.map((entry: { booking_date: string, average_meals_per_day: string })=>{
+        prevMeal=prevMeal+Number(entry.average_meals_per_day);
+        numberOfdays++;
+      });
+      const avgMeal = Number((prevMeal / numberOfdays).toFixed(2));
+      setPrevMeal(avgMeal);
+      let currentMeal=0;
+      numberOfdays=0;
+      mealData.map((entry: { date: string, data: string })=>{
+        currentMeal=currentMeal+Number(entry.data);
+        numberOfdays++;
+      });
+      const avgCurrentMeal = Number((currentMeal/ numberOfdays).toFixed(2));
+      setMeal(avgCurrentMeal);
+    };
+    if(token){
+      fetchUpDown();
+    }
+  },[token,roomData])
+
+
   return (
     <div className='p-5 '>
       <div className='text-4xl mx-5 px-5 flex justify-between items-center  font-semibold'>
         <div>Analytics</div>
-      <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <Select value={time} onChange={handleChange} inputProps={{ 'aria-label': 'Without label' }}
-              size="small" >
-                <MenuItem value={"Month"}>Month</MenuItem>
-                <MenuItem value={"Quarter"}>Quarter</MenuItem>
-                <MenuItem value={"Year"}>Year</MenuItem>
-              </Select>
-            </FormControl>
+        <FormControl sx={{ m: 1, minWidth: 120 }}>
+          <Select value={time} onChange={handleChange} inputProps={{ 'aria-label': 'Without label' }}
+            size="small" >
+            <MenuItem value={"Month"}>Month</MenuItem>
+            <MenuItem value={"Quarter"}>Quarter</MenuItem>
+            <MenuItem value={"Year"}>Year</MenuItem>
+          </Select>
+        </FormControl>
       </div>
       {loading ? (
         <div className='flex w-full h-screen justify-center items-center '>
@@ -87,7 +134,7 @@ function Analytics() {
       ) : (
         <div className=' m-5 rounded-xl p-5'>
           <div className='flex justify-end'>
-            
+
           </div>
           <div className='flex gap-5'>
             <div className=' w-1/2 shadow-md flex justify-around p-3 rounded-xl border'>
@@ -102,11 +149,12 @@ function Analytics() {
                   <div className='flex'>
                     <div className='text-lg mr-3'>{bookings}</div>
                     <div className='text-lg'>
-                      {bookings > prevBookings ? (
+                      {(bookings > prevBookings)&&(
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" className="relative top-1.5" viewBox="0 0 16 16">
                           <path fill="#3fff3f" fillRule="evenodd" d="M7.022 1.566a1.13 1.13 0 0 1 1.96 0l6.857 11.667c.457.778-.092 1.767-.98 1.767H1.144c-.889 0-1.437-.99-.98-1.767z" />
                         </svg>
-                      ) : (
+                      )}
+                      {(bookings < prevBookings)&& (
                         <svg xmlns="http://www.w3.org/2000/svg" className="relative top-1.5 rotate-180" width="16" height="16" viewBox="0 0 16 16">
                           <path fill="#ff0000" fillRule="evenodd" d="M7.022 1.566a1.13 1.13 0 0 1 1.96 0l6.857 11.667c.457.778-.092 1.767-.98 1.767H1.144c-.889 0-1.437-.99-.98-1.767z" />
                         </svg>
@@ -127,11 +175,12 @@ function Analytics() {
                   <div className='flex'>
                     <div className='text-lg mr-3'>{meal}</div>
                     <div className='text-lg'>
-                      {meal > prevMeal ? (
+                    {(meal > prevMeal)&&(
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" className="relative top-1.5" viewBox="0 0 16 16">
                           <path fill="#3fff3f" fillRule="evenodd" d="M7.022 1.566a1.13 1.13 0 0 1 1.96 0l6.857 11.667c.457.778-.092 1.767-.98 1.767H1.144c-.889 0-1.437-.99-.98-1.767z" />
                         </svg>
-                      ) : (
+                      )}
+                      {(meal < prevMeal)&& (
                         <svg xmlns="http://www.w3.org/2000/svg" className="relative top-1.5 rotate-180" width="16" height="16" viewBox="0 0 16 16">
                           <path fill="#ff0000" fillRule="evenodd" d="M7.022 1.566a1.13 1.13 0 0 1 1.96 0l6.857 11.667c.457.778-.092 1.767-.98 1.767H1.144c-.889 0-1.437-.99-.98-1.767z" />
                         </svg>
