@@ -298,7 +298,7 @@ export async function deleteRoom(token:string, room: string) {
     throw error;
   }
 }
-export async function fetchRoomData(token:string) {
+export async function fetchRoomData(token:string,currentMonth:string,currentYear:string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/analytics/getRoomsBookedPerDay`,
@@ -308,8 +308,8 @@ export async function fetchRoomData(token:string) {
         headers: {
           "Content-Type": "application/json",
           token: token,
-          year:"2024",
-          month:"6"
+          year:currentYear,
+          month:currentMonth
         },
         cache: "no-cache",
       }
@@ -321,7 +321,7 @@ export async function fetchRoomData(token:string) {
     throw error;
   }
 }
-export async function fetchMeals(token:string) {
+export async function fetchMeals(token:string,currentMonth:string,currentYear:string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDay`,
@@ -331,8 +331,8 @@ export async function fetchMeals(token:string) {
         headers: {
           "Content-Type": "application/json",
           token: token,
-          year:"2024",
-          month:"6"
+          year:currentYear,
+          month:currentMonth
         },
         cache: "no-cache",
       }
@@ -344,7 +344,7 @@ export async function fetchMeals(token:string) {
     throw error;
   }
 }
-export async function fetchCompanies(token:string) {
+export async function fetchCompanies(token:string,currentMonth:string,currentYear:string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForMonthandYear`,
@@ -354,8 +354,8 @@ export async function fetchCompanies(token:string) {
         headers: {
           "Content-Type": "application/json",
           token: token,
-          year:"2024",
-          month:"6"
+          year:currentYear,
+          month:currentMonth
         },
         cache: "no-cache",
       }
