@@ -65,6 +65,7 @@ interface FormDataReservation {
   breakfast: number;
   veg: number;
   nonVeg: number;
+  originalEmail:string;
 }
 
 const Reservations: React.FC<ReservationsProps> = ({
@@ -122,6 +123,7 @@ const Reservations: React.FC<ReservationsProps> = ({
       breakfast: id.breakfast,
       veg: id.meal_veg,
       nonVeg: id.meal_non_veg,
+      originalEmail:id.email
     };
   };
 

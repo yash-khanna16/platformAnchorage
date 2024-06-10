@@ -20,9 +20,9 @@ function Navbar() {
   const options = [
     { icon: searchIcon, route: "search-guests",value: "Search Guests" },
     { icon: addPersonIcon, route: "add-guest", value: "Add Guest" },
-    { icon: calenderIcon, route: "check-available-rooms", value: "Check Available Rooms " },
+    { icon: calenderIcon, route: "manage-rooms", value: "Manage Rooms" },
     { icon: analyticsIcon, route: "analytics", value: "Analytics" },
-    { icon: mailIcon, route: "send-emails", value: "Send Emails" },
+    { icon: mailIcon, route: "emails", value: "Emails" },
   ];
   return (
     <div className="fixed flex flex-col space-y-8 top-0 left-0 h-screen w-80 max-[1050px]:w-60 border px-10 max-[1050px]:px-5 py-7 max-[920px]:h-20 max-[920px]:w-screen max-[920px]:flex-row max-[920px]:py-3 max-[920px]:space-y-1 max-[920px]:justify-between">

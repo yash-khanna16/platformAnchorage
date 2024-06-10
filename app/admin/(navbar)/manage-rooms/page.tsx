@@ -308,7 +308,7 @@ function CheckAvailableRooms() {
               return (
                 <div
                   onClick={() => {
-                    router.push(`/admin/check-available-rooms/${room.name}`);
+                    router.push(`/admin/manage-rooms/${room.name}`);
                   }}
                   key={key}
                   className={`border relative hover:bg-slate-100 transition-all duration-500 space-y-1 p-4 w-[168px] cursor-pointer h-20 rounded-lg`}

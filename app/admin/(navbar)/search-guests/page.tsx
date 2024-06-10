@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react'
-import Reservations from '../check-available-rooms/[room]/Reservations'
+import Reservations from '../manage-rooms/[room]/Reservations'
 import { searchAllGuests } from '@/app/actions/api';
 import { useDebouncedCallback } from "use-debounce";
 import { getAuthAdmin } from '@/app/actions/cookie';

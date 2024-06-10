@@ -1,4 +1,4 @@
-import { addNewBooking } from "@/app/actions/api";
+import { addNewBooking, editBooking } from "@/app/actions/api";
 import {
   Button,
   DialogContent,
@@ -8,16 +8,19 @@ import {
   Modal,
   ModalClose,
   ModalDialog,
+  Snackbar
 } from "@mui/joy";
 import Input from "@mui/joy/Input";
-import { FormHelperText, Snackbar } from "@mui/joy";
+import { Alert, FormHelperText } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
 import Lottie from "lottie-web";
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
-import { CheckCircle, Close, Info, Warning } from "@mui/icons-material";
+import { CheckCircle, Close, Info } from "@mui/icons-material";
 import { getAuthAdmin } from "@/app/actions/cookie";
 
+
 interface FormData {
+  booking_id: string;
   name: string;
   email: string;
   checkinDate: string;
@@ -33,34 +36,36 @@ interface FormData {
   breakfast: number;
   veg: number;
   nonVeg: number;
+  originalEmail: string;
 }
 
-function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispatch<SetStateAction<boolean>>}): JSX.Element {
+function EditBooking({
+  initialData,
+  setOpenModal,
+  setReload,
+  reload
+}: {
+  initialData: FormData;
+  setOpenModal: React.Dispatch<SetStateAction<boolean>>;
+  setReload: React.Dispatch<SetStateAction<boolean>>;
+  reload: boolean;
+}): JSX.Element {
   const params = useParams();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const tick = useRef(null);
-  const [minCheckinDate, setMinCheckinDate] = useState<string>("");
-  const [minCheckinTime, setMinCheckinTime] = useState<string>("");
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
   const [token, setToken] = useState("")
 
   useEffect(() => {
     getAuthAdmin().then(auth => {
-      if(auth)
+      if (auth)
         setToken(auth.value);
     })
-  },[])
+  }, [])
 
-  useEffect(() => {
-    const currentDate = new Date();
-    const formattedDate = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD
-    const formattedTime = currentDate.toTimeString().split(" ")[0].slice(0, 5); // HH:MM
-    setMinCheckinDate(formattedDate);
-    setMinCheckinTime(formattedTime);
-  }, []);
 
   // useEffect(() => {
   //   if (open && tick.current) {
@@ -79,30 +84,16 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
   // }, []);
 
   const room = params.room as string;
-  const [formData, setFormData] = useState<FormData>({
-    name: "",
-    email: "",
-    checkinDate: "",
-    checkinTime: "",
-    checkoutDate: "",
-    checkoutTime: "",
-    phoneNumber: "",
-    companyName: "",
-    vessel: "",
-    rank: "",
-    remarks: "",
-    additionalInfo: "",
-    breakfast: 0,
-    veg: 0,
-    nonVeg: 0,
-  });
+  const [formData, setFormData] = useState<FormData>(initialData);
 
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = e.target;
+
     if (type === "number") {
+      console.log(name, value, type)
       setFormData((prevData) => ({
         ...prevData,
         [name]: parseInt(value),
@@ -125,6 +116,7 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
         checkinDate: "",
       }));
     }
+
     setErrors((prevData) => ({
       ...prevData,
       [name]: "",
@@ -145,40 +137,31 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
 
     const newErrors: Partial<FormData> = {};
 
-    if (selectedCheckinDateTime <= currentDate) {
-      newErrors.checkinDate =
-        "Check-in date and time must be after the current date and time.";
-    }
-
-    if (selectedCheckoutDateTime <= currentDate) {
-      newErrors.checkoutDate =
-        "Check-out date and time must be after the current date and time.";
-    }
-
     if (selectedCheckoutDateTime <= selectedCheckinDateTime) {
       newErrors.checkoutDate =
         "Check-out date and time must be after the check-in date and time.";
     }
+    if (formData.email) {
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailPattern.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address.";
+      if (!emailPattern.test(formData.email)) {
+        newErrors.email = "Please enter a valid email address.";
+      }
     }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
+    // console.log("here")
 
     if (
-      selectedCheckinDateTime > currentDate &&
-      selectedCheckoutDateTime > currentDate &&
       selectedCheckoutDateTime > selectedCheckinDateTime &&
       !isNaN(parseInt(formData.phoneNumber))
     ) {
       setErrors({});
       const apiFormData = {
+        bookingId: initialData.booking_id,
         checkin: selectedCheckinDateTime,
         checkout: selectedCheckoutDateTime,
         email: formData.email,
@@ -192,25 +175,22 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
         company: formData.companyName,
         vessel: formData.vessel,
         rank: formData.rank,
-        breakfast: formData.breakfast,
+        breakfast: (formData.breakfast),
+        originalEmail: formData.originalEmail
       };
       try {
-        // setAlert(true)
+        console.log(formData)
         setLoading(true);
-        const res = await addNewBooking(token, apiFormData);
+        const res = await editBooking(token, apiFormData);
         setLoading(false);
-        if (res.message === "Booking added suceessfull") {
-          setOpen(true);
-        } else {
-          setAlert(true);
-          setMessage(res.message);
-        }
-        // router.push("/check-available-rooms");
+        setAlert(true);
+        setMessage(res.message);
+        setReload(!reload);
         console.log("res: ", res);
       } catch (error) {
         setLoading(false);
         setAlert(true);
-        setMessage("Something went wrong, Please try again!");
+        setMessage("Something went wrong, Please try again later!");
         console.log("error: ", error);
       }
 
@@ -220,7 +200,6 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
 
   return (
     <form onSubmit={handleSubmit} className="space-y-10 -w-full">
-      <div className="text-3xl font-semibold mb-6">New Booking</div>
       <div className="grid grid-cols-2 gap-4 w-full">
         <FormControl size="lg" className="space-y-1">
           <FormLabel className="text-[#0D141C] font-medium">Name</FormLabel>
@@ -241,16 +220,14 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
             name="email"
             value={formData.email}
             onChange={handleChange}
-            required
             fullWidth
             size="lg"
             placeholder="Email Address"
           />
           {errors.email && (
-            <FormControl  error> <FormHelperText >{errors.email}</FormHelperText>
-            </FormControl>
+            <FormHelperText error>{errors.email}</FormHelperText>
           )}
-          </FormControl>
+        </FormControl>
 
         <div className="space-y-1">
           <FormControl size="lg">
@@ -265,11 +242,7 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
               size="lg"
               value={formData.checkinDate}
               onChange={handleChange}
-              slotProps={{
-                input: {
-                  min: minCheckinDate,
-                },
-              }}
+
               error={
                 errors.checkinDate !== undefined && errors.checkinDate !== ""
               }
@@ -289,7 +262,7 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
           </div>
 
           {errors.checkinDate && (
-            <FormControl  error> <FormHelperText >{errors.checkinDate}</FormHelperText> </FormControl> 
+            <FormHelperText error>{errors.checkinDate}</FormHelperText>
           )}
         </div>
 
@@ -305,11 +278,7 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
               size="lg"
               value={formData.checkoutDate}
               name="checkoutDate"
-              slotProps={{
-                input: {
-                  min: formData.checkinDate || minCheckinDate,
-                },
-              }}
+
               error={
                 errors.checkoutDate !== undefined && errors.checkoutDate !== ""
               }
@@ -329,7 +298,7 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
             />
           </div>
           {errors.checkoutDate && (
-            <FormControl  error> <FormHelperText >{errors.checkoutDate}</FormHelperText> </FormControl>
+            <FormHelperText error>{errors.checkoutDate}</FormHelperText>
           )}
         </div>
 
@@ -351,7 +320,6 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
             Company Name
           </FormLabel>
           <Input
-            required
             value={formData.companyName}
             name="companyName"
             onChange={handleChange}
@@ -367,7 +335,6 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
             value={formData.vessel}
             name="vessel"
             onChange={handleChange}
-            required
             fullWidth
             size="lg"
             placeholder="Vessel"
@@ -380,7 +347,6 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
             value={formData.rank}
             name="rank"
             onChange={handleChange}
-            required
             fullWidth
             size="lg"
             placeholder="Rank"
@@ -476,92 +442,39 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
           </div>
         </div>
       </div>
-      <Button loading={loading} type="submit" size="lg" className="w-1/2">
-        Book Now
+      <Button loading={loading} type="submit" size="lg" fullWidth>
+        Edit Booking
       </Button>
       <Modal
         open={open}
         onClose={() => {
           setOpen(false);
-          setReload(!reload);          
-          // router.push("/admin/check-available-rooms");
+          router.push("/admin/manage-rooms");
         }}
       >
         <ModalDialog size="lg">
           <ModalClose />
-          <DialogTitle className="">Booking Confirmation</DialogTitle>
+          <DialogTitle className="">Edit Confirmation</DialogTitle>
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
-              <CheckCircle className="h-40 scale-[500%] text-green-600" />
+              {/* <CheckCircle className="h-40 scale-[500%] text-green-600" /> */}
               <div className="font-semibold text-2xl">
-                Room Booked Successfully!
+                Entry Edited successfully
               </div>
             </div>
-            {/* <div>
-              <div className="font-semibold text-lg">Booking Details:</div>
-              <div className="mt-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <strong>Name:</strong> {formData.name}
-                  </div>
-                  <div className="w-fit">
-                    <strong>Email:</strong> {formData.email}
-                  </div>
-                  <div>
-                    <strong>Check-in Date:</strong> {formData.checkinDate}
-                  </div>
-                  <div>
-                    <strong>Check-in Time:</strong> {formData.checkinTime}
-                  </div>
-                  <div>
-                    <strong>Check-out Date:</strong> {formData.checkoutDate}
-                  </div>
-                  <div>
-                    <strong>Check-out Time:</strong> {formData.checkoutTime}
-                  </div>
-                  <div>
-                    <strong>Phone Number:</strong> {formData.phoneNumber}
-                  </div>
-                  <div>
-                    <strong>Company Name:</strong> {formData.companyName}
-                  </div>
-                  <div>
-                    <strong>Vessel:</strong> {formData.vessel}
-                  </div>
-                  <div>
-                    <strong>Rank:</strong> {formData.rank}
-                  </div>
-                  <div>
-                    <strong>Remarks:</strong> {formData.remarks}
-                  </div>
-                  <div>
-                    <strong>Additional Info:</strong> {formData.additionalInfo}
-                  </div>
-                  <div>
-                    <strong>Breakfast:</strong> {formData.breakfast}
-                  </div>
-                  <div>
-                    <strong>Veg Meals:</strong> {formData.veg}
-                  </div>
-                  <div>
-                    <strong>Non-Veg Meals:</strong> {formData.nonVeg}
-                  </div>
-                </div>
-              </div>
-            </div> */}
           </DialogContent>
         </ModalDialog>
       </Modal>
       <Snackbar
         open={alert}
         autoHideDuration={5000}
-        color="danger"
+        // color="danger"
         onClose={() => {
           setAlert(false);
         }}
       >
         {" "}
-        <Warning /> {message}{" "}
+        <Info /> {message}{" "}
         <span
           onClick={() => setAlert(false)}
           className="cursor-pointer hover:bg-[#f3eded]"
@@ -573,4 +486,4 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
   );
 }
 
-export default NewBooking;
+export default EditBooking;

@@ -1,4 +1,4 @@
-import { addNewBooking, editBooking } from "@/app/actions/api";
+import { addNewBooking } from "@/app/actions/api";
 import {
   Button,
   DialogContent,
@@ -8,19 +8,16 @@ import {
   Modal,
   ModalClose,
   ModalDialog,
-  Snackbar
 } from "@mui/joy";
 import Input from "@mui/joy/Input";
-import { Alert, FormHelperText } from "@mui/material";
+import { FormHelperText, Snackbar } from "@mui/joy";
 import { useParams, useRouter } from "next/navigation";
 import Lottie from "lottie-web";
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
-import { CheckCircle, Close, Info } from "@mui/icons-material";
+import { CheckCircle, Close, Info, Warning } from "@mui/icons-material";
 import { getAuthAdmin } from "@/app/actions/cookie";
 
-
 interface FormData {
-  booking_id: string;
   name: string;
   email: string;
   checkinDate: string;
@@ -38,26 +35,16 @@ interface FormData {
   nonVeg: number;
 }
 
-function EditBooking({
-  initialData,
-  setOpenModal,
-  setReload,
-  reload
-}: {
-  initialData: FormData;
-  setOpenModal: React.Dispatch<SetStateAction<boolean>>;
-  setReload: React.Dispatch<SetStateAction<boolean>>;
-  reload: boolean;
-}): JSX.Element {
+function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispatch<SetStateAction<boolean>>}): JSX.Element {
   const params = useParams();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const tick = useRef(null);
-  const [alert, setAlert] = useState(false);
-  const [message, setMessage] = useState("");
   const [minCheckinDate, setMinCheckinDate] = useState<string>("");
   const [minCheckinTime, setMinCheckinTime] = useState<string>("");
+  const [alert, setAlert] = useState(false);
+  const [message, setMessage] = useState("");
   const [token, setToken] = useState("")
 
   useEffect(() => {
@@ -92,16 +79,30 @@ function EditBooking({
   // }, []);
 
   const room = params.room as string;
-  const [formData, setFormData] = useState<FormData>(initialData);
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    email: "",
+    checkinDate: "",
+    checkinTime: "",
+    checkoutDate: "",
+    checkoutTime: "",
+    phoneNumber: "",
+    companyName: "",
+    vessel: "",
+    rank: "",
+    remarks: "",
+    additionalInfo: "",
+    breakfast: 0,
+    veg: 0,
+    nonVeg: 0,
+  });
 
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value, type} = e.target;
-    
+    const { name, value, type } = e.target;
     if (type === "number") {
-      console.log(name, value, type)
       setFormData((prevData) => ({
         ...prevData,
         [name]: parseInt(value),
@@ -148,18 +149,19 @@ function EditBooking({
       newErrors.checkoutDate =
         "Check-out date and time must be after the check-in date and time.";
     }
+    if(formData.email){
 
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!emailPattern.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address.";
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  
+      if (!emailPattern.test(formData.email)) {
+        newErrors.email = "Please enter a valid email address.";
+      }
     }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
-    // console.log("here")
 
     if (
       selectedCheckoutDateTime > selectedCheckinDateTime &&
@@ -167,7 +169,6 @@ function EditBooking({
     ) {
       setErrors({});
       const apiFormData = {
-        bookingId: initialData.booking_id,
         checkin: selectedCheckinDateTime,
         checkout: selectedCheckoutDateTime,
         email: formData.email,
@@ -181,23 +182,24 @@ function EditBooking({
         company: formData.companyName,
         vessel: formData.vessel,
         rank: formData.rank,
-        breakfast: (formData.breakfast),
+        breakfast: formData.breakfast,
       };
       try {
-        console.log(formData)
+        // setAlert(true)
         setLoading(true);
-        const res = await editBooking(token,apiFormData);
+        const res = await addNewBooking(token, apiFormData);
         setLoading(false);
-        setAlert(true);
-        setMessage(res.message);
-        setReload(!reload);
-        // setOpenModal(false);
-        // router.push("/check-available-rooms");
+        if (res.message === "Booking added suceessfull") {
+          setOpen(true);
+        } else {
+          setAlert(true);
+          setMessage(res.message);
+        }
         console.log("res: ", res);
       } catch (error) {
         setLoading(false);
         setAlert(true);
-        setMessage("Something went wrong, Please try again later!");
+        setMessage("Something went wrong, Please try again!");
         console.log("error: ", error);
       }
 
@@ -207,6 +209,7 @@ function EditBooking({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-10 -w-full">
+      <div className="text-3xl font-semibold mb-6">New Booking</div>
       <div className="grid grid-cols-2 gap-4 w-full">
         <FormControl size="lg" className="space-y-1">
           <FormLabel className="text-[#0D141C] font-medium">Name</FormLabel>
@@ -227,15 +230,15 @@ function EditBooking({
             name="email"
             value={formData.email}
             onChange={handleChange}
-            required
             fullWidth
             size="lg"
             placeholder="Email Address"
           />
           {errors.email && (
-            <FormHelperText error>{errors.email}</FormHelperText>
+            <FormControl  error> <FormHelperText >{errors.email}</FormHelperText>
+            </FormControl>
           )}
-        </FormControl>
+          </FormControl>
 
         <div className="space-y-1">
           <FormControl size="lg">
@@ -245,17 +248,12 @@ function EditBooking({
             <Input
               required
               type="date"
-              disabled
               fullWidth
               name="checkinDate"
               size="lg"
               value={formData.checkinDate}
               onChange={handleChange}
-              slotProps={{
-                input: {
-                  min: minCheckinDate,
-                },
-              }}
+              
               error={
                 errors.checkinDate !== undefined && errors.checkinDate !== ""
               }
@@ -265,7 +263,6 @@ function EditBooking({
               type="time"
               fullWidth
               size="lg"
-              disabled
               name="checkinTime"
               value={formData.checkinTime}
               error={
@@ -276,7 +273,7 @@ function EditBooking({
           </div>
 
           {errors.checkinDate && (
-            <FormHelperText error>{errors.checkinDate}</FormHelperText>
+            <FormControl  error> <FormHelperText >{errors.checkinDate}</FormHelperText> </FormControl> 
           )}
         </div>
 
@@ -292,11 +289,7 @@ function EditBooking({
               size="lg"
               value={formData.checkoutDate}
               name="checkoutDate"
-              slotProps={{
-                input: {
-                  min: formData.checkinDate || minCheckinDate,
-                },
-              }}
+          
               error={
                 errors.checkoutDate !== undefined && errors.checkoutDate !== ""
               }
@@ -316,7 +309,7 @@ function EditBooking({
             />
           </div>
           {errors.checkoutDate && (
-            <FormHelperText error>{errors.checkoutDate}</FormHelperText>
+            <FormControl  error> <FormHelperText >{errors.checkoutDate}</FormHelperText> </FormControl>
           )}
         </div>
 
@@ -338,7 +331,6 @@ function EditBooking({
             Company Name
           </FormLabel>
           <Input
-            required
             value={formData.companyName}
             name="companyName"
             onChange={handleChange}
@@ -354,7 +346,6 @@ function EditBooking({
             value={formData.vessel}
             name="vessel"
             onChange={handleChange}
-            required
             fullWidth
             size="lg"
             placeholder="Vessel"
@@ -367,7 +358,6 @@ function EditBooking({
             value={formData.rank}
             name="rank"
             onChange={handleChange}
-            required
             fullWidth
             size="lg"
             placeholder="Rank"
@@ -463,39 +453,91 @@ function EditBooking({
           </div>
         </div>
       </div>
-      <Button loading={loading} type="submit" size="lg" fullWidth>
-        Edit Booking
+      <Button loading={loading} type="submit" size="lg" className="w-1/2">
+        Book Now
       </Button>
       <Modal
         open={open}
         onClose={() => {
           setOpen(false);
-          router.push("/admin/check-available-rooms");
+          setReload(!reload);          
         }}
       >
         <ModalDialog size="lg">
           <ModalClose />
-          <DialogTitle className="">Edit Confirmation</DialogTitle>
+          <DialogTitle className="">Booking Confirmation</DialogTitle>
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
-              {/* <CheckCircle className="h-40 scale-[500%] text-green-600" /> */}
+              <CheckCircle className="h-40 scale-[500%] text-green-600" />
               <div className="font-semibold text-2xl">
-                Entry Edited successfully
+                Room Booked Successfully!
               </div>
             </div>
+            {/* <div>
+              <div className="font-semibold text-lg">Booking Details:</div>
+              <div className="mt-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <strong>Name:</strong> {formData.name}
+                  </div>
+                  <div className="w-fit">
+                    <strong>Email:</strong> {formData.email}
+                  </div>
+                  <div>
+                    <strong>Check-in Date:</strong> {formData.checkinDate}
+                  </div>
+                  <div>
+                    <strong>Check-in Time:</strong> {formData.checkinTime}
+                  </div>
+                  <div>
+                    <strong>Check-out Date:</strong> {formData.checkoutDate}
+                  </div>
+                  <div>
+                    <strong>Check-out Time:</strong> {formData.checkoutTime}
+                  </div>
+                  <div>
+                    <strong>Phone Number:</strong> {formData.phoneNumber}
+                  </div>
+                  <div>
+                    <strong>Company Name:</strong> {formData.companyName}
+                  </div>
+                  <div>
+                    <strong>Vessel:</strong> {formData.vessel}
+                  </div>
+                  <div>
+                    <strong>Rank:</strong> {formData.rank}
+                  </div>
+                  <div>
+                    <strong>Remarks:</strong> {formData.remarks}
+                  </div>
+                  <div>
+                    <strong>Additional Info:</strong> {formData.additionalInfo}
+                  </div>
+                  <div>
+                    <strong>Breakfast:</strong> {formData.breakfast}
+                  </div>
+                  <div>
+                    <strong>Veg Meals:</strong> {formData.veg}
+                  </div>
+                  <div>
+                    <strong>Non-Veg Meals:</strong> {formData.nonVeg}
+                  </div>
+                </div>
+              </div>
+            </div> */}
           </DialogContent>
         </ModalDialog>
       </Modal>
       <Snackbar
         open={alert}
         autoHideDuration={5000}
-        // color="danger"
+        color="danger"
         onClose={() => {
           setAlert(false);
         }}
       >
         {" "}
-        <Info /> {message}{" "}
+        <Warning /> {message}{" "}
         <span
           onClick={() => setAlert(false)}
           className="cursor-pointer hover:bg-[#f3eded]"
@@ -507,4 +549,4 @@ function EditBooking({
   );
 }
 
-export default EditBooking;
+export default NewBooking;
