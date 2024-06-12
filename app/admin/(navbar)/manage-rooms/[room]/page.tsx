@@ -28,10 +28,10 @@ function Room() {
   const columns = [
     "booking_id",
     "name",
+    "status",
     "checkin",
     "checkout",
     "email",
-    "guest_email",
     "phone",
     "company",
     "vessel",
@@ -45,10 +45,10 @@ function Room() {
   const headers = [
     "ID",
     "Name",
+    "Status",
     "Check In",
     "Check Out",
     "Email",
-    "Guest Email",
     "Phone No.",
     "Company",
     "Vessel",
@@ -89,11 +89,30 @@ function Room() {
       setLoading(true);
       let fetchedRows = await getBookingsByRoom(token, room);
       console.log(fetchedRows);
-      fetchedRows = fetchedRows.map((row: ReservationType) => ({
-        ...row,
-        checkin: formatDate(row.checkin),
-        checkout: formatDate(row.checkout),
-      }));
+  
+      const currentTime = new Date();
+  
+      fetchedRows = fetchedRows.map((row: ReservationType) => {
+        const checkinTime = new Date(row.checkin);
+        const checkoutTime = new Date(row.checkout);
+  
+        let status;
+        if (checkoutTime < currentTime) {
+          status = "Expired";
+        } else if (checkinTime > currentTime) {
+          status = "Upcoming";
+        } else {
+          status = "Active";
+        }
+  
+        return {
+          ...row,
+          checkin: formatDate(row.checkin),
+          checkout: formatDate(row.checkout),
+          status: status,
+        };
+      });
+  
       setRows(fetchedRows);
       setFilteredRows(fetchedRows);
       setLoading(false);
@@ -102,6 +121,7 @@ function Room() {
       console.log(error);
     }
   }
+  
 
   useEffect(() => {
     if (token !== "") {
@@ -115,7 +135,9 @@ function Room() {
     } else {
       const lowercasedSearch = search.toLowerCase();
       const filtered = rows.filter((row) =>
-        row.name.toLowerCase().includes(lowercasedSearch)
+        columns.some(column => 
+          row[column as keyof ReservationType]?.toString().toLowerCase().includes(lowercasedSearch)
+        )
       );
       setFilteredRows(filtered);
     }
