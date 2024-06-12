@@ -236,11 +236,6 @@ function CheckAvailableRooms() {
                 fullWidth
                 value={checkinDate}
                 onChange={handleCheckinDateChange}
-                slotProps={{
-                  input: {
-                    min: minCheckinDate,
-                  },
-                }}
               />
               <Input
                 type="time"
