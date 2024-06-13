@@ -3,26 +3,23 @@
 import { cookies } from "next/headers";
 import { parseJwt } from "@/app/actions/utils";
 
-export async function getRole(){
+export async function getRole() {
   const parsedData = await parseJwt(cookies().get("admin")?.value);
   return parsedData.role;
 }
 
 export async function loginAdmin(email: string, password: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/loginAdmin`,
-      {
-        method: "GET",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          email: email,
-          password: password,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/loginAdmin`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        email: email,
+        password: password,
+      },
+      cache: "no-cache",
+    });
 
     const data = await response.json(); // Parse the JSON response
     return data;
@@ -31,7 +28,7 @@ export async function loginAdmin(email: string, password: string) {
     throw error;
   }
 }
-export async function searchAllGuests(token:string, guest: string) {
+export async function searchAllGuests(token: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/searchAllGuest`,
@@ -40,7 +37,6 @@ export async function searchAllGuests(token:string, guest: string) {
         mode: "cors",
         headers: {
           "Content-Type": "application/json",
-          guestname: guest,
           token: token,
         },
         cache: "no-cache",
@@ -54,7 +50,11 @@ export async function searchAllGuests(token:string, guest: string) {
     throw error;
   }
 }
-export async function getAvailableRooms(token:string, checkin: Date, checkout: Date) {
+export async function getAvailableRooms(
+  token: string,
+  checkin: Date,
+  checkout: Date
+) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/getAvailableRooms`,
@@ -79,22 +79,25 @@ export async function getAvailableRooms(token:string, checkin: Date, checkout: D
     throw error;
   }
 }
-export async function addNewBooking(token:string, bookingData: {
-  checkin: Date;
-  checkout: Date;
-  email: string;
-  meal_veg: number;
-  meal_non_veg: number;
-  remarks: string;
-  additional: string;
-  room: string;
-  name: string;
-  phone: number;
-  company: string;
-  vessel: string;
-  rank: string;
-  breakfast: number;
-}) {
+export async function addNewBooking(
+  token: string,
+  bookingData: {
+    checkin: Date;
+    checkout: Date;
+    email: string;
+    meal_veg: number;
+    meal_non_veg: number;
+    remarks: string;
+    additional: string;
+    room: string;
+    name: string;
+    phone: number;
+    company: string;
+    vessel: string;
+    rank: string;
+    breakfast: number;
+  }
+) {
   console.log(bookingData);
   try {
     const response = await fetch(
@@ -118,7 +121,7 @@ export async function addNewBooking(token:string, bookingData: {
   }
 }
 
-export async function getBookingsByRoom(token:string, room: string) {
+export async function getBookingsByRoom(token: string, room: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/getReserv`,
@@ -141,14 +144,17 @@ export async function getBookingsByRoom(token:string, room: string) {
     throw error;
   }
 }
-export async function addGuest(token:string, formData: {
-  guestEmail: string;
-  guestName: string;
-  guestPhone: number | null;
-  guestCompany: string;
-  guestVessel: string;
-  guestRank: string;
-}) {
+export async function addGuest(
+  token: string,
+  formData: {
+    guestEmail: string;
+    guestName: string;
+    guestPhone: number | null;
+    guestCompany: string;
+    guestVessel: string;
+    guestRank: string;
+  }
+) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/addGuests`,
@@ -172,24 +178,27 @@ export async function addGuest(token:string, formData: {
   }
 }
 
-export async function editBooking(token:string, bookingData: {
-  bookingId: string;
-  checkin: Date;
-  checkout: Date;
-  email: string;
-  meal_veg: number;
-  meal_non_veg: number;
-  remarks: string;
-  additional: string;
-  room: string;
-  name: string;
-  phone: number;
-  company: string;
-  vessel: string;
-  rank: string;
-  breakfast: number;
-  originalEmail:string;
-}) {
+export async function editBooking(
+  token: string,
+  bookingData: {
+    bookingId: string;
+    checkin: Date;
+    checkout: Date;
+    email: string;
+    meal_veg: number;
+    meal_non_veg: number;
+    remarks: string;
+    additional: string;
+    room: string;
+    name: string;
+    phone: number;
+    company: string;
+    vessel: string;
+    rank: string;
+    breakfast: number;
+    originalEmail: string;
+  }
+) {
   console.log(bookingData);
   try {
     const response = await fetch(
@@ -212,7 +221,7 @@ export async function editBooking(token:string, bookingData: {
     throw error;
   }
 }
-export async function deleteBooking(token:string, bookingId: string) {
+export async function deleteBooking(token: string, bookingId: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/deleteBooking`,
@@ -234,7 +243,7 @@ export async function deleteBooking(token:string, bookingId: string) {
     throw error;
   }
 }
-export async function getInstantRooms(token:string, ) {
+export async function getInstantRooms(token: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/instantAvailableRooms`,
@@ -255,7 +264,7 @@ export async function getInstantRooms(token:string, ) {
     throw error;
   }
 }
-export async function addNewRoom(token:string, room: string) {
+export async function addNewRoom(token: string, room: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/addRoom`,
@@ -266,7 +275,7 @@ export async function addNewRoom(token:string, room: string) {
           "Content-Type": "application/json",
           token: token,
         },
-        body: JSON.stringify({room: room}),
+        body: JSON.stringify({ room: room }),
         cache: "no-cache",
       }
     );
@@ -277,7 +286,7 @@ export async function addNewRoom(token:string, room: string) {
     throw error;
   }
 }
-export async function deleteRoom(token:string, room: string) {
+export async function deleteRoom(token: string, room: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/deleteRoom`,
@@ -288,7 +297,7 @@ export async function deleteRoom(token:string, room: string) {
           "Content-Type": "application/json",
           token: token,
         },
-        body: JSON.stringify({room: room}),
+        body: JSON.stringify({ room: room }),
         cache: "no-cache",
       }
     );
@@ -299,7 +308,12 @@ export async function deleteRoom(token:string, room: string) {
     throw error;
   }
 }
-export async function editEmailTemplate(token: string, template:string, content: string, subject: string) {
+export async function editEmailTemplate(
+  token: string,
+  template: string,
+  content: string,
+  subject: string
+) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/editEmailTempalate`,
@@ -310,7 +324,11 @@ export async function editEmailTemplate(token: string, template:string, content:
           "Content-Type": "application/json",
           token: token,
         },
-        body: JSON.stringify({template: template, content: content, subject: subject}),
+        body: JSON.stringify({
+          template: template,
+          content: content,
+          subject: subject,
+        }),
         cache: "no-cache",
       }
     );
@@ -321,7 +339,7 @@ export async function editEmailTemplate(token: string, template:string, content:
     throw error;
   }
 }
-export async function getEmailTemplate(token: string, template:string) {
+export async function getEmailTemplate(token: string, template: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/admin/getEmailTemplate`,
@@ -344,7 +362,11 @@ export async function getEmailTemplate(token: string, template:string) {
     throw error;
   }
 }
-export async function fetchRoomData(token:string,currentMonth:string,currentYear:string) {
+export async function fetchRoomData(
+  token: string,
+  currentMonth: string,
+  currentYear: string
+) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/analytics/getRoomsBookedPerDay`,
@@ -354,8 +376,8 @@ export async function fetchRoomData(token:string,currentMonth:string,currentYear
         headers: {
           "Content-Type": "application/json",
           token: token,
-          year:currentYear,
-          month:currentMonth
+          year: currentYear,
+          month: currentMonth,
         },
         cache: "no-cache",
       }
@@ -367,7 +389,11 @@ export async function fetchRoomData(token:string,currentMonth:string,currentYear
     throw error;
   }
 }
-export async function fetchMeals(token:string,currentMonth:string,currentYear:string) {
+export async function fetchMeals(
+  token: string,
+  currentMonth: string,
+  currentYear: string
+) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDay`,
@@ -377,8 +403,8 @@ export async function fetchMeals(token:string,currentMonth:string,currentYear:st
         headers: {
           "Content-Type": "application/json",
           token: token,
-          year:currentYear,
-          month:currentMonth
+          year: currentYear,
+          month: currentMonth,
         },
         cache: "no-cache",
       }
@@ -390,7 +416,11 @@ export async function fetchMeals(token:string,currentMonth:string,currentYear:st
     throw error;
   }
 }
-export async function fetchCompanies(token:string,currentMonth:string,currentYear:string) {
+export async function fetchCompanies(
+  token: string,
+  currentMonth: string,
+  currentYear: string
+) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForMonthandYear`,
@@ -400,12 +430,253 @@ export async function fetchCompanies(token:string,currentMonth:string,currentYea
         headers: {
           "Content-Type": "application/json",
           token: token,
-          year:currentYear,
-          month:currentMonth
+          year: currentYear,
+          month: currentMonth,
         },
         cache: "no-cache",
       }
     );
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function fetchBreakfast(
+  token: string,
+  currentMonth: string,
+  currentYear: string
+) {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDay`,
+      {
+        method: "get",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          year: currentYear,
+          month: currentMonth,
+        },
+        cache: "no-cache",
+      }
+    );
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function fetchRoomDataQuarter(
+  token: string,
+  currentQuarter: string,
+  currentYear: string
+) {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/analytics/getRoomsBookedPerDayQuarter`,
+      {
+        method: "get",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          year: currentYear,
+          quarter: currentQuarter,
+        },
+        cache: "no-cache",
+      }
+    );
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function fetchMealsQuarter(
+  token: string,
+  currentQuarter: string,
+  currentYear: string
+) {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDayQuarter`,
+      {
+        method: "get",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          year: currentYear,
+          quarter: currentQuarter,
+        },
+        cache: "no-cache",
+      }
+    );
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function fetchCompaniesQuarter(
+  token: string,
+  currentQuarter: string,
+  currentYear: string
+) {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForQuarterandYear`,
+      {
+        method: "get",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          year: currentYear,
+          quarter: currentQuarter,
+        },
+        cache: "no-cache",
+      }
+    );
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function fetchBreakfastQuarter(
+  token: string,
+  currentQuarter: string,
+  currentYear: string
+) {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDayQuarter`,
+      {
+        method: "get",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          year: currentYear,
+          quarter: currentQuarter,
+        },
+        cache: "no-cache",
+      }
+    );
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function fetchRoomDataYear(
+  token: string,
+  currentYear: string
+) {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/analytics/getRoomsBookedPerDayYear`,
+      {
+        method: "get",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          year: currentYear,
+        },
+        cache: "no-cache",
+      }
+    );
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function fetchMealsYear(
+  token: string,
+  currentYear: string
+) {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDayYear`,
+      {
+        method: "get",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          year: currentYear,
+        },
+        cache: "no-cache",
+      }
+    );
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function fetchCompaniesYear(
+  token: string,
+  currentYear: string
+) {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForYear`,
+      {
+        method: "get",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          year: currentYear,
+        },
+        cache: "no-cache",
+      }
+    );
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function fetchBreakfastYear(
+  token: string,
+  currentYear: string
+) {
+  try {
+    const response = await fetch(
+      `${process.env.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDayYear`,
+      {
+        method: "get",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+          year: currentYear,
+        },
+        cache: "no-cache",
+      }
+    );
+    // console.log("res: ", response);
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {

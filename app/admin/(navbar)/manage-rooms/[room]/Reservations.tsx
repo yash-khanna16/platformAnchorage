@@ -18,12 +18,13 @@ import {
 import EditIcon from "@mui/icons-material/Edit"; // Import the EditIcon
 import {
   Button,
+  Chip,
   DialogTitle,
   Divider,
   Modal,
   ModalClose,
   ModalDialog,
-  Snackbar
+  Snackbar,
 } from "@mui/joy";
 import EditBooking from "./EditBooking";
 import { Close, DeleteForever, Info } from "@mui/icons-material";
@@ -78,7 +79,7 @@ const Reservations: React.FC<ReservationsProps> = ({
   handleSearch,
   loading,
   setReload,
-  reload
+  reload,
 }) => {
   // const [filteredRows, setFilteredRows] = useState<RowData[]>(rowsData);
   const [edit, setEdit] = useState(false);
@@ -89,14 +90,13 @@ const Reservations: React.FC<ReservationsProps> = ({
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
-  const [token, setToken] = useState("")
+  const [token, setToken] = useState("");
 
   useEffect(() => {
-    getAuthAdmin().then(auth => {
-      if(auth)
-        setToken(auth.value);
-    })
-  },[])
+    getAuthAdmin().then((auth) => {
+      if (auth) setToken(auth.value);
+    });
+  }, []);
 
   const mapToFormData = (id: any): FormDataReservation => {
     const formatDate = (dateStr: string) => {
@@ -166,16 +166,29 @@ const Reservations: React.FC<ReservationsProps> = ({
       // flex: index===,
       // width: 100,
       flex:
-        index === 0 || index === 11 || index === 12 || index === 13
+        index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
           ? 0
           : undefined,
       width:
-        index === 0 || index === 11 || index === 12 || index === 13 ? 120 : 200,
+        index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 120 : 200,
       renderHeader: (params: GridColumnHeaderParams) => (
         <span className="text-[#0D141C] font-semibold pl-3">
           {headers[index]}
         </span>
       ),
+      renderCell: (params: any) => {
+        return (
+          <div>
+            {columnName==="status" ? (
+              <Chip size="sm" variant="outlined" color={params.row[columnName]==="Expired"?"danger":params.row[columnName]==="Active"?"success":"warning"}>
+                {params.row[columnName]}
+              </Chip>
+            ) : (
+              <>{params.row[columnName]}</>
+            )}
+          </div>
+        );
+      },
     })),
     {
       field: "edit",
@@ -258,7 +271,7 @@ const Reservations: React.FC<ReservationsProps> = ({
           value={search}
           onChange={handleSearchInput}
           icon={searchIconSecondary}
-          placeholder="Search by guest name"
+          placeholder="Search by guest name, email, company..."
         />
         <br />
         <DataGrid
@@ -295,7 +308,12 @@ const Reservations: React.FC<ReservationsProps> = ({
           </DialogTitle>
           <DialogContent className="">
             {editId && (
-              <EditBooking setReload={setReload} reload={reload} setOpenModal={setEdit} initialData={editId} />
+              <EditBooking
+                setReload={setReload}
+                reload={reload}
+                setOpenModal={setEdit}
+                initialData={editId}
+              />
             )}
           </DialogContent>
         </ModalDialog>
