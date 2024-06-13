@@ -13,11 +13,17 @@ import {
 import Input from "@mui/joy/Input";
 import { Alert, FormHelperText } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
+import Checkbox from '@mui/material/Checkbox';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Lottie from "lottie-web";
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
 import { CheckCircle, Close, Info } from "@mui/icons-material";
 import { getAuthAdmin } from "@/app/actions/cookie";
-
+import { getAvailableRooms } from "@/app/actions/api";
+import CircularProgress from '@mui/material/CircularProgress';
 
 interface FormData {
   booking_id: string;
@@ -37,6 +43,7 @@ interface FormData {
   veg: number;
   nonVeg: number;
   originalEmail: string;
+  room: string;
 }
 
 function EditBooking({
@@ -58,13 +65,17 @@ function EditBooking({
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
   const [token, setToken] = useState("")
+  const [checkBox, setCheckBox] = useState(false);
+  const [roomNumberLoading, setRoomNumberLoading] = useState(true);
+
+
 
   useEffect(() => {
     getAuthAdmin().then(auth => {
       if (auth)
         setToken(auth.value);
     })
-  }, [])
+  }, []);
 
 
   // useEffect(() => {
@@ -85,8 +96,9 @@ function EditBooking({
 
   const room = params.room as string;
   const [formData, setFormData] = useState<FormData>(initialData);
-
+  const [roomNumber, setRoomNumber] = useState(`${formData.room}`);
   const [errors, setErrors] = useState<Partial<FormData>>({});
+  const [availableRooms, setAvailableRooms] = useState([]);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -154,7 +166,9 @@ function EditBooking({
       return;
     }
     // console.log("here")
-
+    if(roomNumber!==formData.room){
+        formData.room=roomNumber;
+    }
     if (
       selectedCheckoutDateTime > selectedCheckinDateTime &&
       !isNaN(parseInt(formData.phoneNumber))
@@ -169,14 +183,14 @@ function EditBooking({
         meal_non_veg: formData.nonVeg,
         remarks: formData.remarks,
         additional: formData.additionalInfo,
-        room: room,
+        room: formData.room,
         name: formData.name,
         phone: parseInt(formData.phoneNumber),
         company: formData.companyName,
         vessel: formData.vessel,
         rank: formData.rank,
         breakfast: (formData.breakfast),
-        originalEmail: formData.originalEmail
+        originalEmail: formData.originalEmail,
       };
       try {
         console.log(formData)
@@ -196,6 +210,37 @@ function EditBooking({
 
       console.log("Form submitted: ", formData);
     }
+  };
+
+  const checkBoxChange = () => {
+    setCheckBox(!checkBox);
+    
+  }
+
+  useEffect(() => {
+    const fetchRooms = async () => {
+
+      const selectedCheckinDateTime = new Date(
+        `${formData.checkinDate}T${formData.checkinTime}`
+      );
+      const selectedCheckoutDateTime = new Date(
+        `${formData.checkoutDate}T${formData.checkoutTime}`
+      );
+      if (checkBox) {
+        const roomsAvailable = await getAvailableRooms(token, selectedCheckinDateTime, selectedCheckoutDateTime);
+        setAvailableRooms(roomsAvailable);
+        console.log(roomsAvailable)
+        setRoomNumberLoading(false);
+      }
+    };
+    if (checkBox) {
+      setRoomNumberLoading(true);
+      fetchRooms();
+    }
+  }, [checkBox]);
+
+  const handleChangeDropdown = (event: SelectChangeEvent) => {
+    setRoomNumber(event.target.value);
   };
 
   return (
@@ -440,6 +485,40 @@ function EditBooking({
               />
             </div>
           </div>
+
+        </div>
+        <div>
+          <FormControlLabel control={<Checkbox onChange={checkBoxChange} />} label="Want to migrate ?" />
+          {!checkBox?(""): (roomNumberLoading?(
+            <div className="flex justify-center"><CircularProgress /></div>):(<div>
+            <FormControl sx={{ m: 1, minWidth: 120 }}>
+              <InputLabel id="demo-simple-select-helper-label">Room Number</InputLabel>
+              <Select
+                labelId="demo-simple-select-helper-label"
+                id="demo-simple-select-helper"
+                value={roomNumber}
+                onChange={handleChangeDropdown}
+                MenuProps={{
+                  PaperProps: {
+                    style: {
+                      maxHeight: 115,
+                    },
+                  },
+                  MenuListProps: {
+                    style: {
+                      overflowY: 'auto', // Enable vertical scrolling
+                    },
+                  },
+                }}
+              >
+                <MenuItem value={formData.room}>{formData.room}</MenuItem>
+                {availableRooms.map((data:{room:string,active:boolean}) => (
+                  <MenuItem key={data.room} value={data.room}>{data.room}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </div>))}
+          
         </div>
       </div>
       <Button loading={loading} type="submit" size="lg" fullWidth>
