@@ -61,7 +61,7 @@ function Analytics() {
     });
   }, []);
 
-  async function handleSelectChange() {}
+  async function handleSelectChange() { }
 
   const fetchGraph = async () => {
     try {
@@ -76,11 +76,41 @@ function Analytics() {
       let company;
       let breakfast;
 
+      const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+
       if (selectedOption === "month") {
         room = await fetchRoomData(token, currentMonth, currentYear);
         meal = await fetchMeals(token, currentMonth, currentYear);
         company = await fetchCompanies(token, currentMonth, currentYear);
         breakfast = await fetchBreakfast(token, currentMonth, currentYear);
+        const transformedRoom = room.map(
+          (entry: { booking_date: string; rooms_booked: string }) => ({
+            date: entry.booking_date.slice(8, 10),
+            data: entry.rooms_booked,
+          })
+        );
+        const transformedMeal = meal.map(
+          (entry: { booking_date: string; average_meals_per_day: string }) => ({
+            date: entry.booking_date.slice(8, 10),
+            data: entry.average_meals_per_day,
+          })
+        );
+
+        const transformedBreakfast = breakfast.map(
+          (entry: {
+            booking_date: string;
+            average_breakfasts_per_day: string;
+          }) => ({
+            date: entry.booking_date.slice(8, 10),
+            data: entry.average_breakfasts_per_day,
+          })
+        );
+        setRoomData(transformedRoom);
+        setMealData(transformedMeal);
+        setBreakfastData(transformedBreakfast);
       }
       if (selectedOption === "quarter") {
         room = await fetchRoomDataQuarter(token, currentQuarter, currentYear);
@@ -95,40 +125,82 @@ function Analytics() {
           currentQuarter,
           currentYear
         );
+        const transformedRoom = room.map(
+          (entry: { booking_date: string; rooms_booked: string }) => {
+            const date = new Date(entry.booking_date);
+            return {
+              date: monthNames[date.getMonth()],
+              data: entry.rooms_booked,
+            };
+          }
+        );
+
+        const transformedMeal = meal.map(
+          (entry: { booking_date: string; average_meals_per_day: string }) => {
+            const date = new Date(entry.booking_date);
+            return {
+              date: monthNames[date.getMonth()],
+              data: entry.average_meals_per_day,
+            };
+          }
+        );
+
+        const transformedBreakfast = breakfast.map(
+          (entry: { booking_date: string; average_breakfasts_per_day: string }) => {
+            const date = new Date(entry.booking_date);
+            return {
+              date: monthNames[date.getMonth()],
+              data: entry.average_breakfasts_per_day,
+            };
+          }
+        );
+        setRoomData(transformedRoom);
+        setMealData(transformedMeal);
+        setBreakfastData(transformedBreakfast);
       }
       if (selectedOption === "year") {
         room = await fetchRoomDataYear(token, currentYear);
         meal = await fetchMealsYear(token, currentYear);
         company = await fetchCompaniesYear(token, currentYear);
         breakfast = await fetchBreakfastYear(token, currentYear);
+        const transformedRoom = room.map(
+          (entry: { booking_date: string; rooms_booked: string }) => {
+            const date = new Date(entry.booking_date);
+            return {
+              date: monthNames[date.getMonth()],
+              data: entry.rooms_booked,
+            };
+          }
+        );
+
+        const transformedMeal = meal.map(
+          (entry: { booking_date: string; average_meals_per_day: string }) => {
+            const date = new Date(entry.booking_date);
+            return {
+              date: monthNames[date.getMonth()],
+              data: entry.average_meals_per_day,
+            };
+          }
+        );
+
+        const transformedBreakfast = breakfast.map(
+          (entry: { booking_date: string; average_breakfasts_per_day: string }) => {
+            const date = new Date(entry.booking_date);
+            return {
+              date: monthNames[date.getMonth()],
+              data: entry.average_breakfasts_per_day,
+            };
+          }
+        );
+
+        setRoomData(transformedRoom);
+        setMealData(transformedMeal);
+        setBreakfastData(transformedBreakfast);
       }
 
-      const transformedRoom = room.map(
-        (entry: { booking_date: string; rooms_booked: string }) => ({
-          date: entry.booking_date.slice(8, 10),
-          data: entry.rooms_booked,
-        })
-      );
-      const transformedMeal = meal.map(
-        (entry: { booking_date: string; average_meals_per_day: string }) => ({
-          date: entry.booking_date.slice(8, 10),
-          data: entry.average_meals_per_day,
-        })
-      );
 
-      const transformedBreakfast = breakfast.map(
-        (entry: {
-          booking_date: string;
-          average_breakfasts_per_day: string;
-        }) => ({
-          date: entry.booking_date.slice(8, 10),
-          data: entry.average_breakfasts_per_day,
-        })
-      );
 
-      setRoomData(transformedRoom);
-      setMealData(transformedMeal);
-      setBreakfastData(transformedBreakfast);
+
       setCompanyData(company);
       setLoading(false);
     } catch (error) {
