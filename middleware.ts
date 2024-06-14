@@ -12,7 +12,7 @@ export default async function middleware(req: NextRequest) {
 
 
   if (path === "/") {
-    return NextResponse.redirect(new URL("/home",req.nextUrl));
+    return NextResponse.redirect(new URL("/admin/login",req.nextUrl));
   }
   if(isAdminRoute && !adminCookie) {
     console.log("redirected from here")

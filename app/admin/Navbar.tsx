@@ -5,6 +5,7 @@ import { addIcon, addPersonIcon, analyticsIcon, calenderIcon, mailIcon, searchIc
 import { usePathname, useRouter } from "next/navigation";
 import { Logout } from "@mui/icons-material";
 import { deleteAuthAdmin } from "../actions/cookie";
+import logo from "../assets/anchorage_logo1.png"
 
 function Navbar() {
   const [search, setSearch] = useState("");
@@ -26,7 +27,8 @@ function Navbar() {
   ];
   return (
     <div className="fixed flex flex-col space-y-8 top-0 left-0 h-screen w-80 max-[1050px]:w-60 border px-10 max-[1050px]:px-5 py-7 max-[920px]:h-20 max-[920px]:w-screen max-[920px]:flex-row max-[920px]:py-3 max-[920px]:space-y-1 max-[920px]:justify-between">
-      <div className="font-medium text-xl max-[920px]:flex max-[920px]:items-center">Anchorage Admin</div>
+      <div className=" flex items-center font-medium text-xl max-[920px]:flex max-[920px]:items-center">
+        <img src={logo.src} alt="logo" style={{height:"40px"}}/><span className="ml-3">Anchorage Admin</span></div>
       <div className="text-sm space-y-3">
         {options.map((option, index) => {
 

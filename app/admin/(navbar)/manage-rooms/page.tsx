@@ -10,6 +10,7 @@ import {
   ModalDialog,
   Snackbar,
   Stack,
+  Chip,
   Typography,
   Divider
 } from "@mui/joy";
@@ -25,21 +26,11 @@ import { getAuthAdmin } from "@/app/actions/cookie";
 type Room = {
   name: string;
   status: string;
+  upcoming: string;
 };
 
 function CheckAvailableRooms() {
-  // const rooms: Room[] = [
-  //   { name: "201", status: "Available" },
-  //   { name: "202", status: "Booked" },
-  //   { name: "203", status: "Available" },
-  //   { name: "204", status: "Available" },
-  //   { name: "205", status: "Booked" },
-  //   { name: "206", status: "Booked" },
-  //   { name: "207", status: "Available" },
-  //   { name: "208", status: "Booked" },
-  // ];
   const [rooms, setRooms] = useState<Room[]>([]);
-
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [reload, setReload] = useState(false);
@@ -55,31 +46,31 @@ function CheckAvailableRooms() {
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
   const [del, setDel] = useState(false);
-  const [delId, setDelId] = useState("")
-  const [admin, setAdmin] = useState("admin")
-  const [token, setToken] = useState("")
+  const [delId, setDelId] = useState("");
+  const [admin, setAdmin] = useState("admin");
+  const [token, setToken] = useState("");
 
   useEffect(() => {
     getAuthAdmin().then(auth => {
-      if(auth)
+      if (auth)
         setToken(auth.value);
-    })
-  },[])
+    });
+  }, []);
 
   async function handleDelete() {
     try {
-      setLoading(true)
-      const res = await deleteRoom(token,delId);
-      setMessage(res.message)
+      setLoading(true);
+      const res = await deleteRoom(token, delId);
+      setMessage(res.message);
       setAlert(true);
-      setDel(false)
-      setLoading(false)
+      setDel(false);
+      setLoading(false);
       setReload(!reload);
     } catch (error) {
-      setDel(false)
-      setLoading(false)
-      setMessage("Something went wrong, Please try again later!")
-      setAlert(true)
+      setDel(false);
+      setLoading(false);
+      setMessage("Something went wrong, Please try again later!");
+      setAlert(true);
     }
   }
 
@@ -95,14 +86,12 @@ function CheckAvailableRooms() {
     getTokenData();
   }, []);
 
-
   useEffect(() => {
     const currentDate = new Date();
     const formattedDate = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD
     const formattedTime = currentDate.toTimeString().split(" ")[0].slice(0, 5); // HH:MM
     setMinCheckinDate(formattedDate);
     setMinCheckinTime(formattedTime);
-
   }, []);
 
   const handleCheckinDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,14 +107,14 @@ function CheckAvailableRooms() {
     try {
       const response = await addNewRoom(token, room);
       setAlert(true);
-      setMessage(response.message)
+      setMessage(response.message);
       setReload(!reload);
       setLoading(false);
       setOpen(false);
     } catch (error) {
       setAlert(true);
       setLoading(false);
-      setMessage("Something went wrong, Please try again later!")
+      setMessage("Something went wrong, Please try again later!");
       setOpen(false);
     }
   }
@@ -135,10 +124,7 @@ function CheckAvailableRooms() {
     const checkoutDateTime = new Date(`${checkinDate}T${selectedTime}`);
     const checkinDateTime = new Date(`${checkinDate}T${checkinTime}`);
 
-    // console.log(checkinDate)
-    // console.log(checkoutDate)
-
-    if (checkoutDate === checkinDate &&  selectedTime <= checkinTime) {
+    if (checkoutDate === checkinDate && selectedTime <= checkinTime) {
       setError(
         "Check-out date and time must be greater than check-in date and time."
       );
@@ -163,7 +149,7 @@ function CheckAvailableRooms() {
 
   const handleCheckoutDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedDate = e.target.value;
-    if (selectedDate === checkinDate &&  checkoutTime <= checkinTime) {
+    if (selectedDate === checkinDate && checkoutTime <= checkinTime) {
       setError(
         "Check-out date and time must be greater than check-in date and time."
       );
@@ -174,16 +160,17 @@ function CheckAvailableRooms() {
   };
 
   useEffect(() => {
-    if(token !== "") {
+    if (token !== "") {
       setLoading(true);
       getInstantRooms(token)
         .then((res) => {
           setLoading(false);
           let newRooms: Room[] = [];
-          res.map((room: { room: string; status: string }) => {
+          res.map((room: { room: string; status: string, upcoming: boolean }) => {
             newRooms.push({
               status: room.status,
               name: room.room,
+              upcoming: room.upcoming ? "Upcoming" : "",
             });
           });
           console.log("new rooms: ", newRooms);
@@ -192,7 +179,7 @@ function CheckAvailableRooms() {
         })
         .catch((error) => {
           setLoading(false);
-          console.log("errror");
+          console.log("error");
         });
     }
   }, [reload, token]);
@@ -201,17 +188,17 @@ function CheckAvailableRooms() {
     const checkinDateTime = new Date(`${checkinDate}T${checkinTime}`);
     const checkoutDateTime = new Date(`${checkoutDate}T${checkoutTime}`);
     if (error === "") {
-      // setError("");
       console.log("Search for available rooms");
       try {
         setLoading(true);
-        const res = await getAvailableRooms(token,checkinDateTime, checkoutDateTime);
+        const res = await getAvailableRooms(token, checkinDateTime, checkoutDateTime);
         let newRooms: Room[] = [];
         console.log(res);
         res.map((room: { room: string; condition_met: string }) => {
           newRooms.push({
             name: room.room,
             status: "Available",
+            upcoming: "",
           });
         });
         setRooms(newRooms);
@@ -282,49 +269,61 @@ function CheckAvailableRooms() {
       <div className="px-8 w-[90%]">
         <div className="flex justify-between">
           <div className="text-2xl font-semibold mb-6">Choose room</div>
-          {(admin==="superadmin")&&(<div>
-            <Button
-              variant="outlined"
-              onClick={() => setOpen(true)}
-              color="neutral"
-              startDecorator={<Add />}
-            >
-              Add Room
-            </Button>
-          </div>)}
+          {(admin === "superadmin") && (
+            <div>
+              <Button
+                variant="outlined"
+                onClick={() => setOpen(true)}
+                color="neutral"
+                startDecorator={<Add />}
+              >
+                Add Room
+              </Button>
+            </div>
+          )}
         </div>
         <div
-          className={`${loading && "justify-center items-center"
-            } flex gap-x-4 gap-y-4 flex-wrap`}
+          className={`${loading && "justify-center items-center"} flex gap-x-4 gap-y-4 flex-wrap`}
         >
           {loading && <CircularProgress />}
           {!loading &&
-            rooms.map((room, key) => {
-              return (
-                <div
-                  onClick={() => {
-                    router.push(`/admin/manage-rooms/${room.name}`);
-                  }}
-                  key={key}
-                  className={`border relative hover:bg-slate-100 transition-all duration-500 space-y-1 p-4 w-[168px] cursor-pointer h-20 rounded-lg`}
-                >
-                  {(admin==="superadmin")&&(<div onClick={(event) => { event.stopPropagation(); setDel(true); setDelId(room.name) }} className="absolute -right-[18px] rounded-full z-20 -top-[20px] text-slate-400 scale-[70%] hover:bg-red-50 p-2 "><Cancel /></div>)}
-                  {/* <div className="flex justify-between"> */}
-                  {/* </div> */}
-                  <div className="text-[#1C1C21] font-bold">{room.name}</div>
+            rooms.map((room, key) => (
+              <div
+                onClick={() => {
+                  router.push(`/admin/manage-rooms/${room.name}`);
+                }}
+                key={key}
+                className={`border relative hover:bg-slate-100 transition-all duration-500 space-y-1 p-4 w-[168px] cursor-pointer h-20 rounded-lg`}
+              >
+                {(admin === "superadmin") && (
                   <div
-                    className={`${room.status === "Booked" || room.status === "4/4"
+                    onClick={(event) => { event.stopPropagation(); setDel(true); setDelId(room.name); }}
+                    className="absolute -right-[18px] rounded-full z-20 -top-[20px] text-slate-400 scale-[70%] hover:bg-red-50 p-2 "
+                  >
+                    <Cancel />
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <div>
+                    <div className="text-[#1C1C21] font-bold">{room.name}</div>
+                    <div
+                      className={`${room.status === "Booked" || room.status === "4/4"
                         ? "text-red-600"
                         : room.status === "0/4" || room.status === "Available"
                           ? "text-green-600"
                           : "text-orange-500"
-                      } text-sm font-medium`}
-                  >
-                    {room.status}
+                        } text-sm font-medium`}
+                    >
+                      {room.status}
+                    </div>
                   </div>
+                  <div className="flex items-center">
+                    {room.upcoming==="Upcoming"?(<Chip size="sm" variant="outlined" color="warning">
+                    {room.upcoming}
+                  </Chip>):(" ")}</div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
         </div>
       </div>
       <Modal open={open} onClose={() => setOpen(false)}>
@@ -349,10 +348,6 @@ function CheckAvailableRooms() {
                   required
                 />
               </FormControl>
-              {/* <FormControl>
-                <FormLabel>Description</FormLabel>
-                <Input required />
-              </FormControl> */}
               <Button onClick={handleAddRoom} loading={loading} type="submit">
                 Submit
               </Button>
@@ -367,7 +362,6 @@ function CheckAvailableRooms() {
           setAlert(false);
         }}
       >
-        {" "}
         <Info /> {message}{" "}
         <span
           onClick={() => setAlert(false)}
@@ -388,9 +382,7 @@ function CheckAvailableRooms() {
             Confirmation
           </DialogTitle>
           <Divider />
-          {/* <DialogContent></DialogContent> */}
-
-          <div className="">Are you sure you want to delete room {delId} ?</div>
+          <div>Are you sure you want to delete room {delId} ?</div>
           <DialogActions>
             <Button
               variant="solid"
