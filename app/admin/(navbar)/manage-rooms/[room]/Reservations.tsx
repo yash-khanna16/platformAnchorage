@@ -100,9 +100,10 @@ const Reservations: React.FC<ReservationsProps> = ({
 
   const mapToFormData = (id: any): FormDataReservation => {
     const formatDate = (dateStr: string) => {
-      const [day, month, year] = dateStr.split("-");
+      const [day, month, year] = dateStr.split("-").map(part => parseInt(part, 10));
       return `${year}-${month}-${day}`;
     };
+    
 
     const [checkinDate, checkinTime] = id.checkin.split(" ");
     const [checkoutDate, checkoutTime] = id.checkout.split(" ");
@@ -121,9 +122,9 @@ const Reservations: React.FC<ReservationsProps> = ({
       rank: id.rank,
       remarks: id.remarks,
       additionalInfo: id.additional_info,
-      breakfast: id.breakfast,
-      veg: id.meal_veg,
-      nonVeg: id.meal_non_veg,
+      breakfast: parseInt(id.breakfast),
+      veg: parseInt(id.meal_veg),
+      nonVeg: parseInt(id.meal_non_veg),
       originalEmail:id.email,
       room:id.room
     };
