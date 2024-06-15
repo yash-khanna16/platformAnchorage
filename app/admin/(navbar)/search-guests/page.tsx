@@ -27,8 +27,8 @@ type ReservationType = {
 
 
 function Guests() {
-  const columns = ["booking_id", "name", "room","status", "checkin", "checkout", "email", "guest_email", "phone", "company", "vessel", "remarks", "additional_info", "breakfast", "meal_non_veg", "meal_veg", "rank"];
-  const headers = ["ID", "Name", "Room No.","Status", "Check In", "Check Out", "Email", "Guest Email", "Phone No.", "Company", "Vessel", "Remarks", "Additional Information", "Breakfast", "Non-Veg Meal", "Veg Meal", "Rank"];
+  const columns = ["booking_id", "name", "room","status", "checkin", "checkout", "email", "phone", "company", "vessel", "remarks", "additional_info", "breakfast", "meal_non_veg", "meal_veg", "rank"];
+  const headers = ["ID", "Name", "Room No.","Status", "Check In", "Check Out", "Email", "Phone No.", "Company", "Vessel", "Remarks", "Additional Information", "Breakfast", "Non-Veg Meal", "Veg Meal", "Rank"];
   const [search, setSearch] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<ReservationType[]>([]);
