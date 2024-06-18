@@ -149,7 +149,7 @@ function Room() {
 
   return (
     <div className="my-11">
-      <div className="space-y-10 w-[70vw] max-[920px]:w-11/12 mx-auto">
+      <div className="space-y-10 w-[70vw] max-lg:w-11/12 mx-auto">
         <div className="flex space-x-2 font-medium">
           <div
             onClick={() => {
