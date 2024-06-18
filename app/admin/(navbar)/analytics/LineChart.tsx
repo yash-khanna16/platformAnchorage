@@ -208,9 +208,9 @@ function LineChart({title,chartData,theme,graphType}:{title: string, chartData: 
   const currentMonth = new Date().toLocaleString("default", { month: "long" });
 
   return (
-    <div className="chart-container px-6 py-4">
+    <div className="chart-container px-6 py-4  max-[920px]:p-1">
       <div className="flex justify-between">
-        <div className="text-lg font-bold text-[#353738]">{title}</div>
+        <div className="text-lg max-[920px]:text-center font-bold text-[#353738]">{title}</div>
         {/* <Select indicator={<KeyboardArrowDown />} size="sm" defaultValue="June">
           <Option value="June">June</Option>
           <Option value="May">May</Option>

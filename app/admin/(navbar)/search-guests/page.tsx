@@ -117,7 +117,7 @@ function Guests() {
   }, [search, rows]);
 
   return (
-    <div className=' my-11 mx-32'>
+    <div className=' my-11 mx-32 max-[1420px]:mx-10 max-[920px]:mx-5'>
       <Reservations reload={reload} setReload={setReload} loading={loading} handleSearch={handleSearch} search={search} setSearch={setSearch} rowsData={filteredRows}  columns={columns} headers={headers} />
     </div>
   )

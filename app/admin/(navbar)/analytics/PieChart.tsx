@@ -37,9 +37,9 @@ function DonutChart(props: any) { // Renamed PieChart to DonutChart
   };
   const currentMonth = new Date().toLocaleString('default', { month: 'long' });
   return (
-    <div className="chart-container h-full w-full  px-8 py-4 ">
-        <div className="text-lg  font-bold text-[#353738]">{props.title}</div>
-        <div className="w-1/2 h-full mx-auto my-2">
+    <div className="chart-container h-full w-full  px-8 py-4 max-[920px]:p-1 ">
+        <div className="text-lg max-[920px]:text-center font-bold text-[#353738]">{props.title}</div>
+        <div className="w-6/12 mx-auto my-2">
 
         <Doughnut // Changed Pie to Doughnut
         data={chartData}
@@ -50,7 +50,7 @@ function DonutChart(props: any) { // Renamed PieChart to DonutChart
               text: `For the month of ${currentMonth}`
             },
             legend: {
-              display: true,
+              display: false,
               position: 'bottom'
             }
           },

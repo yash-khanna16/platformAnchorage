@@ -210,7 +210,7 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
   return (
     <form onSubmit={handleSubmit} className="space-y-10 -w-full">
       <div className="text-3xl font-semibold mb-6">New Booking</div>
-      <div className="grid grid-cols-2 gap-4 w-full">
+      <div className="grid grid-cols-2 gap-4 w-full max-lg:grid-cols-1">
         <FormControl size="lg" className="space-y-1">
           <FormLabel className="text-[#0D141C] font-medium">Name</FormLabel>
           <Input

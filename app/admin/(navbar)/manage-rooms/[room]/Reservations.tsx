@@ -264,7 +264,7 @@ const Reservations: React.FC<ReservationsProps> = ({
     <>
       <div>
         <div className="mb-6">
-          <Typography variant="h3" component="div" fontWeight="bold">
+          <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
             Search Reservations
           </Typography>
         </div>
@@ -302,7 +302,7 @@ const Reservations: React.FC<ReservationsProps> = ({
           setEdit(false);
         }}
       >
-        <ModalDialog size="lg">
+        <ModalDialog className="w-6/12 max-xl:w-8/12 max-lg:w-9/12 max-md:w-10/12 max-sm:w-full">
           <ModalClose />
           <DialogTitle>
             <span className="text-2xl">Edit Booking</span>
