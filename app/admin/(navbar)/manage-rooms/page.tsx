@@ -211,8 +211,8 @@ function CheckAvailableRooms() {
   };
 
   return (
-    <div className="mx-4 p-4 my-5 max-[1050px]:mx-0 flex h-[95vh] space-y-4 font-medium max-[920px]:flex-col">
-      <div className="checkin-checkout-input flex flex-col w-[35vw] border-r h-full py-2 pr-6 space-y-2  max-[960px]:w-[70%] max-[500px]:w-full mx-auto max-[920px]:border-none">
+    <div className="mx-4 p-4 my-5 max-[1050px]:mx-0 flex h-[95vh] space-y-4 font-medium max-lg:flex-col">
+      <div className="checkin-checkout-input flex flex-col w-[35vw] border-r h-full py-2 pr-6 space-y-2  max-lg:w-[70%] max-sm:w-full mx-auto max-lg:border-none">
         <div className="text-2xl font-semibold mb-6">Check Available Rooms</div>
         <div>
           <div className="space-y-6">
@@ -266,7 +266,7 @@ function CheckAvailableRooms() {
           </div>
         </div>
       </div>
-      <div className="px-8 w-[90%] max-[920px]:w-full max-[920px]:px-1">
+      <div className="px-8 w-[90%] max-lg:w-full max-lg:px-1">
         <div className="flex justify-between">
           <div className="text-2xl font-semibold mb-6">Choose room</div>
           {(admin === "superadmin") && (
@@ -293,7 +293,7 @@ function CheckAvailableRooms() {
                   router.push(`/admin/manage-rooms/${room.name}`);
                 }}
                 key={key}
-                className={`border relative hover:bg-slate-100 transition-all duration-500 space-y-1 p-4 w-[168px] cursor-pointer h-20 rounded-lg`}
+                className={`border relative hover:bg-slate-100 transition-all duration-500 space-y-1 p-4 w-[150px] cursor-pointer h-20 rounded-lg`}
               >
                 {(admin === "superadmin") && (
                   <div

@@ -328,8 +328,8 @@ function Analytics() {
   }, [token, roomData]);
 
   return (
-    <div className="p-5 max-[960px]:p-1 ">
-      <div className="text-4xl mx-5 px-5 flex justify-between items-center font-semibold max-[960px]:px-2 max-[960px]:mx-0">
+    <div className="p-5 max-lg:p-1 ">
+      <div className="text-4xl mx-5 px-5 flex justify-between items-center font-semibold max-lg:px-2 max-lg:mx-0">
         <div>Analytics</div>
         <FormControl sx={{ m: 1, minWidth: 120 }}>
           <Select
@@ -359,7 +359,7 @@ function Analytics() {
           <CircularProgress />
         </div>
       ) : (
-        <div className=" m-5 rounded-xl p-5 max-[920px]:m-0 max-[920px]:p-2">
+        <div className=" m-5 rounded-xl p-5 max-lg:m-0 max-lg:p-2">
           <div className="flex justify-end"></div>
           <div className="flex gap-5">
             {/* <div className=" w-1/2 shadow-md flex justify-around p-3 rounded-xl border">
@@ -472,7 +472,7 @@ function Analytics() {
                 </div>
               </div>
             </div> */}
-            <div className="w-[100%] grid grid-cols-3 gap-3 max-[1250px]:grid-cols-2 max-[600px]:grid-cols-1 max-[600px]:w-6/12 max-[500]:w-10/12">
+            <div className="w-[100%] grid grid-cols-3 gap-3 max-xl:grid-cols-2 max-md:grid-cols-1 max-md:w-8/12 max-sm:w-10/12 max-md:mx-auto">
               <MonthCard
                 title="Bookings"
                 thisMonth={bookings}
@@ -522,40 +522,37 @@ function Analytics() {
               </div>
             </div> */}
           </div>
-          <div className="flex max-md:flex-col  justify-between gap-5 mt-5">
-            <div className="w-1/2 max-md:w-full flex-col  flex items-center  ">
-              <div className="p-3 shadow-md w-full  border rounded-xl max-[920px]:p-0">
-                <LineChart
-                  graphType={selectedOption}
-                  theme="blue"
-                  chartData={mealData}
-                  title="Meals Served Per Day"
-                />
-              </div>
-              <div className=" w-full h-full  mt-5 shadow-md border flex justify-center   rounded-xl">
-                <PieChart
-                  chartData={companyData}
-                  title="Company Wise Booking Per Day"
-                />
-              </div>
+          <div className="grid grid-cols-2 gap-5 mt-5 max-xl:grid-cols-1">
+            <div className="p-5 shadow-md w-full  border rounded-xl max-lg:p-0">
+              <LineChart
+                graphType={selectedOption}
+                theme="blue"
+                chartData={mealData}
+                title="Meals Served Per Day"
+              />
             </div>
-            <div className="w-1/2 max-md:w-full flex-col  flex items-center  ">
-              <div className="mb-5 p-3 shadow-md w-full  border rounded-xl max-[920px]:p-0">
-                <LineChart
-                  graphType={selectedOption}
-                  theme="cyan"
-                  chartData={roomData}
-                  title="Rooms Booked Per Day"
-                />
-              </div>
-              <div className=" p-3 shadow-md w-full  border rounded-xl max-[920px]:p-0">
-                <LineChart
-                  graphType={selectedOption}
-                  theme="red"
-                  chartData={breakfastData}
-                  title="Breakfast Served Per Day"
-                />
-              </div>
+            <div className="p-5 shadow-md w-full h-full  border rounded-xl max-lg:p-0">
+              <PieChart
+                chartData={companyData}
+                title="Company Wise Booking Per Day"
+              />
+            </div>
+
+            <div className="p-5 shadow-md w-full  border rounded-xl max-lg:p-0">
+              <LineChart
+                graphType={selectedOption}
+                theme="cyan"
+                chartData={roomData}
+                title="Rooms Booked Per Day"
+              />
+            </div>
+            <div className="p-5 shadow-md w-full  border rounded-xl max-lg:p-0">
+              <LineChart
+                graphType={selectedOption}
+                theme="red"
+                chartData={breakfastData}
+                title="Breakfast Served Per Day"
+              />
             </div>
           </div>
         </div>
