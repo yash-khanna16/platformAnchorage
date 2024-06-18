@@ -271,7 +271,7 @@ function CheckAvailableRooms() {
             </div>
           )}
         </div>
-        <div className={` justify-between max-sm:justify-around items-center  flex gap-x-4 gap-y-4 flex-wrap`}>
+        <div className={` justify-start max-sm:justify-around items-center  flex gap-x-4 gap-y-4 flex-wrap`}>
           {loading && <CircularProgress />}
           {!loading &&
             rooms.map((room, key) => (
