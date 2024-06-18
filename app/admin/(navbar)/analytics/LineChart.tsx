@@ -194,7 +194,7 @@ function LineChart({title,chartData,theme,graphType}:{title: string, chartData: 
         // borderColor: "#08acf8", // Blue border color
         // pointBorderColor: "#08acf8",
         ...THEME_MAP.get(theme),
-        pointRadius: graphType==="month"?5:0, // Size of the data points
+        pointRadius:0, // Size of the data points
         pointHoverRadius: 8, // Size of the data points when hovered
         fill: true,
         borderWidth: 2,
@@ -208,7 +208,7 @@ function LineChart({title,chartData,theme,graphType}:{title: string, chartData: 
   const currentMonth = new Date().toLocaleString("default", { month: "long" });
 
   return (
-    <div className="chart-container">
+    <div className="chart-container ">
       <div className="flex justify-between">
         <div className="text-lg max-xl:text-center w-full font-bold text-[#353738]">{title}</div>
         {/* <Select indicator={<KeyboardArrowDown />} size="sm" defaultValue="June">
