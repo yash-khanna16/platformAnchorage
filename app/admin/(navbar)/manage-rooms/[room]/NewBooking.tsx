@@ -35,7 +35,13 @@ interface FormData {
   nonVeg: number;
 }
 
-function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispatch<SetStateAction<boolean>>}): JSX.Element {
+function NewBooking({
+  reload,
+  setReload,
+}: {
+  reload: boolean;
+  setReload: React.Dispatch<SetStateAction<boolean>>;
+}): JSX.Element {
   const params = useParams();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -45,14 +51,13 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
   const [minCheckinTime, setMinCheckinTime] = useState<string>("");
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
-  const [token, setToken] = useState("")
+  const [token, setToken] = useState("");
 
   useEffect(() => {
-    getAuthAdmin().then(auth => {
-      if(auth)
-        setToken(auth.value);
-    })
-  },[])
+    getAuthAdmin().then((auth) => {
+      if (auth) setToken(auth.value);
+    });
+  }, []);
 
   useEffect(() => {
     const currentDate = new Date();
@@ -101,12 +106,27 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    const { name, value, type } = e.target;
-    if (type === "number") {
+    const { name, value } = e.target;
+
+    // For the Phone Number field, restrict input to numbers only
+    if (name === "phoneNumber") {
+      // Replace non-numeric characters with an empty string
+      const numericValue = value.replace(/\D/g, "").slice(0, 10); // Keep only the first 10 digits
       setFormData((prevData) => ({
         ...prevData,
-        [name]: parseInt(value),
+        [name]: numericValue,
       }));
+      if (numericValue.length < 10) {
+        setErrors((prevData) => ({
+          ...prevData,
+          phoneNumber: "Phone number must be of 10 digits",
+        }));
+      } else {
+        setErrors((prevData) => ({
+          ...prevData,
+          phoneNumber: "",
+        }));
+      }
     } else {
       setFormData((prevData) => ({
         ...prevData,
@@ -125,11 +145,12 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
         checkinDate: "",
       }));
     }
+
+    // Clear individual field errors when changing any field
     setErrors((prevData) => ({
       ...prevData,
       [name]: "",
     }));
-    // For other fields, simply update the state with the provided value
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -149,13 +170,17 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
       newErrors.checkoutDate =
         "Check-out date and time must be after the check-in date and time.";
     }
-    if(formData.email){
-
+    if (formData.email) {
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  
+
       if (!emailPattern.test(formData.email)) {
         newErrors.email = "Please enter a valid email address.";
       }
+    }
+
+    if (formData.phoneNumber.length < 10) {
+      newErrors.phoneNumber = "Phone number must be of 10 digits";
+
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -235,10 +260,12 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
             placeholder="Email Address"
           />
           {errors.email && (
-            <FormControl  error> <FormHelperText >{errors.email}</FormHelperText>
+            <FormControl error>
+              {" "}
+              <FormHelperText>{errors.email}</FormHelperText>
             </FormControl>
           )}
-          </FormControl>
+        </FormControl>
 
         <div className="space-y-1">
           <FormControl size="lg">
@@ -253,7 +280,6 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
               size="lg"
               value={formData.checkinDate}
               onChange={handleChange}
-              
               error={
                 errors.checkinDate !== undefined && errors.checkinDate !== ""
               }
@@ -273,7 +299,10 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
           </div>
 
           {errors.checkinDate && (
-            <FormControl  error> <FormHelperText >{errors.checkinDate}</FormHelperText> </FormControl> 
+            <FormControl error>
+              {" "}
+              <FormHelperText>{errors.checkinDate}</FormHelperText>{" "}
+            </FormControl>
           )}
         </div>
 
@@ -289,7 +318,6 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
               size="lg"
               value={formData.checkoutDate}
               name="checkoutDate"
-          
               error={
                 errors.checkoutDate !== undefined && errors.checkoutDate !== ""
               }
@@ -309,7 +337,10 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
             />
           </div>
           {errors.checkoutDate && (
-            <FormControl  error> <FormHelperText >{errors.checkoutDate}</FormHelperText> </FormControl>
+            <FormControl error>
+              {" "}
+              <FormHelperText>{errors.checkoutDate}</FormHelperText>{" "}
+            </FormControl>
           )}
         </div>
 
@@ -321,9 +352,20 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
             name="phoneNumber"
             value={formData.phoneNumber}
             onChange={handleChange}
+            type="tel"
             size="lg"
             placeholder="Phone Number"
+            slotProps={{
+              input: {
+                inputMode: "numeric",
+                pattern: "[0-9]*",
+                maxLength: 10,
+              },
+            }}
           />
+          <FormControl error>
+            <FormHelperText>{errors.phoneNumber}</FormHelperText>
+          </FormControl>
         </FormControl>
 
         <FormControl size="lg" className="space-y-1">
@@ -453,14 +495,14 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
           </div>
         </div>
       </div>
-      <Button loading={loading} type="submit" size="lg" className="w-1/2">
+      <Button loading={loading} type="submit" size="lg" className="w-1/2 max-xl:w-full">
         Book Now
       </Button>
       <Modal
         open={open}
         onClose={() => {
           setOpen(false);
-          setReload(!reload);          
+          setReload(!reload);
         }}
       >
         <ModalDialog size="lg">
@@ -469,7 +511,7 @@ function NewBooking({reload, setReload}:{reload: boolean, setReload: React.Dispa
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
               <CheckCircle className="h-40 scale-[500%] text-green-600" />
-              <div className="font-semibold text-2xl">
+              <div className="font-semibold text-2xl text-center">
                 Room Booked Successfully!
               </div>
             </div>

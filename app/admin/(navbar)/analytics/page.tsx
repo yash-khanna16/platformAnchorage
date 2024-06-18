@@ -472,7 +472,7 @@ function Analytics() {
                 </div>
               </div>
             </div> */}
-            <div className="w-[100%] grid grid-cols-3 gap-3 max-xl:grid-cols-2 max-md:grid-cols-1 max-md:w-8/12 max-sm:w-10/12 max-md:mx-auto">
+            <div className="w-[100%] grid grid-cols-3 gap-3 max-xl:grid-cols-2 max-md:grid-cols-1 max-md:w-8/12 max-sm:w-full max-md:mx-auto">
               <MonthCard
                 title="Bookings"
                 thisMonth={bookings}
@@ -523,7 +523,7 @@ function Analytics() {
             </div> */}
           </div>
           <div className="grid grid-cols-2 gap-5 mt-5 max-xl:grid-cols-1">
-            <div className="p-5 shadow-md w-full  border rounded-xl max-lg:p-0">
+            <div className="p-5 shadow-md w-full xl:h-[45vh] border rounded-xl max-lg:p-0">
               <LineChart
                 graphType={selectedOption}
                 theme="blue"
@@ -531,14 +531,14 @@ function Analytics() {
                 title="Meals Served Per Day"
               />
             </div>
-            <div className="p-5 shadow-md w-full h-full  border rounded-xl max-lg:p-0">
+            <div className="p-5 shadow-md w-full  xl:h-[45vh]  border rounded-xl max-lg:p-0">
               <PieChart
                 chartData={companyData}
                 title="Company Wise Booking Per Day"
               />
             </div>
 
-            <div className="p-5 shadow-md w-full  border rounded-xl max-lg:p-0">
+            <div className="p-5 shadow-md w-full xl:h-[45vh]  border rounded-xl max-lg:p-0">
               <LineChart
                 graphType={selectedOption}
                 theme="cyan"
@@ -546,7 +546,7 @@ function Analytics() {
                 title="Rooms Booked Per Day"
               />
             </div>
-            <div className="p-5 shadow-md w-full  border rounded-xl max-lg:p-0">
+            <div className="p-5 shadow-md w-full xl:h-[45vh]  border rounded-xl max-lg:p-0">
               <LineChart
                 graphType={selectedOption}
                 theme="red"
