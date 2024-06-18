@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Logout } from "@mui/icons-material";
-import SearchInput from "../components/Search";
+import Drawer from '@mui/joy/Drawer';
 import { addIcon, addPersonIcon, analyticsIcon, calenderIcon, mailIcon, searchIcon } from "../../assets/icons";
 import { deleteAuthAdmin, getAuthAdmin } from "../actions/cookie";
 import { parseJwt } from "../actions/utils";
@@ -46,14 +46,28 @@ function Navbar() {
     { icon: addPersonIcon, route: "add-guest", value: "Add Guest" },
     { icon: mailIcon, route: "emails", value: "Emails" },
   ];
+  const [open, setOpen] = React.useState(false);
+
+  const toggleDrawer =
+    (inOpen: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+      if (
+        event.type === 'keydown' &&
+        ((event as React.KeyboardEvent).key === 'Tab' ||
+          (event as React.KeyboardEvent).key === 'Shift')
+      ) {
+        return;
+      }
+
+      setOpen(inOpen);
+    };
 
   return (
-    <div className="fixed flex flex-col space-y-8 top-0 left-0 h-screen w-80 max-[1050px]:w-60 border px-10 max-[1050px]:px-5 py-7 max-[920px]:h-20 max-[920px]:w-screen max-[920px]:flex-row max-[920px]:py-3 max-[920px]:space-y-1 max-[920px]:justify-between">
-      <div className="flex items-center font-medium text-xl max-[920px]:flex max-[920px]:items-center">
+    <div className="fixed bg-white z-50 flex flex-col items-center space-y-8 top-0 left-0 h-screen w-80 max-xl:w-60 border px-10 py-7 max-xl:px-3 max-[920px]:h-20 max-[920px]:w-screen max-[920px]:flex-row max-[920px]:py-3 max-[920px]:space-y-1 max-[920px]:justify-between">
+      <div className="flex items-center font-medium text-xl max-[920px]:w-full">
         <img src={logo.src} alt="logo" style={{ height: "40px" }} />
-        <span className="ml-3">Anchorage Admin</span>
+        <span className="ml-3 max-[920px]:text-lg">Anchorage Admin</span>
       </div>
-      <div className="text-sm space-y-3">
+      <div className="text-sm space-y-3 w-full px-2">
         {options.map((option, index) => {
           if (option.value === "Analytics" && !admin) {
             return null;
@@ -64,9 +78,8 @@ function Navbar() {
               onClick={() => {
                 router.push(`/admin/${option.route}`);
               }}
-              className={`flex space-x-3 font-medium rounded-xl ${
-                option.route === path ? "bg-[#E8EDF5]" : ""
-              } cursor-pointer items-center px-3 py-2 max-[920px]:hidden`}
+              className={`flex space-x-3 font-medium rounded-xl ${option.route === path ? "bg-[#E8EDF5]" : ""
+                } cursor-pointer items-center px-3  py-2 max-[920px]:hidden`}
             >
               {option.icon}
               <div>{option.value}</div>
@@ -75,13 +88,59 @@ function Navbar() {
         })}
         <div
           onClick={handleLogout}
-          className="flex space-x-3 font-medium rounded-xl text-red-600 cursor-pointer items-center px-3 py-2"
+          className="flex space-x-3 font-medium rounded-xl text-red-600 cursor-pointer items-center px-3 py-2 max-[920px]:hidden"
         >
           <Logout />
           <div>Logout</div>
         </div>
+        </div>
+        <div className="hidden max-[920px]:flex w-10 items-center justify-center">
+          <button
+            className="relative -top-1 right-2 w-10 h-10"
+            onClick={toggleDrawer(true)}
+            aria-label="Menu"
+          >
+            <div className={`absolute top-1/2 left-1/2 w-8 h-1 bg-black transition-transform duration-300 ease-in-out ${open ? 'rotate-45' : '-translate-y-2'} transform origin-center`}></div>
+            <div className={`absolute top-1/2 left-1/2 w-8 h-1 bg-black transition-opacity duration-300 ease-in-out ${open ? 'opacity-0' : ''}`}></div>
+            <div className={`absolute top-1/2 left-1/2 w-8 h-1 bg-black transition-transform duration-300 ease-in-out ${open ? '-rotate-45' : 'translate-y-2'} transform origin-center`}></div>
+          </button>
+        </div>
+        <Drawer size="md" variant="outlined" open={open} onClose={toggleDrawer(false)}>
+          <div className="p-2">
+            <div className="flex items-center my-3 font-medium text-xl max-[920px]:flex max-[920px]:items-center">
+              <img src={logo.src} alt="logo" style={{ height: "40px" }} />
+              <span className="ml-3">Anchorage Admin</span>
+            </div>
+            <div className="text-sm space-y-3 mt-10">
+              {options.map((option, index) => {
+                if (option.value === "Analytics" && !admin) {
+                  return null;
+                }
+                return (
+                  <div
+                    key={index}
+                    onClick={() => {
+                      router.push(`/admin/${option.route}`);
+                    }}
+                    className={`flex space-x-3 font-medium rounded-xl ${option.route === path ? "bg-[#E8EDF5]" : ""
+                      } cursor-pointer items-center px-3 py-2 `}
+                  >
+                    {option.icon}
+                    <div>{option.value}</div>
+                  </div>
+                );
+              })}
+              <div
+                onClick={handleLogout}
+                className="flex space-x-3 font-medium rounded-xl text-red-600 cursor-pointer items-center px-3 py-2 "
+              >
+                <Logout />
+                <div>Logout</div>
+              </div>
+            </div>
+          </div>
+        </Drawer>
       </div>
-    </div>
   );
 }
 
