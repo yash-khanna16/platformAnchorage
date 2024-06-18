@@ -42,7 +42,7 @@ function SendEmails() {
       });
   }
   return (
-    <div className="w-[700px] mx-auto pt-10 px-10">
+    <div className="w-[700px] mx-auto pt-10 px-10 max-md:w-full">
       <h1 className=" text-3xl font-bold">Welcome Email Template </h1>
       <form className=" mx-auto">
         <div className=" mt-[40px] space-y-2 ">

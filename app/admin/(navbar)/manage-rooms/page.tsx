@@ -12,7 +12,7 @@ import {
   Stack,
   Chip,
   Typography,
-  Divider
+  Divider,
 } from "@mui/joy";
 import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
@@ -21,7 +21,6 @@ import { getRole, addNewBooking, addNewRoom, deleteRoom, getAvailableRooms, getI
 import { CircularProgress } from "@mui/material";
 import { Add, Cancel, Close, DeleteForever, Info, WarningRounded } from "@mui/icons-material";
 import { getAuthAdmin } from "@/app/actions/cookie";
-
 
 type Room = {
   name: string;
@@ -51,9 +50,8 @@ function CheckAvailableRooms() {
   const [token, setToken] = useState("");
 
   useEffect(() => {
-    getAuthAdmin().then(auth => {
-      if (auth)
-        setToken(auth.value);
+    getAuthAdmin().then((auth) => {
+      if (auth) setToken(auth.value);
     });
   }, []);
 
@@ -80,7 +78,7 @@ function CheckAvailableRooms() {
         const role = await getRole();
         setAdmin(role);
       } catch (error) {
-        console.error('Failed to parse token:', error);
+        console.error("Failed to parse token:", error);
       }
     };
     getTokenData();
@@ -125,9 +123,7 @@ function CheckAvailableRooms() {
     const checkinDateTime = new Date(`${checkinDate}T${checkinTime}`);
 
     if (checkoutDate === checkinDate && selectedTime <= checkinTime) {
-      setError(
-        "Check-out date and time must be greater than check-in date and time."
-      );
+      setError("Check-out date and time must be greater than check-in date and time.");
     } else {
       setError("");
     }
@@ -138,9 +134,7 @@ function CheckAvailableRooms() {
   const handleCheckinTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedTime = e.target.value;
     if (checkinDate === minCheckinDate && selectedTime < minCheckinTime) {
-      setError(
-        `Check-in time cannot be earlier than ${minCheckinTime} on the selected date.`
-      );
+      setError(`Check-in time cannot be earlier than ${minCheckinTime} on the selected date.`);
     } else {
       setError("");
     }
@@ -150,9 +144,7 @@ function CheckAvailableRooms() {
   const handleCheckoutDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedDate = e.target.value;
     if (selectedDate === checkinDate && checkoutTime <= checkinTime) {
-      setError(
-        "Check-out date and time must be greater than check-in date and time."
-      );
+      setError("Check-out date and time must be greater than check-in date and time.");
     } else {
       setError("");
     }
@@ -166,7 +158,7 @@ function CheckAvailableRooms() {
         .then((res) => {
           setLoading(false);
           let newRooms: Room[] = [];
-          res.map((room: { room: string; status: string, upcoming: boolean }) => {
+          res.map((room: { room: string; status: string; upcoming: boolean }) => {
             newRooms.push({
               status: room.status,
               name: room.room,
@@ -187,7 +179,10 @@ function CheckAvailableRooms() {
   const handleSubmit = async () => {
     const checkinDateTime = new Date(`${checkinDate}T${checkinTime}`);
     const checkoutDateTime = new Date(`${checkoutDate}T${checkoutTime}`);
-    if (error === "") {
+
+    if (checkoutDateTime <= checkinDateTime) {
+      setError("Check-out date and time must be greater than check-in date and time.");
+    } else {
       console.log("Search for available rooms");
       try {
         setLoading(true);
@@ -211,22 +206,24 @@ function CheckAvailableRooms() {
   };
 
   return (
-    <div className="mx-4 p-4 my-5 max-[1050px]:mx-0 flex h-[95vh] space-y-4 font-medium">
-      <div className="checkin-checkout-input flex flex-col w-[35vw] border-r h-full py-2 pr-6 space-y-2">
+    <div className="mx-4 p-4 my-5 max-[1050px]:mx-0 flex h-[95vh] max-lg:h-auto max-md space-y-4 font-medium max-lg:flex-col">
+      <div className="checkin-checkout-input flex flex-col w-[35vw] border-r h-full py-2 pr-6 space-y-2  max-lg:w-[70%] max-sm:w-full mx-auto max-lg:border-none">
         <div className="text-2xl font-semibold mb-6">Check Available Rooms</div>
         <div>
-          <div className="space-y-6">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit();
+            }}
+            className="space-y-6"
+          >
             <div>Check-In </div>
             <div className="flex max-[1300px]:flex-col space-x-2 max-[1300px]:space-x-0 max-[1300px]:space-y-3">
-              <Input
-                type="date"
-                fullWidth
-                value={checkinDate}
-                onChange={handleCheckinDateChange}
-              />
+              <Input type="date" fullWidth required value={checkinDate} onChange={handleCheckinDateChange} />
               <Input
                 type="time"
                 fullWidth
+                required
                 value={checkinTime}
                 onChange={handleCheckinTimeChange}
                 slotProps={{
@@ -240,6 +237,7 @@ function CheckAvailableRooms() {
             <div className="flex max-[1300px]:flex-col space-x-2 max-[1300px]:space-x-0 max-[1300px]:space-y-3">
               <Input
                 fullWidth
+                required
                 type="date"
                 onChange={handleCheckoutDateChange}
                 slotProps={{
@@ -248,11 +246,7 @@ function CheckAvailableRooms() {
                   },
                 }}
               />
-              <Input
-                onChange={handleCheckoutTimeChange}
-                type="time"
-                fullWidth
-              />
+              <Input onChange={handleCheckoutTimeChange} required type="time" fullWidth />
             </div>
             {error !== "" && (
               <div className="mt-2">
@@ -260,31 +254,24 @@ function CheckAvailableRooms() {
               </div>
             )}
 
-            <Button fullWidth size="sm" onClick={handleSubmit}>
+            <Button fullWidth size="sm" type="submit">
               Search
             </Button>
-          </div>
+          </form>
         </div>
       </div>
-      <div className="px-8 w-[90%]">
+      <div className="px-8 w-[90%] max-lg:w-[70%] max-lg:mx-auto max-md:w-full max-lg:px-1">
         <div className="flex justify-between">
           <div className="text-2xl font-semibold mb-6">Choose room</div>
-          {(admin === "superadmin") && (
+          {admin === "superadmin" && (
             <div>
-              <Button
-                variant="outlined"
-                onClick={() => setOpen(true)}
-                color="neutral"
-                startDecorator={<Add />}
-              >
+              <Button variant="outlined" onClick={() => setOpen(true)} color="neutral" startDecorator={<Add />}>
                 Add Room
               </Button>
             </div>
           )}
         </div>
-        <div
-          className={`${loading && "justify-center items-center"} flex gap-x-4 gap-y-4 flex-wrap`}
-        >
+        <div className={` justify-between max-sm:justify-around items-center  flex gap-x-4 gap-y-4 flex-wrap`}>
           {loading && <CircularProgress />}
           {!loading &&
             rooms.map((room, key) => (
@@ -293,11 +280,15 @@ function CheckAvailableRooms() {
                   router.push(`/admin/manage-rooms/${room.name}`);
                 }}
                 key={key}
-                className={`border relative hover:bg-slate-100 transition-all duration-500 space-y-1 p-4 w-[168px] cursor-pointer h-20 rounded-lg`}
+                className={`border relative hover:bg-slate-100 transition-all duration-500 space-y-1 p-4 w-[150px] cursor-pointer h-20 rounded-lg`}
               >
-                {(admin === "superadmin") && (
+                {admin === "superadmin" && (
                   <div
-                    onClick={(event) => { event.stopPropagation(); setDel(true); setDelId(room.name); }}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      setDel(true);
+                      setDelId(room.name);
+                    }}
                     className="absolute -right-[18px] rounded-full z-20 -top-[20px] text-slate-400 scale-[70%] hover:bg-red-50 p-2 "
                   >
                     <Cancel />
@@ -307,20 +298,26 @@ function CheckAvailableRooms() {
                   <div>
                     <div className="text-[#1C1C21] font-bold">{room.name}</div>
                     <div
-                      className={`${room.status === "Booked" || room.status === "4/4"
-                        ? "text-red-600"
-                        : room.status === "0/4" || room.status === "Available"
+                      className={`${
+                        room.status === "Booked" || room.status === "4/4"
+                          ? "text-red-600"
+                          : room.status === "0/4" || room.status === "Available"
                           ? "text-green-600"
                           : "text-orange-500"
-                        } text-sm font-medium`}
+                      } text-sm font-medium`}
                     >
                       {room.status}
                     </div>
                   </div>
                   <div className="flex items-center">
-                    {room.upcoming==="Upcoming"?(<Chip size="sm" variant="outlined" color="warning">
-                    {room.upcoming}
-                  </Chip>):(" ")}</div>
+                    {room.upcoming === "Upcoming" ? (
+                      <Chip size="sm" variant="outlined" color="warning">
+                        {room.upcoming}
+                      </Chip>
+                    ) : (
+                      " "
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -363,10 +360,7 @@ function CheckAvailableRooms() {
         }}
       >
         <Info /> {message}{" "}
-        <span
-          onClick={() => setAlert(false)}
-          className="cursor-pointer hover:bg-[#f3eded]"
-        >
+        <span onClick={() => setAlert(false)} className="cursor-pointer hover:bg-[#f3eded]">
           <Close />
         </span>{" "}
       </Snackbar>
@@ -384,19 +378,10 @@ function CheckAvailableRooms() {
           <Divider />
           <div>Are you sure you want to delete room {delId} ?</div>
           <DialogActions>
-            <Button
-              variant="solid"
-              color="danger"
-              loading={loading}
-              onClick={handleDelete}
-            >
+            <Button variant="solid" color="danger" loading={loading} onClick={handleDelete}>
               Confirm
             </Button>
-            <Button
-              variant="plain"
-              color="neutral"
-              onClick={() => setDel(false)}
-            >
+            <Button variant="plain" color="neutral" onClick={() => setDel(false)}>
               Cancel
             </Button>
           </DialogActions>

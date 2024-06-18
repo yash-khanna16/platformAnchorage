@@ -100,9 +100,10 @@ const Reservations: React.FC<ReservationsProps> = ({
 
   const mapToFormData = (id: any): FormDataReservation => {
     const formatDate = (dateStr: string) => {
-      const [day, month, year] = dateStr.split("-");
+      const [day, month, year] = dateStr.split("-").map(part => parseInt(part, 10));
       return `${year}-${month}-${day}`;
     };
+    
 
     const [checkinDate, checkinTime] = id.checkin.split(" ");
     const [checkoutDate, checkoutTime] = id.checkout.split(" ");
@@ -121,9 +122,9 @@ const Reservations: React.FC<ReservationsProps> = ({
       rank: id.rank,
       remarks: id.remarks,
       additionalInfo: id.additional_info,
-      breakfast: id.breakfast,
-      veg: id.meal_veg,
-      nonVeg: id.meal_non_veg,
+      breakfast: parseInt(id.breakfast),
+      veg: parseInt(id.meal_veg),
+      nonVeg: parseInt(id.meal_non_veg),
       originalEmail:id.email,
       room:id.room
     };
@@ -263,7 +264,7 @@ const Reservations: React.FC<ReservationsProps> = ({
     <>
       <div>
         <div className="mb-6">
-          <Typography variant="h3" component="div" fontWeight="bold">
+          <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
             Search Reservations
           </Typography>
         </div>
@@ -301,7 +302,7 @@ const Reservations: React.FC<ReservationsProps> = ({
           setEdit(false);
         }}
       >
-        <ModalDialog size="lg">
+        <ModalDialog className="w-6/12 max-xl:w-8/12 max-lg:w-9/12 max-md:w-10/12 max-sm:w-full">
           <ModalClose />
           <DialogTitle>
             <span className="text-2xl">Edit Booking</span>

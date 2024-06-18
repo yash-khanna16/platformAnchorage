@@ -71,10 +71,10 @@ function AddGuest() {
   }
 
   return (
-    <div className="w-[1000px] mx-auto pt-10 px-10">
+    <div className="w-[1000px] mx-auto pt-10 px-10 max-lg:w-full">
       <h1 className="text-3xl font-bold">Enter details of guests </h1>
       <form onSubmit={handleSubmit} className="mx-auto space-y-6">
-        <div className="w-full grid grid-cols-2 gap-7 mx-auto mt-[40px]">
+        <div className="w-full grid grid-cols-2 gap-7 mx-auto mt-[40px] max-lg:grid-cols-1">
           <div className="space-y-2 ">
             <label htmlFor="guestName">Name</label>
             <Input
