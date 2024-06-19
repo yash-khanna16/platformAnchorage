@@ -19,6 +19,10 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/admin/login",req.nextUrl));
   }
   
+  if (adminCookie && path.startsWith("/admin/analytics") && adminCookie.role !== "superadmin") {
+    return NextResponse.redirect(new URL("/admin/search-guests",req.nextUrl));
+  }
+  
   if (path.startsWith("/admin/login") && adminCookie) {
     return NextResponse.redirect(new URL("/admin/search-guests",req.nextUrl));
   }  
