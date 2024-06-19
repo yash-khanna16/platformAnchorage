@@ -84,19 +84,10 @@ function CheckAvailableRooms() {
     getTokenData();
   }, []);
 
-  useEffect(() => {
-    const currentDate = new Date();
-    const formattedDate = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD
-    const formattedTime = currentDate.toTimeString().split(" ")[0].slice(0, 5); // HH:MM
-    setMinCheckinDate(formattedDate);
-    setMinCheckinTime(formattedTime);
-  }, []);
+
 
   const handleCheckinDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCheckinDate(e.target.value);
-    if (e.target.value === minCheckinDate && checkinTime < minCheckinTime) {
-      setCheckinTime(minCheckinTime);
-    }
     setError("");
   };
 
@@ -133,11 +124,6 @@ function CheckAvailableRooms() {
 
   const handleCheckinTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedTime = e.target.value;
-    if (checkinDate === minCheckinDate && selectedTime < minCheckinTime) {
-      setError(`Check-in time cannot be earlier than ${minCheckinTime} on the selected date.`);
-    } else {
-      setError("");
-    }
     setCheckinTime(selectedTime);
   };
 
@@ -226,11 +212,6 @@ function CheckAvailableRooms() {
                 required
                 value={checkinTime}
                 onChange={handleCheckinTimeChange}
-                slotProps={{
-                  input: {
-                    min: minCheckinTime,
-                  },
-                }}
               />
             </div>
             <div>Check-Out</div>
@@ -240,11 +221,6 @@ function CheckAvailableRooms() {
                 required
                 type="date"
                 onChange={handleCheckoutDateChange}
-                slotProps={{
-                  input: {
-                    min: checkinDate || minCheckinDate,
-                  },
-                }}
               />
               <Input onChange={handleCheckoutTimeChange} required type="time" fullWidth />
             </div>

@@ -180,7 +180,6 @@ function NewBooking({
 
     if (formData.phoneNumber.length < 10) {
       newErrors.phoneNumber = "Phone number must be of 10 digits";
-
     }
 
     if (Object.keys(newErrors).length > 0) {

@@ -8,22 +8,21 @@ import {
   Modal,
   ModalClose,
   ModalDialog,
-  Snackbar
+  Option,
+  Snackbar,
 } from "@mui/joy";
 import Input from "@mui/joy/Input";
 import { Alert, FormHelperText } from "@mui/material";
 import { useParams, useRouter } from "next/navigation";
-import Checkbox from '@mui/material/Checkbox';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Checkbox from "@mui/joy/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import Lottie from "lottie-web";
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
 import { CheckCircle, Close, Info } from "@mui/icons-material";
 import { getAuthAdmin } from "@/app/actions/cookie";
 import { getAvailableRooms } from "@/app/actions/api";
-import CircularProgress from '@mui/material/CircularProgress';
+import CircularProgress from "@mui/joy/CircularProgress";
+import { Select, MenuItem } from "@mui/joy";
 
 interface FormData {
   booking_id: string;
@@ -50,7 +49,7 @@ function EditBooking({
   initialData,
   setOpenModal,
   setReload,
-  reload
+  reload,
 }: {
   initialData: FormData;
   setOpenModal: React.Dispatch<SetStateAction<boolean>>;
@@ -64,19 +63,15 @@ function EditBooking({
   const tick = useRef(null);
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
-  const [token, setToken] = useState("")
+  const [token, setToken] = useState("");
   const [checkBox, setCheckBox] = useState(false);
   const [roomNumberLoading, setRoomNumberLoading] = useState(true);
 
-
-
   useEffect(() => {
-    getAuthAdmin().then(auth => {
-      if (auth)
-        setToken(auth.value);
-    })
+    getAuthAdmin().then((auth) => {
+      if (auth) setToken(auth.value);
+    });
   }, []);
-
 
   // useEffect(() => {
   //   if (open && tick.current) {
@@ -94,22 +89,51 @@ function EditBooking({
   //   setTimeout(() => tick.current?.play(), 100);
   // }, []);
 
+  const formatDateString = (dateString: string) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = `0${date.getMonth() + 1}`.slice(-2); // Adding 1 because months are zero-indexed
+    const day = `0${date.getDate()}`.slice(-2);
+    return `${year}-${month}-${day}`;
+  };
+
   const room = params.room as string;
-  const [formData, setFormData] = useState<FormData>(initialData);
+  const initialFormData = {
+    ...initialData,
+    checkinDate: formatDateString(initialData.checkinDate),
+    checkoutDate: formatDateString(initialData.checkoutDate),
+  };
+
+  const [formData, setFormData] = useState<FormData>(initialFormData);
+
   const [roomNumber, setRoomNumber] = useState(`${formData.room}`);
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const [availableRooms, setAvailableRooms] = useState([]);
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    const { name, value, type } = e.target;
 
-    if (type === "number") {
-      console.log(name, value, type)
+  console.log("initial data: ", initialData);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setCheckBox(false)
+    // For the Phone Number field, restrict input to numbers only
+    if (name === "phoneNumber") {
+      // Replace non-numeric characters with an empty string
+      const numericValue = value.replace(/\D/g, "").slice(0, 10); // Keep only the first 10 digits
       setFormData((prevData) => ({
         ...prevData,
-        [name]: parseInt(value),
+        [name]: numericValue,
       }));
+      if (numericValue.length < 10) {
+        setErrors((prevData) => ({
+          ...prevData,
+          phoneNumber: "Phone number must be of 10 digits",
+        }));
+      } else {
+        setErrors((prevData) => ({
+          ...prevData,
+          phoneNumber: "",
+        }));
+      }
     } else {
       setFormData((prevData) => ({
         ...prevData,
@@ -129,29 +153,23 @@ function EditBooking({
       }));
     }
 
+    // Clear individual field errors when changing any field
     setErrors((prevData) => ({
       ...prevData,
       [name]: "",
     }));
-    // For other fields, simply update the state with the provided value
   };
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const currentDate = new Date();
-    const selectedCheckinDateTime = new Date(
-      `${formData.checkinDate}T${formData.checkinTime}`
-    );
-    const selectedCheckoutDateTime = new Date(
-      `${formData.checkoutDate}T${formData.checkoutTime}`
-    );
+    const selectedCheckinDateTime = new Date(`${formData.checkinDate}T${formData.checkinTime}`);
+    const selectedCheckoutDateTime = new Date(`${formData.checkoutDate}T${formData.checkoutTime}`);
 
     const newErrors: Partial<FormData> = {};
 
     if (selectedCheckoutDateTime <= selectedCheckinDateTime) {
-      newErrors.checkoutDate =
-        "Check-out date and time must be after the check-in date and time.";
+      newErrors.checkoutDate = "Check-out date and time must be after the check-in date and time.";
     }
     if (formData.email) {
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -161,18 +179,19 @@ function EditBooking({
       }
     }
 
+    if (formData.phoneNumber.length < 10) {
+      newErrors.phoneNumber = "Phone number must be of 10 digits";
+    }
+
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
     // console.log("here")
-    if(roomNumber!==formData.room){
-        formData.room=roomNumber;
+    if (roomNumber !== formData.room) {
+      formData.room = roomNumber;
     }
-    if (
-      selectedCheckoutDateTime > selectedCheckinDateTime &&
-      !isNaN(parseInt(formData.phoneNumber))
-    ) {
+    if (selectedCheckoutDateTime > selectedCheckinDateTime && !isNaN(parseInt(formData.phoneNumber))) {
       setErrors({});
       const apiFormData = {
         bookingId: initialData.booking_id,
@@ -189,11 +208,11 @@ function EditBooking({
         company: formData.companyName,
         vessel: formData.vessel,
         rank: formData.rank,
-        breakfast: (formData.breakfast),
+        breakfast: formData.breakfast,
         originalEmail: formData.originalEmail,
       };
       try {
-        console.log(formData)
+        console.log(formData);
         setLoading(true);
         const res = await editBooking(token, apiFormData);
         setLoading(false);
@@ -214,22 +233,16 @@ function EditBooking({
 
   const checkBoxChange = () => {
     setCheckBox(!checkBox);
-    
-  }
+  };
 
   useEffect(() => {
     const fetchRooms = async () => {
-
-      const selectedCheckinDateTime = new Date(
-        `${formData.checkinDate}T${formData.checkinTime}`
-      );
-      const selectedCheckoutDateTime = new Date(
-        `${formData.checkoutDate}T${formData.checkoutTime}`
-      );
+      const selectedCheckinDateTime = new Date(`${formData.checkinDate}T${formData.checkinTime}`);
+      const selectedCheckoutDateTime = new Date(`${formData.checkoutDate}T${formData.checkoutTime}`);
       if (checkBox) {
         const roomsAvailable = await getAvailableRooms(token, selectedCheckinDateTime, selectedCheckoutDateTime);
         setAvailableRooms(roomsAvailable);
-        console.log(roomsAvailable)
+        console.log(roomsAvailable);
         setRoomNumberLoading(false);
       }
     };
@@ -239,9 +252,13 @@ function EditBooking({
     }
   }, [checkBox]);
 
-  const handleChangeDropdown = (event: SelectChangeEvent) => {
-    setRoomNumber(event.target.value);
+  const handleChangeDropdown = (
+    event: React.SyntheticEvent | null,
+    newValue: string | null,
+  ) => {
+    if(newValue) setRoomNumber(newValue)
   };
+  
 
   return (
     <form onSubmit={handleSubmit} className="space-y-10 -w-full">
@@ -261,17 +278,8 @@ function EditBooking({
 
         <FormControl size="lg" className="space-y-1">
           <FormLabel>Email Address</FormLabel>
-          <Input
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            fullWidth
-            size="lg"
-            placeholder="Email Address"
-          />
-          {errors.email && (
-            <FormHelperText error>{errors.email}</FormHelperText>
-          )}
+          <Input name="email" value={formData.email} onChange={handleChange} fullWidth size="lg" placeholder="Email Address" />
+          {errors.email && <FormHelperText error>{errors.email}</FormHelperText>}
         </FormControl>
 
         <div className="space-y-1">
@@ -287,10 +295,7 @@ function EditBooking({
               size="lg"
               value={formData.checkinDate}
               onChange={handleChange}
-
-              error={
-                errors.checkinDate !== undefined && errors.checkinDate !== ""
-              }
+              error={errors.checkinDate !== undefined && errors.checkinDate !== ""}
             />
             <Input
               required
@@ -299,16 +304,12 @@ function EditBooking({
               size="lg"
               name="checkinTime"
               value={formData.checkinTime}
-              error={
-                errors.checkinDate !== undefined && errors.checkinDate !== ""
-              }
+              error={errors.checkinDate !== undefined && errors.checkinDate !== ""}
               onChange={handleChange}
             />
           </div>
 
-          {errors.checkinDate && (
-            <FormHelperText error>{errors.checkinDate}</FormHelperText>
-          )}
+          {errors.checkinDate && <FormHelperText error>{errors.checkinDate}</FormHelperText>}
         </div>
 
         <div className="space-y-1">
@@ -323,10 +324,7 @@ function EditBooking({
               size="lg"
               value={formData.checkoutDate}
               name="checkoutDate"
-
-              error={
-                errors.checkoutDate !== undefined && errors.checkoutDate !== ""
-              }
+              error={errors.checkoutDate !== undefined && errors.checkoutDate !== ""}
               onChange={handleChange}
             />
             <Input
@@ -335,16 +333,12 @@ function EditBooking({
               fullWidth
               size="lg"
               name="checkoutTime"
-              error={
-                errors.checkoutDate !== undefined && errors.checkoutDate !== ""
-              }
+              error={errors.checkoutDate !== undefined && errors.checkoutDate !== ""}
               value={formData.checkoutTime}
               onChange={handleChange}
             />
           </div>
-          {errors.checkoutDate && (
-            <FormHelperText error>{errors.checkoutDate}</FormHelperText>
-          )}
+          {errors.checkoutDate && <FormHelperText error>{errors.checkoutDate}</FormHelperText>}
         </div>
 
         <FormControl size="lg" className="space-y-1">
@@ -358,12 +352,11 @@ function EditBooking({
             size="lg"
             placeholder="Phone Number"
           />
+          {errors.phoneNumber && <FormHelperText error>{errors.phoneNumber}</FormHelperText>}
         </FormControl>
 
         <FormControl size="lg" className="space-y-1">
-          <FormLabel className="text-[#0D141C] font-medium">
-            Company Name
-          </FormLabel>
+          <FormLabel className="text-[#0D141C] font-medium">Company Name</FormLabel>
           <Input
             value={formData.companyName}
             name="companyName"
@@ -376,38 +369,17 @@ function EditBooking({
 
         <FormControl size="lg" className="space-y-1">
           <FormLabel>Vessel</FormLabel>
-          <Input
-            value={formData.vessel}
-            name="vessel"
-            onChange={handleChange}
-            fullWidth
-            size="lg"
-            placeholder="Vessel"
-          />
+          <Input value={formData.vessel} name="vessel" onChange={handleChange} fullWidth size="lg" placeholder="Vessel" />
         </FormControl>
 
         <FormControl size="lg" className="space-y-1">
           <FormLabel>Rank</FormLabel>
-          <Input
-            value={formData.rank}
-            name="rank"
-            onChange={handleChange}
-            fullWidth
-            size="lg"
-            placeholder="Rank"
-          />
+          <Input value={formData.rank} name="rank" onChange={handleChange} fullWidth size="lg" placeholder="Rank" />
         </FormControl>
 
         <FormControl size="lg" className="space-y-1">
           <FormLabel className="text-[#0D141C] font-medium">Remarks</FormLabel>
-          <Input
-            value={formData.remarks}
-            name="remarks"
-            onChange={handleChange}
-            fullWidth
-            size="lg"
-            placeholder="Remarks"
-          />
+          <Input value={formData.remarks} name="remarks" onChange={handleChange} fullWidth size="lg" placeholder="Remarks" />
         </FormControl>
 
         <FormControl size="lg" className="space-y-1">
@@ -485,40 +457,48 @@ function EditBooking({
               />
             </div>
           </div>
-
         </div>
         <div>
-          <FormControlLabel control={<Checkbox onChange={checkBoxChange} />} label="Want to migrate ?" />
-          {!checkBox?(""): (roomNumberLoading?(
-            <div className="flex justify-center"><CircularProgress /></div>):(<div>
-            <FormControl sx={{ m: 1, minWidth: 120 }}>
-              <InputLabel id="demo-simple-select-helper-label">Room Number</InputLabel>
-              <Select
-                labelId="demo-simple-select-helper-label"
-                id="demo-simple-select-helper"
-                value={roomNumber}
-                onChange={handleChangeDropdown}
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: 115,
+          <FormControl >
+            <div className="flex space-x-5">
+            <FormLabel>Want to migrate?</FormLabel>
+            <Checkbox checked={checkBox} onChange={checkBoxChange} />
+
+            </div>
+          </FormControl>
+          {!checkBox ? (
+            ""
+          ) : roomNumberLoading ? (
+            <div className="flex justify-center">
+              <CircularProgress />
+            </div>
+          ) : (
+            <div>
+              <FormControl sx={{ m: 1, minWidth: 120 }}>
+                <FormLabel id="demo-simple-select-helper-label">Room Number</FormLabel>
+                <Select
+                  placeholder="Room Number"
+                  value={roomNumber}
+                  onChange={handleChangeDropdown}
+                  slotProps={{
+                    listbox: {
+                      sx: {
+                        maxHeight: 115,
+                        overflowY: "auto", // Enable vertical scrolling
+                      },
                     },
-                  },
-                  MenuListProps: {
-                    style: {
-                      overflowY: 'auto', // Enable vertical scrolling
-                    },
-                  },
-                }}
-              >
-                <MenuItem value={formData.room}>{formData.room}</MenuItem>
-                {availableRooms.map((data:{room:string,active:boolean}) => (
-                  <MenuItem key={data.room} value={data.room}>{data.room}</MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </div>))}
-          
+                  }}
+                >
+                  <Option value={formData.room}>{formData.room}</Option>
+                  {availableRooms.map((data: { room: string; active: boolean }) => (
+                    <Option key={data.room} value={data.room}>
+                      {data.room}
+                    </Option>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+          )}
         </div>
       </div>
       <Button loading={loading} type="submit" size="lg" fullWidth>
@@ -537,9 +517,7 @@ function EditBooking({
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
               {/* <CheckCircle className="h-40 scale-[500%] text-green-600" /> */}
-              <div className="font-semibold text-2xl">
-                Entry Edited successfully
-              </div>
+              <div className="font-semibold text-2xl">Entry Edited successfully</div>
             </div>
           </DialogContent>
         </ModalDialog>
@@ -554,10 +532,7 @@ function EditBooking({
       >
         {" "}
         <Info /> {message}{" "}
-        <span
-          onClick={() => setAlert(false)}
-          className="cursor-pointer hover:bg-[#f3eded]"
-        >
+        <span onClick={() => setAlert(false)} className="cursor-pointer hover:bg-[#f3eded]">
           <Close />
         </span>{" "}
       </Snackbar>
