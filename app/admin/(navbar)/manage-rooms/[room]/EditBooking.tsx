@@ -98,6 +98,7 @@ function EditBooking({
   };
 
   const room = params.room as string;
+  console.log(initialData);
   const initialFormData = {
     ...initialData,
     checkinDate: formatDateString(initialData.checkinDate),

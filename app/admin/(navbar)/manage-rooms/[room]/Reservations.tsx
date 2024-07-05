@@ -4,6 +4,7 @@ import { searchIconSecondary } from "@/assets/icons";
 import {
   DataGrid,
   GridColDef,
+  GridRowSelectionModel,
   GridColumnHeaderParams,
   GridPaginationModel,
   useGridApiRef,
@@ -47,6 +48,8 @@ interface ReservationsProps {
   handleSearch: Function;
   loading: boolean;
   reload: boolean;
+  location?: string;
+  setSelectedGuest?: React.Dispatch<SetStateAction<GridRowSelectionModel>>;
 }
 
 interface FormDataReservation {
@@ -66,8 +69,8 @@ interface FormDataReservation {
   breakfast: number;
   veg: number;
   nonVeg: number;
-  originalEmail:string;
-  room:string;
+  originalEmail: string;
+  room: string;
 }
 
 const Reservations: React.FC<ReservationsProps> = ({
@@ -80,6 +83,8 @@ const Reservations: React.FC<ReservationsProps> = ({
   loading,
   setReload,
   reload,
+  location,
+  setSelectedGuest,
 }) => {
   // const [filteredRows, setFilteredRows] = useState<RowData[]>(rowsData);
   const [edit, setEdit] = useState(false);
@@ -91,6 +96,8 @@ const Reservations: React.FC<ReservationsProps> = ({
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
   const [token, setToken] = useState("");
+  const [rowSelectionModel, setRowSelectionModel] =
+    useState<GridRowSelectionModel>([]);
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -100,14 +107,18 @@ const Reservations: React.FC<ReservationsProps> = ({
 
   const mapToFormData = (id: any): FormDataReservation => {
     const formatDate = (dateStr: string) => {
-      const [day, month, year] = dateStr.split("-").map(part => parseInt(part, 10));
+      const [day, month, year] = dateStr
+        .split("-")
+        .map((part) => parseInt(part, 10));
       return `${year}-${month}-${day}`;
     };
-    
 
     const [checkinDate, checkinTime] = id.checkin.split(" ");
     const [checkoutDate, checkoutTime] = id.checkout.split(" ");
-
+    console.log(checkinDate);
+    console.log(checkinTime);
+    console.log(checkoutDate);
+    console.log(checkoutTime);
     return {
       booking_id: id.booking_id,
       name: id.name,
@@ -125,8 +136,8 @@ const Reservations: React.FC<ReservationsProps> = ({
       breakfast: parseInt(id.breakfast),
       veg: parseInt(id.meal_veg),
       nonVeg: parseInt(id.meal_non_veg),
-      originalEmail:id.email,
-      room:id.room
+      originalEmail: id.email,
+      room: id.room,
     };
   };
 
@@ -152,82 +163,157 @@ const Reservations: React.FC<ReservationsProps> = ({
   // },[rowsData])
 
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
-    pageSize: 10,
+    pageSize: 5,
     page: 0,
   });
 
   const BoldHeaderCell = (props: any) => (
     <div style={{ fontWeight: "bold" }}>{props.colDef.headerName}</div>
   );
-
-  const gridColumns: GridColDef[] = [
-    ...columns.map((columnName, index) => ({
-      field: columnName,
-      headerName: headers[index],
-      // flex: index===,
-      // width: 100,
-      flex:
-        index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
-          ? 0
-          : undefined,
-      width:
-        index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 120 : 200,
-      renderHeader: (params: GridColumnHeaderParams) => (
-        <span className="text-[#0D141C] font-semibold pl-3">
-          {headers[index]}
-        </span>
-      ),
-      renderCell: (params: any) => {
-        return (
+  let gridColumns: GridColDef[];
+  if (location === "movement") {
+    gridColumns = [
+      ...columns.map((columnName, index) => ({
+        field: columnName,
+        headerName: headers[index],
+        // flex: index===,
+        // width: 100,
+        flex:
+          index === 0 ||
+          index === 11 ||
+          index === 12 ||
+          index === 13 ||
+          columnName === "status"
+            ? 0
+            : undefined,
+        width:
+          index === 0 ||
+          index === 11 ||
+          index === 12 ||
+          index === 13 ||
+          columnName === "status"
+            ? 120
+            : 200,
+        renderHeader: (params: GridColumnHeaderParams) => (
+          <span className="text-[#0D141C] font-semibold pl-3">
+            {headers[index]}
+          </span>
+        ),
+        renderCell: (params: any) => {
+          return (
+            <div>
+              {columnName === "status" ? (
+                <Chip
+                  size="sm"
+                  variant="outlined"
+                  color={
+                    params.row[columnName] === "Expired"
+                      ? "danger"
+                      : params.row[columnName] === "Active"
+                      ? "success"
+                      : "warning"
+                  }
+                >
+                  {params.row[columnName]}
+                </Chip>
+              ) : (
+                <>{params.row[columnName]}</>
+              )}
+            </div>
+          );
+        },
+      })),
+    ];
+  } else {
+    gridColumns = [
+      ...columns.map((columnName, index) => ({
+        field: columnName,
+        headerName: headers[index],
+        // flex: index===,
+        // width: 100,
+        flex:
+          index === 0 ||
+          index === 11 ||
+          index === 12 ||
+          index === 13 ||
+          columnName === "status"
+            ? 0
+            : undefined,
+        width:
+          index === 0 ||
+          index === 11 ||
+          index === 12 ||
+          index === 13 ||
+          columnName === "status"
+            ? 120
+            : 200,
+        renderHeader: (params: GridColumnHeaderParams) => (
+          <span className="text-[#0D141C] font-semibold pl-3">
+            {headers[index]}
+          </span>
+        ),
+        renderCell: (params: any) => {
+          return (
+            <div>
+              {columnName === "status" ? (
+                <Chip
+                  size="sm"
+                  variant="outlined"
+                  color={
+                    params.row[columnName] === "Expired"
+                      ? "danger"
+                      : params.row[columnName] === "Active"
+                      ? "success"
+                      : "warning"
+                  }
+                >
+                  {params.row[columnName]}
+                </Chip>
+              ) : (
+                <>{params.row[columnName]}</>
+              )}
+            </div>
+          );
+        },
+      })),
+      {
+        field: "edit",
+        headerName: "Actions",
+        sortable: false,
+        align: "center",
+        headerAlign: "center",
+        // flex: 1,
+        width: 120, // Set width to accommodate both icons
+        renderHeader: (params: GridColumnHeaderParams) => (
+          <span
+            className="text-[#0D141C] font-semibold pl-3 text-center"
+            style={{ display: "block", width: "100%" }}
+          >
+            Actions
+          </span>
+        ),
+        renderCell: (params) => (
           <div>
-            {columnName==="status" ? (
-              <Chip size="sm" variant="outlined" color={params.row[columnName]==="Expired"?"danger":params.row[columnName]==="Active"?"success":"warning"}>
-                {params.row[columnName]}
-              </Chip>
-            ) : (
-              <>{params.row[columnName]}</>
-            )}
+            <IconButton
+              onClick={() => handleEdit(params.row)} // Implement your edit logic here
+              style={{ marginRight: 10 }}
+            >
+              <EditIcon className="scale-75" />
+            </IconButton>
+            <IconButton
+              onClick={() => {
+                setDel(true);
+                setDeleteId(params.row.booking_id);
+              }}
+            >
+              {/* Add your delete icon component here */}
+              <DeleteForever className="scale-75 text-red-700" />
+            </IconButton>
           </div>
-        );
+        ),
       },
-    })),
-    {
-      field: "edit",
-      headerName: "Actions",
-      sortable: false,
-      align: "center",
-      headerAlign: "center",
-      // flex: 1,
-      width: 120, // Set width to accommodate both icons
-      renderHeader: (params: GridColumnHeaderParams) => (
-        <span
-          className="text-[#0D141C] font-semibold pl-3 text-center"
-          style={{ display: "block", width: "100%" }}
-        >
-          Actions
-        </span>
-      ),
-      renderCell: (params) => (
-        <div>
-          <IconButton
-            onClick={() => handleEdit(params.row)} // Implement your edit logic here
-            style={{ marginRight: 10 }}
-          >
-            <EditIcon className="scale-75" />
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              setDel(true);
-              setDeleteId(params.row.booking_id);
-            }}
-          >
-            {/* Add your delete icon component here */}
-            <DeleteForever className="scale-75 text-red-700" />
-          </IconButton>
-        </div>
-      ),
-    },
-  ];
+    ];
+  }
 
   const handleEdit = (id: any) => {
     // Handle edit action here
@@ -264,9 +350,20 @@ const Reservations: React.FC<ReservationsProps> = ({
     <>
       <div>
         <div className="mb-6">
-          <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
+          {location==="movement"?(<Typography
+            className="text-4xl"
+            component="div"
+            fontWeight="bold"
+          >
             Search Reservations
-          </Typography>
+          </Typography>):(<Typography
+            className="text-5xl max-[960px]:text-4xl"
+            component="div"
+            fontWeight="bold"
+          >
+            Search Reservations
+          </Typography>)}
+          
         </div>
         <SearchInput
           value={search}
@@ -275,26 +372,55 @@ const Reservations: React.FC<ReservationsProps> = ({
           placeholder="Search by guest name, email, company..."
         />
         <br />
-        <DataGrid
-          apiRef={apiRef}
-          rows={rowsData}
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          loading={loading}
-          pageSizeOptions={[5, 10, 15]} // Use pageSizeOptions instead
-          autoHeight
-          columns={gridColumns}
-          pagination
-          getRowId={(row) => row.booking_id} // Specify the custom row ID
-          sx={{
-            borderRadius: 3, // Adjust the value to achieve the desired rounding
-            // overflow: "scroll",
-            "& .MuiDataGrid-root": {
-              borderRadius: "inherit",
-            },
-          }}
-          getRowClassName={() => "pl-3"} // Apply Tailwind padding utility class to rows
-        />
+        {location === "movement" ? (
+            <DataGrid
+              apiRef={apiRef}
+              rows={rowsData}
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
+              loading={loading}
+              pageSizeOptions={[5, 10, 15]} // Use pageSizeOptions instead
+              autoHeight
+              columns={gridColumns}
+              pagination
+              checkboxSelection
+              disableMultipleRowSelection
+              getRowId={(row) => row.booking_id} // Specify the custom row ID
+              sx={{
+                borderRadius: 3, // Adjust the value to achieve the desired rounding
+                // overflow: "scroll",
+                "& .MuiDataGrid-root": {
+                  borderRadius: "inherit",
+                },
+              }}
+              getRowClassName={() => "pl-3"} // Apply Tailwind padding utility class to rows
+              onRowSelectionModelChange={(newRowSelectionModel: GridRowSelectionModel) => {
+                if(setSelectedGuest){
+                  setSelectedGuest(newRowSelectionModel);
+                }}}
+            />
+        ) : (
+          <DataGrid
+            apiRef={apiRef}
+            rows={rowsData}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
+            loading={loading}
+            pageSizeOptions={[5, 10, 15]} // Use pageSizeOptions instead
+            autoHeight
+            columns={gridColumns}
+            pagination
+            getRowId={(row) => row.booking_id} // Specify the custom row ID
+            sx={{
+              borderRadius: 3, // Adjust the value to achieve the desired rounding
+              // overflow: "scroll",
+              "& .MuiDataGrid-root": {
+                borderRadius: "inherit",
+              },
+            }}
+            getRowClassName={() => "pl-3"} // Apply Tailwind padding utility class to rows
+          />
+        )}
       </div>
       <Modal
         open={edit}
