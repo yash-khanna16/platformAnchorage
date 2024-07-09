@@ -274,12 +274,7 @@ export async function deleteRoom(token: string, room: string) {
     throw error;
   }
 }
-export async function editEmailTemplate(
-  token: string,
-  template: string,
-  content: string,
-  subject: string
-) {
+export async function editEmailTemplate(token: string, template: string, content: string, subject: string) {
   try {
     const response = await fetch(`${process.env.BACKEND_URL}/api/admin/editEmailTempalate`, {
       method: "POST",
@@ -344,20 +339,17 @@ export async function fetchRoomData(token: string, currentMonth: string, current
 }
 export async function fetchMeals(token: string, currentMonth: string, currentYear: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDay`,
-      {
-        method: "get",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-          year: currentYear,
-          month: currentMonth,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDay`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        year: currentYear,
+        month: currentMonth,
+      },
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -367,20 +359,17 @@ export async function fetchMeals(token: string, currentMonth: string, currentYea
 }
 export async function fetchCompanies(token: string, currentMonth: string, currentYear: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForMonthandYear`,
-      {
-        method: "get",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-          year: currentYear,
-          month: currentMonth,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForMonthandYear`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        year: currentYear,
+        month: currentMonth,
+      },
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -391,20 +380,17 @@ export async function fetchCompanies(token: string, currentMonth: string, curren
 
 export async function fetchBreakfast(token: string, currentMonth: string, currentYear: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDay`,
-      {
-        method: "get",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-          year: currentYear,
-          month: currentMonth,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDay`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        year: currentYear,
+        month: currentMonth,
+      },
+      cache: "no-cache",
+    });
     // console.log("res: ", response);
     const data = await response.json(); // Parse the JSON response
     return data;
@@ -413,26 +399,19 @@ export async function fetchBreakfast(token: string, currentMonth: string, curren
     throw error;
   }
 }
-export async function fetchRoomDataQuarter(
-  token: string,
-  currentQuarter: string,
-  currentYear: string
-) {
+export async function fetchRoomDataQuarter(token: string, currentQuarter: string, currentYear: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/analytics/getRoomsBookedPerDayQuarter`,
-      {
-        method: "get",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-          year: currentYear,
-          quarter: currentQuarter,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getRoomsBookedPerDayQuarter`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        year: currentYear,
+        quarter: currentQuarter,
+      },
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -440,26 +419,19 @@ export async function fetchRoomDataQuarter(
     throw error;
   }
 }
-export async function fetchMealsQuarter(
-  token: string,
-  currentQuarter: string,
-  currentYear: string
-) {
+export async function fetchMealsQuarter(token: string, currentQuarter: string, currentYear: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDayQuarter`,
-      {
-        method: "get",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-          year: currentYear,
-          quarter: currentQuarter,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDayQuarter`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        year: currentYear,
+        quarter: currentQuarter,
+      },
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -467,26 +439,19 @@ export async function fetchMealsQuarter(
     throw error;
   }
 }
-export async function fetchCompaniesQuarter(
-  token: string,
-  currentQuarter: string,
-  currentYear: string
-) {
+export async function fetchCompaniesQuarter(token: string, currentQuarter: string, currentYear: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForQuarterandYear`,
-      {
-        method: "get",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-          year: currentYear,
-          quarter: currentQuarter,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForQuarterandYear`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        year: currentYear,
+        quarter: currentQuarter,
+      },
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -495,26 +460,19 @@ export async function fetchCompaniesQuarter(
   }
 }
 
-export async function fetchBreakfastQuarter(
-  token: string,
-  currentQuarter: string,
-  currentYear: string
-) {
+export async function fetchBreakfastQuarter(token: string, currentQuarter: string, currentYear: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDayQuarter`,
-      {
-        method: "get",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-          year: currentYear,
-          quarter: currentQuarter,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDayQuarter`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        year: currentYear,
+        quarter: currentQuarter,
+      },
+      cache: "no-cache",
+    });
     // console.log("res: ", response);
     const data = await response.json(); // Parse the JSON response
     return data;
@@ -525,19 +483,16 @@ export async function fetchBreakfastQuarter(
 }
 export async function fetchRoomDataYear(token: string, currentYear: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/analytics/getRoomsBookedPerDayYear`,
-      {
-        method: "get",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-          year: currentYear,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getRoomsBookedPerDayYear`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        year: currentYear,
+      },
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -547,19 +502,16 @@ export async function fetchRoomDataYear(token: string, currentYear: string) {
 }
 export async function fetchMealsYear(token: string, currentYear: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDayYear`,
-      {
-        method: "get",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-          year: currentYear,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDayYear`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        year: currentYear,
+      },
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -569,19 +521,16 @@ export async function fetchMealsYear(token: string, currentYear: string) {
 }
 export async function fetchCompaniesYear(token: string, currentYear: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForYear`,
-      {
-        method: "get",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-          year: currentYear,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForYear`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        year: currentYear,
+      },
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -592,19 +541,136 @@ export async function fetchCompaniesYear(token: string, currentYear: string) {
 
 export async function fetchBreakfastYear(token: string, currentYear: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDayYear`,
-      {
-        method: "get",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-          year: currentYear,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDayYear`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        year: currentYear,
+      },
+      cache: "no-cache",
+    });
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function fetchAllCars(token: string) {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/fetchAllCars`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      cache: "no-cache",
+    });
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function fetchAllDrivers(token: string) {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/fetchAllDrivers`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      cache: "no-cache",
+    });
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function addCar(token: string, name: string, number: string) {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/addCar`, {
+      method: "post",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({name: name, number: number}),
+      cache: "no-cache",
+    });
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function addDriver(token: string, name: string, phone: string) {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/addDriver`, {
+      method: "post",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({name: name, phone: phone}),
+      cache: "no-cache",
+    });
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function deleteCar(token: string, number: string) {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/deleteCar`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        number: number
+      },
+      cache: "no-cache",
+    });
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function deleteDriver(token: string, name: string) {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/deleteDriver`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        name: name
+      },
+      cache: "no-cache",
+    });
     // console.log("res: ", response);
     const data = await response.json(); // Parse the JSON response
     return data;
