@@ -184,6 +184,61 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
           )} */}
           </FormControl>
         </div>
+        <FormControl>
+          <div className="flex space-x-5">
+            <FormLabel>Want to update driver or car ?</FormLabel>
+            {/* <Checkbox checked={checkBox} onChange={checkBoxChange} /> */}
+            <Checkbox />
+          </div>
+        </FormControl>
+        <div className="grid grid-cols-2 gap-4 w-full max-lg:grid-cols-1">
+          <FormControl sx={{ m: 1, minWidth: 120 }}>
+            <FormLabel id="demo-simple-select-helper-label">Driver</FormLabel>
+            <Select
+              //   value={newDriver}
+              //   onChange={handleChangeDriver}
+              slotProps={{
+                listbox: {
+                  sx: {
+                    maxHeight: 150,
+                    overflowY: "auto", // Enable vertical scrolling
+                  },
+                },
+              }}
+            >
+              <Option value={formData.driver}>{formData.driver}</Option>
+              {/* {availableDrivers.map((data: string) => (
+                    <Option key={data} value={data}>
+                      {data}
+                    </Option>
+                  ))} */}
+            </Select>
+          </FormControl>
+          <FormControl sx={{ m: 1, minWidth: 120 }}>
+            <FormLabel id="demo-simple-select-helper-label">Car</FormLabel>
+            <Select
+              //   value={newCar}
+              //   onChange={handleChangeCar}
+              slotProps={{
+                listbox: {
+                  sx: {
+                    maxHeight: 200,
+                    overflowY: "auto", // Enable vertical scrolling
+                  },
+                },
+              }}
+            >
+              <Option value={formData.car_number}>{formData.car_number}</Option>
+              {/* {availableCars.map((data: string) => (
+                    <Option key={data} value={data}>
+                      {data}
+                    </Option>
+                  ))} */}
+
+                  
+            </Select>
+          </FormControl>
+        </div>
       </form>
     </div>
   );
