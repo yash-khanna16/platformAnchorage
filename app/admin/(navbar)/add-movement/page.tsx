@@ -1,8 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Reservations from "../manage-rooms/[room]/Reservations";
-import { searchAllGuests } from "@/app/actions/api";
+import {
+  searchAllGuests,
+  addMovement,
+  fetchAvailableCars,
+  fetchAvailableDrivers,
+} from "@/app/actions/api";
 import { getAuthAdmin } from "@/app/actions/cookie";
+import { useRouter } from "next/navigation";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import {
   DialogActions,
@@ -18,10 +24,12 @@ import {
   Input,
   Modal,
   ModalClose,
+  Snackbar,
   ModalDialog,
 } from "@mui/joy";
 import { Typography } from "@mui/material";
 import { Cancel, WarningRounded } from "@mui/icons-material";
+import { CheckCircle, Close, Info, Warning } from "@mui/icons-material";
 
 type ReservationType = {
   additional_info: string | null;
@@ -90,6 +98,7 @@ type ErrorType = {
   passengerNumber: string;
 };
 function AddMovement() {
+  const router = useRouter();
   const columns = [
     "name",
     "room",
@@ -116,12 +125,15 @@ function AddMovement() {
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<ReservationType[]>([]);
   const [reload, setReload] = useState(false);
+  const [alert, setAlert] = useState(false);
+  const [message, setMessage] = useState(false);
   const [driverCar, setDriverCar] = useState(true);
   const [open, setOpen] = useState(false);
+  const [openConfirm, setOpenConfirm] = useState(false);
   const [manually, setManually] = useState(false);
   const [token, setToken] = useState("");
   const [filteredRows, setFilteredRows] = useState<ReservationType[]>([]);
-  const [selectedGuest, setSelectedGuest] = useState<GridRowSelectionModel>([]);
+  const [selectedGuest, setSelectedGuest] = useState<GridRowSelectionModel[]>([]);
   const [selectedPassenger, setSelectedPassenger] = useState<GuestType[]>([]);
   const [manualPassenger, setManualPassenger] = useState<PassengerType[]>([]);
   const [formData, setFormData] = useState<FormDataType>({
@@ -155,26 +167,45 @@ function AddMovement() {
     remark: "",
     company: "",
   });
-  const availableDrivers = ["ujjawal", "devesh", "vashisht", "nakul", "madhav"];
-  const availableCars = ["ujjawal", "devesh", "vashisht", "nakul", "madhav"];
+  const [availableDrivers, setAvailableDrivers] = useState([]);
+  const [availableCars, setAvailableCars] = useState([]);
 
   useEffect(() => {
-    if((formData.pickUpDate!=="")&&(formData.returnDate!=="")&&(formData.returnTime!=="")&&(formData.pickUpTime!=="")){
-      const pickUpDateTime = `${formData.pickUpDate}T${formData.pickUpTime}`;
-      const returnDateTime = `${formData.returnDate}T${formData.returnTime}`;
-      if(pickUpDateTime<returnDateTime){
-        const newErrors: Partial<ErrorType> = {};
-        setErrors(newErrors);
-        setDriverCar(false);
+    const getValues = async () => {
+      if (
+        formData.pickUpDate !== "" &&
+        formData.returnDate !== "" &&
+        formData.returnTime !== "" &&
+        formData.pickUpTime !== ""
+      ) {
+        const pickUpDateTime = `${formData.pickUpDate}T${formData.pickUpTime}`;
+        const returnDateTime = `${formData.returnDate}T${formData.returnTime}`;
+        if (pickUpDateTime < returnDateTime) {
+          const newErrors: Partial<ErrorType> = {};
+          setErrors(newErrors);
+          try {
+            const cars = await fetchAvailableCars(token, pickUpDateTime, returnDateTime);
+            const drivers = await fetchAvailableDrivers(token, pickUpDateTime, returnDateTime);
+            console.log(cars, drivers);
+            const carsNumber = cars.map((data: { name: string; number: string }) => data.number);
+            const driverName = drivers.map((data: { name: string; phone: string }) => data.name);
+            setAvailableCars(carsNumber);
+            setAvailableDrivers(driverName);
+            setDriverCar(false);
+          } catch {
+            setDriverCar(true);
+          }
+        } else {
+          const newErrors: Partial<ErrorType> = {};
+          newErrors.pickUpTime = "Return Time is smaller than Pick Up";
+          newErrors.returnTime = "Return Time is smaller than Pick Up";
+          setErrors(newErrors);
+        }
       }
-      else{
-        const newErrors: Partial<ErrorType> = {};
-        newErrors.pickUpTime="Return Time is smaller than Pick Up";
-        newErrors.returnTime="Return Time is smaller than Pick Up";
-        setErrors(newErrors);
-      }
-    }
-    }, [formData.pickUpDate,formData.returnDate,formData.returnTime,formData.pickUpTime]);
+    };
+    setDriverCar(true);
+    getValues();
+  }, [formData.pickUpDate, formData.returnDate, formData.returnTime, formData.pickUpTime]);
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -228,18 +259,18 @@ function AddMovement() {
         passengerNumber: "",
       });
     }
-    let dataSend = {};
+    setLoading(true);
     if (selectedPassenger.length === 0) {
       const newManualPassenger = manualPassenger.map((entry: PassengerType) => {
         return {
-          bookingId: null,
-          passengerName: entry.name,
-          phoneNumber: entry.phoneNumber,
+          booking_id: null,
+          name: entry.name,
+          phone: entry.phoneNumber,
           remark: entry.remark,
           company: entry.company,
         };
       });
-      dataSend = {
+      const dataSend = {
         pickup_location: formData.pickUpLocation,
         pickup_time: pickUpDateTime,
         return_time: returnDateTime,
@@ -248,17 +279,27 @@ function AddMovement() {
         car_number: formData.carName,
         passengers: newManualPassenger,
       };
-    } else {
+      try {
+        const result = await addMovement(token, dataSend);
+        setMessage(result.message);
+        setAlert(true);
+        if (result.message === "Movement added successfully!") {
+          setOpenConfirm(true);
+        }
+      } catch {
+        console.log("something went wrong");
+      }
+    } else if (manualPassenger.length === 0) {
       const newSelectedPassenger = selectedPassenger.map((entry: GuestType) => {
         return {
-          bookingId:entry.booking_id,
-          passengerName: entry.name,
-          phoneNumber: entry.phone,
+          booking_id: entry.booking_id,
+          name: entry.name,
+          phone: entry.phone,
           remark: entry.remark,
           company: entry.company,
         };
       });
-      dataSend = {
+      const dataSend = {
         pickup_location: formData.pickUpLocation,
         pickup_time: pickUpDateTime,
         return_time: returnDateTime,
@@ -267,8 +308,56 @@ function AddMovement() {
         car_number: formData.carName,
         passengers: newSelectedPassenger,
       };
+      try {
+        const result = await addMovement(token, dataSend);
+        setMessage(result.message);
+        setAlert(true);
+        if (result.message === "Movement added successfully!") {
+          setOpenConfirm(true);
+        }
+      } catch {
+        console.log("something went wrong");
+      }
+    } else {
+      const newManualPassenger = manualPassenger.map((entry: PassengerType) => {
+        return {
+          booking_id: null,
+          name: entry.name,
+          phone: entry.phoneNumber,
+          remark: entry.remark,
+          company: entry.company,
+        };
+      });
+      const newSelectedPassenger = selectedPassenger.map((entry: GuestType) => {
+        return {
+          booking_id: entry.booking_id,
+          name: entry.name,
+          phone: entry.phone,
+          remark: entry.remark,
+          company: entry.company,
+        };
+      });
+      const allPassenger = [...newManualPassenger, ...newSelectedPassenger];
+      const dataSend = {
+        pickup_location: formData.pickUpLocation,
+        pickup_time: pickUpDateTime,
+        return_time: returnDateTime,
+        drop_location: formData.dropLocation,
+        driver: formData.driverName,
+        car_number: formData.carName,
+        passengers: allPassenger,
+      };
+      try {
+        const result = await addMovement(token, dataSend);
+        setMessage(result.message);
+        setAlert(true);
+        if (result.message === "Movement added successfully!") {
+          setOpenConfirm(true);
+        }
+      } catch {
+        console.log("something went wrong");
+      }
     }
-    console.log(dataSend);
   };
 
   const handleChangeDriver = (event: React.SyntheticEvent | null, newValue: string | null) => {
@@ -298,15 +387,19 @@ function AddMovement() {
     setOpen(true);
   };
   const handleGuest = () => {
-    const selectedUser = selectedGuest.toString();
-    const passenger = rows.find((row) => row.booking_id === selectedUser);
-    const newPassenger = {
-      ...passenger,
-      remark: "",
-    };
-    if (passenger) {
-      setSelectedPassenger([...selectedPassenger, newPassenger]);
-    }
+    const newPassengers = selectedGuest.map((selectedUser) => {
+      const newBooking=selectedUser.toString();
+      const passenger = rows.find((row) => row.booking_id === newBooking);
+      if (passenger) {
+        return {
+          ...passenger,
+          remark: "",
+        };
+      }
+      return null;
+    }).filter((passenger) => passenger !== null);
+  
+    setSelectedPassenger([...selectedPassenger, ...newPassengers]);
     setOpen(false);
   };
   const handleDelete = () => {
@@ -339,7 +432,6 @@ function AddMovement() {
 
   async function getGuests() {
     try {
-      setLoading(true);
       let fetchedRows = await searchAllGuests(token);
       console.log(fetchedRows);
 
@@ -368,9 +460,7 @@ function AddMovement() {
 
       setRows(fetchedRows);
       setFilteredRows(fetchedRows);
-      setLoading(false);
     } catch (error) {
-      setLoading(false);
       console.log(error);
     }
   }
@@ -410,7 +500,6 @@ function AddMovement() {
       <div className="text-3xl font-semibold mb-6">Add Movement</div>
       <form onSubmit={submitForm} className="space-y-10 w-full my-3">
         <div className="grid grid-cols-2 gap-3 w-full max-lg:grid-cols-1">
-          
           <FormControl size="lg" className="my-1">
             <FormLabel className="text-[#0D141C] font-medium">Pick Up Location</FormLabel>
             <Input
@@ -448,82 +537,82 @@ function AddMovement() {
             )}
           </FormControl>
           <div className="grid grid-cols-2 gap-3">
-          <FormControl size="lg" className="my-1">
-            <FormLabel className="text-[#0D141C] font-medium">Pick Up Date</FormLabel>
-            <Input
-              required
-              type="date"
-              fullWidth
-              name="pickUpDate"
-              size="lg"
-              value={formData.pickUpDate}
-              onChange={handleFormChange}
-            />
-            {errors.pickUpDate && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.pickUpDate}</FormHelperText>
-              </FormControl>
-            )}
-          </FormControl>
-          <FormControl size="lg" className="my-1">
-            <FormLabel className="text-[#0D141C] font-medium">Pick Up Time</FormLabel>
-            <Input
-              required
-              type="time"
-              fullWidth
-              size="lg"
-              name="pickUpTime"
-              value={formData.pickUpTime}
-              onChange={handleFormChange}
-            />
-            {errors.pickUpTime && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.pickUpTime}</FormHelperText>
-              </FormControl>
-            )}
-          </FormControl>
+            <FormControl size="lg" className="my-1">
+              <FormLabel className="text-[#0D141C] font-medium">Pick Up Date</FormLabel>
+              <Input
+                required
+                type="date"
+                fullWidth
+                name="pickUpDate"
+                size="lg"
+                value={formData.pickUpDate}
+                onChange={handleFormChange}
+              />
+              {errors.pickUpDate && (
+                <FormControl error>
+                  {" "}
+                  <FormHelperText>{errors.pickUpDate}</FormHelperText>
+                </FormControl>
+              )}
+            </FormControl>
+            <FormControl size="lg" className="my-1">
+              <FormLabel className="text-[#0D141C] font-medium">Pick Up Time</FormLabel>
+              <Input
+                required
+                type="time"
+                fullWidth
+                size="lg"
+                name="pickUpTime"
+                value={formData.pickUpTime}
+                onChange={handleFormChange}
+              />
+              {errors.pickUpTime && (
+                <FormControl error>
+                  {" "}
+                  <FormHelperText>{errors.pickUpTime}</FormHelperText>
+                </FormControl>
+              )}
+            </FormControl>
           </div>
           <div className="grid grid-cols-2 gap-3">
-          <FormControl size="lg" className="my-1">
-            <FormLabel className="text-[#0D141C] font-medium">Return Date</FormLabel>
-            <Input
-              required
-              type="date"
-              fullWidth
-              name="returnDate"
-              size="lg"
-              value={formData.returnDate}
-              onChange={handleFormChange}
-            />
-            {errors.returnDate && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.returnDate}</FormHelperText>
-              </FormControl>
-            )}
-          </FormControl>
-          <FormControl size="lg" className="my-1">
-            <FormLabel className="text-[#0D141C] font-medium">Expected Return Time</FormLabel>
-            <Input
-              required
-              type="time"
-              fullWidth
-              size="lg"
-              name="returnTime"
-              value={formData.returnTime}
-              onChange={handleFormChange}
-            />
-            {errors.returnTime && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.returnTime}</FormHelperText>
-              </FormControl>
-            )}
-          </FormControl>
+            <FormControl size="lg" className="my-1">
+              <FormLabel className="text-[#0D141C] font-medium">Return Date</FormLabel>
+              <Input
+                required
+                type="date"
+                fullWidth
+                name="returnDate"
+                size="lg"
+                value={formData.returnDate}
+                onChange={handleFormChange}
+              />
+              {errors.returnDate && (
+                <FormControl error>
+                  {" "}
+                  <FormHelperText>{errors.returnDate}</FormHelperText>
+                </FormControl>
+              )}
+            </FormControl>
+            <FormControl size="lg" className="my-1">
+              <FormLabel className="text-[#0D141C] font-medium">Expected Return Time</FormLabel>
+              <Input
+                required
+                type="time"
+                fullWidth
+                size="lg"
+                name="returnTime"
+                value={formData.returnTime}
+                onChange={handleFormChange}
+              />
+              {errors.returnTime && (
+                <FormControl error>
+                  {" "}
+                  <FormHelperText>{errors.returnTime}</FormHelperText>
+                </FormControl>
+              )}
+            </FormControl>
           </div>
-          <FormControl size="lg" className={`my-1 ${driverCar?"hover:cursor-not-allowed":""}`}>
+          <FormControl size="lg" className={`my-1 ${driverCar ? "hover:cursor-not-allowed" : ""}`}>
             <FormLabel className="text-[#0D141C] font-medium">Driver Name</FormLabel>
             <Select
               placeholder="Select Driver"
@@ -555,7 +644,7 @@ function AddMovement() {
             )}
           </FormControl>
 
-          <FormControl size="lg" className={`my-1 ${driverCar?"hover:cursor-not-allowed":""}`}>
+          <FormControl size="lg" className={`my-1 ${driverCar ? "hover:cursor-not-allowed" : ""}`}>
             <FormLabel className="text-[#0D141C] font-medium">Car Number</FormLabel>
             <Select
               placeholder="Select Car"
@@ -614,7 +703,7 @@ function AddMovement() {
                   <Input
                     name="passangerName"
                     value={data.name}
-                    required
+                    
                     fullWidth
                     size="lg"
                     disabled
@@ -623,7 +712,7 @@ function AddMovement() {
                 <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
                   <FormLabel className="text-[#0D141C] font-medium">Phone Number</FormLabel>
                   <Input
-                    required
+                    
                     fullWidth
                     name="phoneNumber"
                     type="tel"
@@ -646,7 +735,7 @@ function AddMovement() {
                     name="company"
                     value={data.company}
                     disabled
-                    required
+                    
                     fullWidth
                     size="lg"
                     placeholder="Enter Remark"
@@ -660,7 +749,6 @@ function AddMovement() {
                     onChange={(event) => {
                       handlePassengerChange(event, data.booking_id);
                     }}
-                    required
                     fullWidth
                     size="lg"
                     placeholder="Enter Remark"
@@ -909,7 +997,7 @@ function AddMovement() {
           <Divider />
           <div>Are you sure you want to delete Passenger ?</div>
           <DialogActions>
-            <Button variant="solid" color="danger" loading={loading} onClick={handleDelete}>
+            <Button variant="solid" color="danger" onClick={handleDelete}>
               Confirm
             </Button>
             <Button variant="plain" color="neutral" onClick={() => setDel(false)}>
@@ -932,7 +1020,7 @@ function AddMovement() {
           <Divider />
           <div>Are you sure you want to delete Passenger ?</div>
           <DialogActions>
-            <Button variant="solid" color="danger" loading={loading} onClick={handleManualDelete}>
+            <Button variant="solid" color="danger" onClick={handleManualDelete}>
               Confirm
             </Button>
             <Button variant="plain" color="neutral" onClick={() => setManualDel(false)}>
@@ -941,6 +1029,38 @@ function AddMovement() {
           </DialogActions>
         </ModalDialog>
       </Modal>
+      <Modal
+        open={openConfirm}
+        onClose={() => {
+          setOpenConfirm(false);
+          router.push("/admin/manage-movement");
+        }}
+      >
+        <ModalDialog size="lg">
+          <ModalClose />
+          <DialogTitle className="">Movement Confirmation</DialogTitle>
+          <DialogContent className="h-fit">
+            <div className="flex flex-col h-56 items-center overflow-hidden ">
+              <CheckCircle className="h-40 scale-[500%] text-green-600" />
+              <div className="font-semibold text-2xl text-center">Movement Added Successfully!</div>
+            </div>
+          </DialogContent>
+        </ModalDialog>
+      </Modal>
+      <Snackbar
+        open={alert}
+        autoHideDuration={5000}
+        // color="danger"
+        onClose={() => {
+          setAlert(false);
+        }}
+      >
+        {" "}
+        <Info /> {message}{" "}
+        <span onClick={() => setAlert(false)} className="cursor-pointer hover:bg-[#f3eded]">
+          <Close />
+        </span>{" "}
+      </Snackbar>
     </div>
   );
 }

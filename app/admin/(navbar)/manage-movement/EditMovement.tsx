@@ -1,4 +1,4 @@
-import { editBooking } from "@/app/actions/api";
+import { editMovement,fetchAvailableCars,fetchAvailableDrivers } from "@/app/actions/api";
 import {
   Button,
   DialogContent,
@@ -38,6 +38,7 @@ interface FormData {
   driver: string;
   pickup_date: string;
   return_date: string;
+  passenger_id: string;
 }
 
 function EditBooking({
@@ -60,7 +61,7 @@ function EditBooking({
   const [message, setMessage] = useState("");
   const [token, setToken] = useState("");
   const [checkBox, setCheckBox] = useState(false);
-  const [roomNumberLoading, setRoomNumberLoading] = useState(true);
+  const [driverCarLoading, setDriverCarLoading] = useState(true);
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -100,30 +101,13 @@ function EditBooking({
 
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [errors, setErrors] = useState<Partial<FormData>>({});
-  const [availableDrivers, setAvailableDrivers] = useState([
-    "ujjawal",
-    "devesh",
-    "vashisht",
-    "nakul",
-    "madhav",
-  ]);
-  const [availableCars, setAvailableCars] = useState([
-    "ujjawal",
-    "devesh",
-    "vashisht",
-    "nakul",
-    "madhav",
-  ]);
+  const [availableDrivers, setAvailableDrivers] = useState([]);
+  const [availableCars, setAvailableCars] = useState([]);
   const [newDriver, setNewDriver] = useState(formData.driver);
   const [newCar, setNewCar] = useState(formData.car_number);
 
-  console.log("initial data: ", initialData);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    console.log("hello");
-    console.log(name);
-    console.log(value);
     setCheckBox(false);
     // For the Phone Number field, restrict input to numbers only
     if (name === "phone") {
@@ -150,13 +134,13 @@ function EditBooking({
         [name]: value,
       }));
     }
-    if (name === "return_date"||name==="return_time") {
+    if (name === "return_date" || name === "return_time") {
       setErrors((prevData) => ({
         ...prevData,
         checkoutDate: "",
       }));
     }
-    if (name === "pickup_time"||name==="pickup_date") {
+    if (name === "pickup_time" || name === "pickup_date") {
       setErrors((prevData) => ({
         ...prevData,
         checkinDate: "",
@@ -194,28 +178,37 @@ function EditBooking({
       setErrors({});
       const apiFormData = {
         movement_id: initialData.movement_id,
-        pickup_time: selectedPickUpDateTime,
-        return_time: selectedReturnDateTime,
-        remark: formData.remark,
-        name: formData.passenger_name,
-        phone: parseInt(formData.phone),
-        company: formData.company,
-      };
-        try {
-          console.log(formData);
-          setLoading(true);
-        //   const res = await editBooking(token, apiFormData);
-          setLoading(false);
-          setAlert(true);
-        //   setMessage(res.message);
-          setReload(!reload);
-        //   console.log("res: ", res);
-        } catch (error) {
-          setLoading(false);
-          setAlert(true);
-          setMessage("Something went wrong, Please try again later!");
-          console.log("error: ", error);
-        }
+        pickup_time: selectedPickUpDateTime.toISOString(),
+        return_time: selectedReturnDateTime.toISOString(),
+        pickup_location: formData.pickup_location,
+        drop_location: formData.drop_location,
+        driver: newDriver,
+        car_number: newCar,
+        passengers: [
+            {
+                passenger_id: initialData.passenger_id,
+                phone: formData.phone,
+                company: formData.company,
+                name: formData.passenger_name,
+                remark: formData.remark,
+            }
+        ],
+    };
+      try {
+        console.log(formData);
+        setLoading(true);
+        const res = await editMovement(token, apiFormData);
+        setLoading(false);
+        setAlert(true);
+        setMessage(res.message);
+        setReload(!reload);
+        console.log("res: ", res);
+      } catch (error) {
+        setLoading(false);
+        setAlert(true);
+        setMessage("Something went wrong, Please try again later!");
+        console.log("error: ", error);
+      }
 
       console.log("Form submitted: ", formData);
     }
@@ -226,22 +219,22 @@ function EditBooking({
   };
 
   useEffect(() => {
-    // const fetchDriverCar = async () => {
-    //   const selectedCheckinDateTime = new Date(`${formData.pickup_date}T${formData.pickup_time}`);
-    //   const selectedCheckoutDateTime = new Date(`${formData.return_date}T${formData.return_time}`);
-    //   if (checkBox) {
-    //     const roomsAvailable = await getAvailableRooms(token, selectedCheckinDateTime, selectedCheckoutDateTime);
-    //     setAvailableRooms(roomsAvailable);
-    //     console.log(roomsAvailable);
-    //     setRoomNumberLoading(false);
-    //   }
-    // };
-    // if (checkBox) {
-    //   setRoomNumberLoading(true);
-    //   fetchRooms();
-    // }
-    console.log(formData);
-    setRoomNumberLoading(false);
+    const getDriverCar = async() => {
+      const pickUpDateTime = `${formData.pickup_date}T${formData.pickup_time}`;
+      const returnDateTime = `${formData.return_date}T${formData.return_time}`;
+      const cars = await fetchAvailableCars(token, pickUpDateTime, returnDateTime);
+      const drivers = await fetchAvailableDrivers(token, pickUpDateTime, returnDateTime);
+      console.log(cars, drivers);
+      const carsNumber = cars.map((data: { name: string; number: string }) => data.number);
+      const driverName = drivers.map((data: { name: string; phone: string }) => data.name);
+      setAvailableCars(carsNumber);
+      setAvailableDrivers(driverName);
+      setDriverCarLoading(false);
+    };
+    if (checkBox) {
+      setDriverCarLoading(true);
+      getDriverCar();
+    }
   }, [checkBox]);
 
   const handleChangeDriver = (event: React.SyntheticEvent | null, newValue: string | null) => {
@@ -270,11 +263,11 @@ function EditBooking({
             placeholder="Enter name of the Passenger"
           />
           {errors.passenger_name && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.passenger_name}</FormHelperText>
-              </FormControl>
-            )}
+            <FormControl error>
+              {" "}
+              <FormHelperText>{errors.passenger_name}</FormHelperText>
+            </FormControl>
+          )}
         </FormControl>
         <FormControl size="lg" className="my-1">
           <FormLabel className="text-[#0D141C] font-medium">Phone Number</FormLabel>
@@ -288,11 +281,11 @@ function EditBooking({
             placeholder="Enter phone number"
           />
           {errors.phone && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.phone}</FormHelperText>
-              </FormControl>
-            )}
+            <FormControl error>
+              {" "}
+              <FormHelperText>{errors.phone}</FormHelperText>
+            </FormControl>
+          )}
         </FormControl>
         <FormControl size="lg" className="my-1">
           <FormLabel className="text-[#0D141C] font-medium">Company</FormLabel>
@@ -306,11 +299,11 @@ function EditBooking({
             placeholder="Enter company"
           />
           {errors.company && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.company}</FormHelperText>
-              </FormControl>
-            )}
+            <FormControl error>
+              {" "}
+              <FormHelperText>{errors.company}</FormHelperText>
+            </FormControl>
+          )}
         </FormControl>
         <FormControl size="lg" className="my-1">
           <FormLabel className="text-[#0D141C] font-medium">Remark</FormLabel>
@@ -324,11 +317,11 @@ function EditBooking({
             placeholder="Enter remark"
           />
           {errors.remark && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.remark}</FormHelperText>
-              </FormControl>
-            )}
+            <FormControl error>
+              {" "}
+              <FormHelperText>{errors.remark}</FormHelperText>
+            </FormControl>
+          )}
         </FormControl>
         <FormControl size="lg" className="my-1">
           <FormLabel className="text-[#0D141C] font-medium">Pick Up Location</FormLabel>
@@ -342,11 +335,11 @@ function EditBooking({
             placeholder="Enter Pick Up Location"
           />
           {errors.pickup_location && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.pickup_location}</FormHelperText>
-              </FormControl>
-            )}
+            <FormControl error>
+              {" "}
+              <FormHelperText>{errors.pickup_location}</FormHelperText>
+            </FormControl>
+          )}
         </FormControl>
 
         <FormControl size="lg" className="my-1">
@@ -361,11 +354,11 @@ function EditBooking({
             placeholder="Enter Drop Location"
           />
           {errors.drop_location && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.drop_location}</FormHelperText>
-              </FormControl>
-            )}
+            <FormControl error>
+              {" "}
+              <FormHelperText>{errors.drop_location}</FormHelperText>
+            </FormControl>
+          )}
         </FormControl>
 
         <FormControl size="lg" className="my-1">
@@ -381,11 +374,11 @@ function EditBooking({
           />
 
           {errors.pickup_date && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.pickup_date}</FormHelperText>
-              </FormControl>
-            )}
+            <FormControl error>
+              {" "}
+              <FormHelperText>{errors.pickup_date}</FormHelperText>
+            </FormControl>
+          )}
         </FormControl>
         <FormControl size="lg" className="my-1">
           <FormLabel className="text-[#0D141C] font-medium">Pick Up Time</FormLabel>
@@ -399,11 +392,11 @@ function EditBooking({
             onChange={handleChange}
           />
           {errors.pickup_time && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.pickup_time}</FormHelperText>
-              </FormControl>
-            )}
+            <FormControl error>
+              {" "}
+              <FormHelperText>{errors.pickup_time}</FormHelperText>
+            </FormControl>
+          )}
         </FormControl>
 
         <FormControl size="lg" className="my-1">
@@ -418,11 +411,11 @@ function EditBooking({
             onChange={handleChange}
           />
           {errors.return_date && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.return_date}</FormHelperText>
-              </FormControl>
-            )}
+            <FormControl error>
+              {" "}
+              <FormHelperText>{errors.return_date}</FormHelperText>
+            </FormControl>
+          )}
         </FormControl>
         <FormControl size="lg" className="my-1">
           <FormLabel className="text-[#0D141C] font-medium">Expected Return Time</FormLabel>
@@ -436,11 +429,11 @@ function EditBooking({
             onChange={handleChange}
           />
           {errors.return_time && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.return_time}</FormHelperText>
-              </FormControl>
-            )}
+            <FormControl error>
+              {" "}
+              <FormHelperText>{errors.return_time}</FormHelperText>
+            </FormControl>
+          )}
         </FormControl>
         <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
           <FormLabel className="text-[#0D141C] font-medium">Driver</FormLabel>
@@ -454,11 +447,11 @@ function EditBooking({
             onChange={handleChange}
           />
           {errors.driver && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.driver}</FormHelperText>
-              </FormControl>
-            )}
+            <FormControl error>
+              {" "}
+              <FormHelperText>{errors.driver}</FormHelperText>
+            </FormControl>
+          )}
         </FormControl>
         <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
           <FormLabel className="text-[#0D141C] font-medium">Car Number</FormLabel>
@@ -472,11 +465,11 @@ function EditBooking({
             onChange={handleChange}
           />
           {errors.car_number && (
-              <FormControl error>
-                {" "}
-                <FormHelperText>{errors.car_number}</FormHelperText>
-              </FormControl>
-            )}
+            <FormControl error>
+              {" "}
+              <FormHelperText>{errors.car_number}</FormHelperText>
+            </FormControl>
+          )}
         </FormControl>
       </div>
       <div>
@@ -489,7 +482,7 @@ function EditBooking({
           </FormControl>
           {!checkBox ? (
             ""
-          ) : roomNumberLoading ? (
+          ) : driverCarLoading ? (
             <div className="flex justify-center">
               <CircularProgress />
             </div>
@@ -503,7 +496,7 @@ function EditBooking({
                   slotProps={{
                     listbox: {
                       sx: {
-                        maxHeight: 115,
+                        maxHeight: 150,
                         overflowY: "auto", // Enable vertical scrolling
                       },
                     },
@@ -525,7 +518,7 @@ function EditBooking({
                   slotProps={{
                     listbox: {
                       sx: {
-                        maxHeight: 115,
+                        maxHeight: 200,
                         overflowY: "auto", // Enable vertical scrolling
                       },
                     },

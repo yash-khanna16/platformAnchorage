@@ -30,18 +30,15 @@ export async function loginAdmin(email: string, password: string) {
 }
 export async function searchAllGuests(token: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/admin/searchAllGuest`,
-      {
-        method: "GET",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/searchAllGuest`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      cache: "no-cache",
+    });
 
     const data = await response.json(); // Parse the JSON response
     return data;
@@ -50,27 +47,20 @@ export async function searchAllGuests(token: string) {
     throw error;
   }
 }
-export async function getAvailableRooms(
-  token: string,
-  checkin: Date,
-  checkout: Date
-) {
+export async function getAvailableRooms(token: string, checkin: Date, checkout: Date) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/admin/getAvailableRooms`,
-      {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-        },
-        body: JSON.stringify({
-          checkData: { checkin: checkin, checkout: checkout },
-        }),
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/getAvailableRooms`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({
+        checkData: { checkin: checkin, checkout: checkout },
+      }),
+      cache: "no-cache",
+    });
 
     const data = await response.json(); // Parse the JSON response
     return data;
@@ -100,19 +90,16 @@ export async function addNewBooking(
 ) {
   console.log(bookingData);
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/admin/addBooking`,
-      {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-        },
-        body: JSON.stringify({ bookingData: bookingData }),
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/addBooking`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({ bookingData: bookingData }),
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -123,19 +110,16 @@ export async function addNewBooking(
 
 export async function getBookingsByRoom(token: string, room: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/admin/getReserv`,
-      {
-        method: "GET",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          roomno: room,
-          token: token,
-        },
-        cache: "no-store",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/getReserv`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        roomno: room,
+        token: token,
+      },
+      cache: "no-store",
+    });
 
     const data = await response.json(); // Parse the JSON response
     return data;
@@ -156,19 +140,16 @@ export async function addGuest(
   }
 ) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/admin/addGuests`,
-      {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-        },
-        body: JSON.stringify({ guestData: formData }),
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/addGuests`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({ guestData: formData }),
+      cache: "no-cache",
+    });
 
     const data = await response.json(); // Parse the JSON response
     return data;
@@ -201,19 +182,16 @@ export async function editBooking(
 ) {
   console.log(bookingData);
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/admin/editBooking`,
-      {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-        },
-        body: JSON.stringify({ bookingData: bookingData }),
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/editBooking`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({ bookingData: bookingData }),
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -223,19 +201,16 @@ export async function editBooking(
 }
 export async function deleteBooking(token: string, bookingId: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/admin/deleteBooking`,
-      {
-        method: "GET",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          bookingid: bookingId,
-          token: token,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/deleteBooking`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        bookingid: bookingId,
+        token: token,
+      },
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -245,18 +220,15 @@ export async function deleteBooking(token: string, bookingId: string) {
 }
 export async function getInstantRooms(token: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/admin/instantAvailableRooms`,
-      {
-        method: "GET",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/instantAvailableRooms`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -266,19 +238,16 @@ export async function getInstantRooms(token: string) {
 }
 export async function addNewRoom(token: string, room: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/admin/addRoom`,
-      {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-        },
-        body: JSON.stringify({ room: room }),
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/addRoom`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({ room: room }),
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -288,19 +257,16 @@ export async function addNewRoom(token: string, room: string) {
 }
 export async function deleteRoom(token: string, room: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/admin/deleteRoom`,
-      {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-        },
-        body: JSON.stringify({ room: room }),
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/deleteRoom`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({ room: room }),
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -315,23 +281,20 @@ export async function editEmailTemplate(
   subject: string
 ) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/admin/editEmailTempalate`,
-      {
-        method: "POST",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-        },
-        body: JSON.stringify({
-          template: template,
-          content: content,
-          subject: subject,
-        }),
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/editEmailTempalate`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({
+        template: template,
+        content: content,
+        subject: subject,
+      }),
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -341,20 +304,17 @@ export async function editEmailTemplate(
 }
 export async function getEmailTemplate(token: string, template: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/admin/getEmailTemplate`,
-      {
-        method: "GET",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-          template: template,
-        },
-        // body: JSON.stringify({template: template, content: content}),
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/getEmailTemplate`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        template: template,
+      },
+      // body: JSON.stringify({template: template, content: content}),
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -362,26 +322,19 @@ export async function getEmailTemplate(token: string, template: string) {
     throw error;
   }
 }
-export async function fetchRoomData(
-  token: string,
-  currentMonth: string,
-  currentYear: string
-) {
+export async function fetchRoomData(token: string, currentMonth: string, currentYear: string) {
   try {
-    const response = await fetch(
-      `${process.env.BACKEND_URL}/api/analytics/getRoomsBookedPerDay`,
-      {
-        method: "get",
-        mode: "cors",
-        headers: {
-          "Content-Type": "application/json",
-          token: token,
-          year: currentYear,
-          month: currentMonth,
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getRoomsBookedPerDay`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        year: currentYear,
+        month: currentMonth,
+      },
+      cache: "no-cache",
+    });
     const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
@@ -389,11 +342,7 @@ export async function fetchRoomData(
     throw error;
   }
 }
-export async function fetchMeals(
-  token: string,
-  currentMonth: string,
-  currentYear: string
-) {
+export async function fetchMeals(token: string, currentMonth: string, currentYear: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDay`,
@@ -416,11 +365,7 @@ export async function fetchMeals(
     throw error;
   }
 }
-export async function fetchCompanies(
-  token: string,
-  currentMonth: string,
-  currentYear: string
-) {
+export async function fetchCompanies(token: string, currentMonth: string, currentYear: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForMonthandYear`,
@@ -444,11 +389,7 @@ export async function fetchCompanies(
   }
 }
 
-export async function fetchBreakfast(
-  token: string,
-  currentMonth: string,
-  currentYear: string
-) {
+export async function fetchBreakfast(token: string, currentMonth: string, currentYear: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDay`,
@@ -582,10 +523,7 @@ export async function fetchBreakfastQuarter(
     throw error;
   }
 }
-export async function fetchRoomDataYear(
-  token: string,
-  currentYear: string
-) {
+export async function fetchRoomDataYear(token: string, currentYear: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/analytics/getRoomsBookedPerDayYear`,
@@ -607,10 +545,7 @@ export async function fetchRoomDataYear(
     throw error;
   }
 }
-export async function fetchMealsYear(
-  token: string,
-  currentYear: string
-) {
+export async function fetchMealsYear(token: string, currentYear: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDayYear`,
@@ -632,10 +567,7 @@ export async function fetchMealsYear(
     throw error;
   }
 }
-export async function fetchCompaniesYear(
-  token: string,
-  currentYear: string
-) {
+export async function fetchCompaniesYear(token: string, currentYear: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForYear`,
@@ -658,10 +590,7 @@ export async function fetchCompaniesYear(
   }
 }
 
-export async function fetchBreakfastYear(
-  token: string,
-  currentYear: string
-) {
+export async function fetchBreakfastYear(token: string, currentYear: string) {
   try {
     const response = await fetch(
       `${process.env.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDayYear`,
@@ -676,6 +605,193 @@ export async function fetchBreakfastYear(
         cache: "no-cache",
       }
     );
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function addMovement(
+  token: string,
+  movementData: {
+    pickup_location: string;
+    pickup_time: string;
+    return_time: string;
+    drop_location: string;
+    driver: string;
+    car_number: string;
+    passengers: {
+      bookingId?: string | null;
+      passengerName?: string;
+      phoneNumber?: string;
+      remark?: string;
+      company?: string;
+    }[];
+  }
+) {
+  try {
+    console.log(movementData);
+    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/addMovement`, {
+      method: "post",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({
+        pickup_location: movementData.pickup_location,
+        pickup_time: movementData.pickup_time,
+        return_time: movementData.return_time,
+        drop_location: movementData.drop_location,
+        driver: movementData.driver,
+        car_number: movementData.car_number,
+        passengers: movementData.passengers,
+      }),
+      cache: "no-cache",
+    });
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function fetchAvailableCars(
+  token: string,
+  pickUpDateTime: string,
+  returnDateTime: string
+) {
+  try {
+    console.log(pickUpDateTime, returnDateTime);
+    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/fetchAvailableCars`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        pickuptime: pickUpDateTime,
+        returntime: returnDateTime,
+      },
+      cache: "no-cache",
+    });
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function fetchAvailableDrivers(
+  token: string,
+  pickUpDateTime: string,
+  returnDateTime: string
+) {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/fetchAvailableDrivers`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        pickuptime: pickUpDateTime,
+        returntime: returnDateTime,
+      },
+      cache: "no-cache",
+    });
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function fetchMovement(token: string) {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/fetchMovement`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      cache: "no-cache",
+    });
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function editMovement(
+  token: string,
+  apiData: {
+    movement_id: string;
+    pickup_time: string;
+    return_time: string;
+    driver: string;
+    car_number: string;
+    pickup_location: string;
+    drop_location: string;
+    passengers: {
+        passenger_id: string;
+        remark: string;
+        name: string;
+        phone: string;
+        company: string;
+      }[];
+  }
+) {
+  console.log(apiData);
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/editMovement`, {
+      method: "post",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({
+        movement_id: apiData.movement_id,
+        pickup_time: apiData.pickup_time,
+        return_time: apiData.return_time,
+        driver: apiData.driver,
+        car_number: apiData.car_number,
+        pickup_location: apiData.pickup_location,
+        drop_location: apiData.drop_location,
+        passengers: apiData.passengers,
+      }),
+      cache: "no-cache",
+    });
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function deleteMovement(token: string,movement_id:string,passenger_id:string) {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/deletePassengerFromMovement`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        movementid:movement_id,
+        passengerid:passenger_id,
+      },
+      cache: "no-cache",
+    });
     // console.log("res: ", response);
     const data = await response.json(); // Parse the JSON response
     return data;

@@ -49,7 +49,7 @@ interface ReservationsProps {
   loading: boolean;
   reload: boolean;
   location?: string;
-  setSelectedGuest?: React.Dispatch<SetStateAction<GridRowSelectionModel>>;
+  setSelectedGuest?: React.Dispatch<SetStateAction<GridRowSelectionModel[]>>;
 }
 
 interface FormDataReservation {
@@ -372,7 +372,7 @@ const Reservations: React.FC<ReservationsProps> = ({
           placeholder="Search by guest name, email, company..."
         />
         <br />
-        {location === "movement" ? (
+        {location === "movement" ? (<>
             <DataGrid
               apiRef={apiRef}
               rows={rowsData}
@@ -384,7 +384,6 @@ const Reservations: React.FC<ReservationsProps> = ({
               columns={gridColumns}
               pagination
               checkboxSelection
-              disableMultipleRowSelection
               getRowId={(row) => row.booking_id} // Specify the custom row ID
               sx={{
                 borderRadius: 3, // Adjust the value to achieve the desired rounding
@@ -394,32 +393,42 @@ const Reservations: React.FC<ReservationsProps> = ({
                 },
               }}
               getRowClassName={() => "pl-3"} // Apply Tailwind padding utility class to rows
-              onRowSelectionModelChange={(newRowSelectionModel: GridRowSelectionModel) => {
-                if(setSelectedGuest){
-                  setSelectedGuest(newRowSelectionModel);
-                }}}
+              onRowSelectionModelChange={(newRowSelectionModel) => {
+                if (setSelectedGuest) {
+                  const selectedBookingIds = newRowSelectionModel.map((id) => {
+                    const selectedRow = rowsData.find((row) => row.booking_id === id);
+                    return selectedRow ? selectedRow.booking_id : null;
+                  }).filter((id) => id !== null);
+                  
+                  setSelectedGuest(selectedBookingIds);
+                }
+              }}
             />
+            </>
         ) : (
+          
           <DataGrid
-            apiRef={apiRef}
-            rows={rowsData}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            loading={loading}
-            pageSizeOptions={[5, 10, 15]} // Use pageSizeOptions instead
-            autoHeight
-            columns={gridColumns}
-            pagination
-            getRowId={(row) => row.booking_id} // Specify the custom row ID
-            sx={{
-              borderRadius: 3, // Adjust the value to achieve the desired rounding
-              // overflow: "scroll",
-              "& .MuiDataGrid-root": {
-                borderRadius: "inherit",
-              },
-            }}
-            getRowClassName={() => "pl-3"} // Apply Tailwind padding utility class to rows
+          apiRef={apiRef}
+          rows={rowsData}
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          loading={loading}
+          pageSizeOptions={[5, 10, 15]} // Use pageSizeOptions instead
+          autoHeight
+          columns={gridColumns}
+          pagination
+
+          getRowId={(row) => row.booking_id} // Specify the custom row ID
+          sx={{
+            borderRadius: 3, // Adjust the value to achieve the desired rounding
+            // overflow: "scroll",
+            "& .MuiDataGrid-root": {
+              borderRadius: "inherit",
+            },
+          }}
+          getRowClassName={() => "pl-3"}  // Apply Tailwind padding utility class to rows
           />
+          
         )}
       </div>
       <Modal

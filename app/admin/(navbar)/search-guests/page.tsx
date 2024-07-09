@@ -27,8 +27,8 @@ type ReservationType = {
 
 
 function Guests() {
-  const columns = ["booking_id","name", "room","status", "checkin", "checkout", "email", "phone", "company", "vessel", "remarks", "additional_info", "breakfast", "meal_non_veg", "meal_veg", "rank"];
-  const headers = ["Booking Id","Name", "Room No.","Status", "Check In", "Check Out", "Email", "Phone No.", "Company", "Vessel", "Remarks", "Additional Information", "Breakfast", "Non-Veg Meal", "Veg Meal", "Rank"];
+  const columns = ["status","name", "room", "checkin", "checkout", "email", "phone", "company", "vessel", "remarks", "additional_info", "breakfast", "meal_non_veg", "meal_veg", "rank"];
+  const headers = ["Status","Name", "Room No.", "Check In", "Check Out", "Email", "Phone No.", "Company", "Vessel", "Remarks", "Additional Information", "Breakfast", "Non-Veg Meal", "Veg Meal", "Rank"];
   const [search, setSearch] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<ReservationType[]>([]);
@@ -117,7 +117,7 @@ function Guests() {
   }, [search, rows]);
 
   return (
-    <div className=' my-11 mx-32 max-[1420px]:mx-10 max-lg:mx-5'>
+    <div className='mx-20 my-11 max-[1420px]:mx-10 max-lg:mx-5'>
       <Reservations reload={reload} setReload={setReload} loading={loading} handleSearch={handleSearch} search={search} setSearch={setSearch} rowsData={filteredRows}  columns={columns} headers={headers} />
     </div>
   )

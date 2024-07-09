@@ -1,61 +1,57 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Reservations from "./MovementReservation";
-import { searchAllGuests } from "@/app/actions/api";
-import { useDebouncedCallback } from "use-debounce";
+import { fetchMovement } from "@/app/actions/api";
 import { getAuthAdmin } from "@/app/actions/cookie";
+import { GridRowSelectionModel } from "@mui/x-data-grid";
+import Edit from "./Edit";
 
 type MovementType = {
   movement_id: string;
   pickup_time: string;
   drop_location: string;
-  company: string | null;
   pickup_location: string;
   return_time: string;
-  passenger_name: string;
-  phone: string;
-  remark: string;
   car_number: string;
   driver: string;
   car_name: string;
-  passenger_id: string;
+  passengers: {
+    passenger_name: string;
+    phone: string;
+    remark: string;
+    company: string | null;
+  }[];
 };
 
 function Movements() {
   const columns = [
-    "passenger_name",
     "status",
-    "phone",
-    "pickup_location",
-    "car_name",
-    "pickup_time",
-    "drop_location",
-    "return_time",
     "driver",
     "car_number",
-    "company",
-    "remark",
+    "pickup_location",
+    "pickup_time",
+    "return_time",
+    "drop_location",
+    "car_name",
   ];
   const headers = [
-    "Name",
     "Status",
-    "Phone No.",
-    "Pick Up Location",
-    "Car Name",
-    "Pick Up Time",
-    "Drop Location",
-    "Return Time",
     "Driver",
     "Car Number",
-    "Company",
-    "Remark",
+    "Pick Up Location",
+    "Pick Up Time",
+    "Return Time",
+    "Car Name",
+    "Drop Location",
   ];
   const [search, setSearch] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<MovementType[]>([]);
   const [reload, setReload] = useState(false);
   const [token, setToken] = useState("");
+  const [selectedData, setSelectedData] = useState<MovementType>();
   const [filteredRows, setFilteredRows] = useState<MovementType[]>([]);
+  const [seletedMovement, setSeletedMovement] = useState<GridRowSelectionModel>();
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -76,54 +72,7 @@ function Movements() {
   async function getGuests() {
     try {
       setLoading(true);
-      // let fetchedRows = await searchAllGuests(token);
-      let fetchedRows:MovementType[] = [
-        {
-          "movement_id": "fe28606c-cb9b-4293-a4f3-f1c029550428",
-          "pickup_location": "palam metro",
-          "pickup_time": "2024-07-05T08:30:00.123Z",
-          "return_time": "2024-07-05T09:30:00.123Z",
-          "car_number": "1",
-          "driver": "yadav",
-          "car_name": "DZire",
-          "passenger_name": "shubham who",
-          "passenger_id": "ef5f712f-ef6f-4c72-b30b-b401f5fdc3d0",
-          "phone": "9999020069",
-          "drop_location": "yadav ka ghar",
-          "company": "YADAV",
-          "remark": "waapas palam chhod ke aana agar paise nahi diye to"
-        },
-        {
-          "movement_id": "fe28606c-cb9b-4293-a4f3-f1c029550428",
-          "pickup_location": "palam metro",
-          "pickup_time": "2024-07-05T08:30:00.123Z",
-          "return_time": "2024-07-05T09:30:00.123Z",
-          "car_number": "1",
-          "driver": "yadav",
-          "car_name": "DZire",
-          "passenger_name": "shubham who?",
-          "passenger_id": "029fd3c5-5c8b-49ea-81f5-722bda0250bc",
-          "phone": "9999020069",
-          "drop_location": "yadav ka ghar",
-          "company": "YADAV",
-          "remark": "waapas palam chhod ke aana agar paise nahi diye to"
-        },
-        {
-          "movement_id": "fe28606c-cb9b-4293-a4f3-f1c029550428",
-          "pickup_location": "palam metro",
-          "pickup_time": "2024-07-05T08:30:00.123Z",
-          "return_time": "2024-07-05T09:30:00.123Z",
-          "car_number": "1",
-          "driver": "yadav",
-          "car_name": "DZire",
-          "passenger_name": "VISHAL KHANNA",
-          "passenger_id": "e6239f8b-9bac-41e4-9b9e-9a72570f78be",
-          "phone": "8287340468",
-          "drop_location": "yadav ka ghar",
-          "company": "ANCHORAGE",
-          "remark": "special"
-        }
-      ]
+      let fetchedRows = await fetchMovement(token);
       console.log(fetchedRows);
 
       const currentTime = new Date();
@@ -132,9 +81,9 @@ function Movements() {
         const pickUpTime = new Date(row.pickup_time);
         const returnTime = new Date(row.return_time);
         let status;
-        if (pickUpTime < currentTime) {
+        if (pickUpTime < currentTime && returnTime < currentTime) {
           status = "Expired";
-        } else if (returnTime > currentTime) {
+        } else if (pickUpTime > currentTime) {
           status = "Upcoming";
         } else {
           status = "Active";
@@ -162,6 +111,12 @@ function Movements() {
     }
   }, [reload, token]);
 
+  useEffect(() => {
+    const newSelectedMovement = seletedMovement?.toString();
+    const seletedData = rows.find((data) => data.movement_id === newSelectedMovement);
+    setSelectedData(seletedData);
+  }, [seletedMovement]);
+
   const handleSearch = () => {
     if (search.trim() === "") {
       setFilteredRows(rows);
@@ -181,7 +136,7 @@ function Movements() {
   }, [search, rows]);
 
   return (
-    <div className=" my-11 mx-32 max-[1420px]:mx-10 max-lg:mx-5">
+    <div className="mx-20 my-11 max-[1420px]:mx-10 max-lg:mx-5">
       <Reservations
         reload={reload}
         setReload={setReload}
@@ -192,7 +147,9 @@ function Movements() {
         rowsData={filteredRows}
         columns={columns}
         headers={headers}
+        setSeletedMovement={setSeletedMovement}
       />
+      {selectedData ? <Edit selectedData={selectedData} /> : ""}
     </div>
   );
 }

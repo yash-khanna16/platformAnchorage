@@ -8,13 +8,7 @@ import {
   GridPaginationModel,
   useGridApiRef,
 } from "@mui/x-data-grid";
-import {
-  Box,
-  Typography,
-  IconButton,
-  DialogContent,
-  DialogActions,
-} from "@mui/material";
+import { Box, Typography, IconButton, DialogContent, DialogActions } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import {
   Button,
@@ -29,12 +23,14 @@ import {
 import EditBooking from "./EditMovement";
 import { Close, DeleteForever, Info } from "@mui/icons-material";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
-import { deleteBooking } from "@/app/actions/api";
+import { deleteMovement } from "@/app/actions/api";
 import { getAuthAdmin } from "@/app/actions/cookie";
+import { GridRowSelectionModel } from "@mui/x-data-grid";
 
 interface RowData {
   [key: string]: any;
 }
+
 
 interface ReservationsProps {
   rowsData: RowData[];
@@ -46,6 +42,7 @@ interface ReservationsProps {
   handleSearch: (value: string) => void;
   loading: boolean;
   reload: boolean;
+  setSeletedMovement:React.Dispatch<SetStateAction<GridRowSelectionModel | undefined>>;
 }
 
 interface Movement {
@@ -62,7 +59,7 @@ interface Movement {
   driver: string;
   pickup_date: string;
   return_date: string;
-  passenger_id:string;
+  passenger_id: string;
 }
 
 const MovementReservations: React.FC<ReservationsProps> = ({
@@ -75,11 +72,15 @@ const MovementReservations: React.FC<ReservationsProps> = ({
   loading,
   setReload,
   reload,
+  setSeletedMovement,
 }) => {
   const [edit, setEdit] = useState(false);
   const [del, setDel] = useState(false);
   const [editId, setEditId] = useState<Movement | null>(null);
-  const [deleteId, setDeleteId] = useState("");
+  const [deleteId, setDeleteId] = useState<{ movementId: string; passengerId: string }>({
+    movementId: "",
+    passengerId: "",
+  });
   const apiRef = useGridApiRef();
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [alert, setAlert] = useState(false);
@@ -114,7 +115,7 @@ const MovementReservations: React.FC<ReservationsProps> = ({
       remark: id.remark,
       car_number: id.car_number,
       driver: id.driver,
-      passenger_id:id.passenger_id,
+      passenger_id: id.passenger_id,
     };
   };
 
@@ -168,37 +169,32 @@ const MovementReservations: React.FC<ReservationsProps> = ({
         );
       },
     })),
-    {
-      field: "edit",
-      headerName: "Actions",
-      sortable: false,
-      align: "center",
-      headerAlign: "center",
-      width: 120,
-      renderHeader: (params: GridColumnHeaderParams) => (
-        <span className="text-[#0D141C] font-semibold pl-3 text-center">
-          Actions
-        </span>
-      ),
-      renderCell: (params) => (
-        <div>
-          <IconButton
-            onClick={() => handleEdit(params.row)}
-            style={{ marginRight: 10 }}
-          >
-            <EditIcon className="scale-75" />
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              setDel(true);
-              setDeleteId(params.row.movement_id);
-            }}
-          >
-            <DeleteForever className="scale-75 text-red-700" />
-          </IconButton>
-        </div>
-      ),
-    },
+    // {
+    //   field: "edit",
+    //   headerName: "Actions",
+    //   sortable: false,
+    //   align: "center",
+    //   headerAlign: "center",
+    //   width: 120,
+    //   renderHeader: (params: GridColumnHeaderParams) => (
+    //     <span className="text-[#0D141C] font-semibold pl-3 text-center">Actions</span>
+    //   ),
+    //   renderCell: (params) => (
+    //     <div>
+    //       <IconButton onClick={() => handleEdit(params.row)} style={{ marginRight: 10 }}>
+    //         <EditIcon className="scale-75" />
+    //       </IconButton>
+    //       <IconButton
+    //         onClick={() => {
+    //           setDel(true);
+    //           setDeleteId({movementId:params.row.movement_id,passengerId:params.row.passenger_id});
+    //         }}
+    //       >
+    //         <DeleteForever className="scale-75 text-red-700" />
+    //       </IconButton>
+    //     </div>
+    //   ),
+    // },
   ];
 
   const handleEdit = (id: any) => {
@@ -210,17 +206,24 @@ const MovementReservations: React.FC<ReservationsProps> = ({
   const handleDelete = async () => {
     try {
       setLoadingDelete(true);
-      // const res = await deleteBooking(token, deleteId);
+      const res = await deleteMovement(token,deleteId.movementId,deleteId.passengerId);
+      setMessage(res.message);
       setLoadingDelete(false);
       setDel(false);
-      setDeleteId("");
+      setDeleteId({
+        movementId: "",
+        passengerId: "",
+      });
       setAlert(true);
       setReload(!reload);
       // setMessage(res.message);
     } catch (error) {
       setLoadingDelete(false);
       setDel(false);
-      setDeleteId("");
+      setDeleteId({
+        movementId: "",
+        passengerId: "",
+      });
       setAlert(true);
       setMessage("Something went wrong, Please try again!");
     }
@@ -228,7 +231,7 @@ const MovementReservations: React.FC<ReservationsProps> = ({
 
   return (
     <>
-      <div>
+      <div >
         <div className="mb-6">
           <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
             Search Movement
@@ -251,7 +254,9 @@ const MovementReservations: React.FC<ReservationsProps> = ({
           autoHeight
           columns={gridColumns}
           pagination
-          getRowId={(row) => row.passenger_id}
+          checkboxSelection
+          disableMultipleRowSelection
+          getRowId={(row) => row.movement_id}
           sx={{
             borderRadius: 3,
             "& .MuiDataGrid-root": {
@@ -259,6 +264,9 @@ const MovementReservations: React.FC<ReservationsProps> = ({
             },
           }}
           getRowClassName={() => "pl-3"}
+          onRowSelectionModelChange={(newRowSelectionModel) => {
+              setSeletedMovement(newRowSelectionModel);
+          }}
         />
       </div>
       <Modal
@@ -296,16 +304,9 @@ const MovementReservations: React.FC<ReservationsProps> = ({
             Confirmation
           </DialogTitle>
           <Divider />
-          <DialogContent>
-            Are you sure you want to delete this Movement?
-          </DialogContent>
+          <DialogContent>Are you sure you want to delete this Movement?</DialogContent>
           <DialogActions>
-            <Button
-              variant="solid"
-              color="danger"
-              loading={loadingDelete}
-              onClick={handleDelete}
-            >
+            <Button variant="solid" color="danger" loading={loadingDelete} onClick={handleDelete}>
               Confirm
             </Button>
             <Button variant="plain" color="neutral" onClick={() => setDel(false)}>

@@ -1,11 +1,5 @@
 export const searchIcon = (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 20 20"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       fillRule="evenodd"
       clipRule="evenodd"
@@ -15,13 +9,7 @@ export const searchIcon = (
   </svg>
 );
 export const calenderIcon = (
-  <svg
-    width="18"
-    height="20"
-    viewBox="0 0 18 20"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       fill-rule="evenodd"
       clip-rule="evenodd"
@@ -31,13 +19,7 @@ export const calenderIcon = (
   </svg>
 );
 export const addIcon = (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 18 18"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       fill-rule="evenodd"
       clip-rule="evenodd"
@@ -47,13 +29,7 @@ export const addIcon = (
   </svg>
 );
 export const analyticsIcon = (
-  <svg
-    width="20"
-    height="18"
-    viewBox="0 0 20 18"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path
       fill-rule="evenodd"
       clip-rule="evenodd"
@@ -64,12 +40,7 @@ export const analyticsIcon = (
 );
 
 export const mailIcon = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="18"
-    viewBox="0 0 512 512"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="18" viewBox="0 0 512 512">
     <path
       fill="#000000"
       d="M64 112c-8.8 0-16 7.2-16 16v22.1L220.5 291.7c20.7 17 50.4 17 71.1 0L464 150.1V128c0-8.8-7.2-16-16-16H64zM48 212.2V384c0 8.8 7.2 16 16 16H448c8.8 0 16-7.2 16-16V212.2L322 328.8c-38.4 31.5-93.7 31.5-132 0L48 212.2zM0 128C0 92.7 28.7 64 64 64H448c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128z"
@@ -77,12 +48,7 @@ export const mailIcon = (
   </svg>
 );
 export const addPersonIcon = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="18"
-    viewBox="0 0 640 512"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="18" viewBox="0 0 640 512">
     <path
       fill="#000000"
       d="M96 128a128 128 0 1 1 256 0A128 128 0 1 1 96 128zM0 482.3C0 383.8 79.8 304 178.3 304h91.4C368.2 304 448 383.8 448 482.3c0 16.4-13.3 29.7-29.7 29.7H29.7C13.3 512 0 498.7 0 482.3zM504 312V248H440c-13.3 0-24-10.7-24-24s10.7-24 24-24h64V136c0-13.3 10.7-24 24-24s24 10.7 24 24v64h64c13.3 0 24 10.7 24 24s-10.7 24-24 24H552v64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
@@ -90,13 +56,7 @@ export const addPersonIcon = (
   </svg>
 );
 export const searchIconSecondary = (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-  >
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g clip-path="url(#clip0_40_276)">
       <path
         fill-rule="evenodd"
@@ -107,23 +67,22 @@ export const searchIconSecondary = (
     </g>
     <defs>
       <clipPath id="clip0_40_276">
-        <rect
-          width="24"
-          height="24"
-          fill="white"
-        />
+        <rect width="24" height="24" fill="white" />
       </clipPath>
     </defs>
   </svg>
 );
 
 export const addMovementIcon = (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="18"
-    viewBox="0 0 512 512"
-  >
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="18" viewBox="0 0 512 512">
     <path d="M135.2 117.4L109.1 192H402.9l-26.1-74.6C372.3 104.6 360.2 96 346.6 96H165.4c-13.6 0-25.7 8.6-30.2 21.4zM39.6 196.8L74.8 96.3C88.3 57.8 124.6 32 165.4 32H346.6c40.8 0 77.1 25.8 90.6 64.3l35.2 100.5c23.2 9.6 39.6 32.5 39.6 59.2V400v48c0 17.7-14.3 32-32 32H448c-17.7 0-32-14.3-32-32V400H96v48c0 17.7-14.3 32-32 32H32c-17.7 0-32-14.3-32-32V400 256c0-26.7 16.4-49.6 39.6-59.2zM128 288a32 32 0 1 0 -64 0 32 32 0 1 0 64 0zm288 32a32 32 0 1 0 0-64 32 32 0 1 0 0 64z" />
   </svg>
+);
+export const addNewBooking = (
+  <svg xmlns="http://www.w3.org/2000/svg"  width="20" height="18" viewBox="0 0 448 512">
+    <path d="M256 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H48c-17.7 0-32 14.3-32 32s14.3 32 32 32H192V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H400c17.7 0 32-14.3 32-32s-14.3-32-32-32H256V80z" />
+  </svg>
+);
+export const table = (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="18" viewBox="0 0 512 512"><path d="M64 256V160H224v96H64zm0 64H224v96H64V320zm224 96V320H448v96H288zM448 256H288V160H448v96zM64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64H64z"/></svg>
 );
