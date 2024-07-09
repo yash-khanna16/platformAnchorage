@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Logout } from "@mui/icons-material";
 import Drawer from "@mui/joy/Drawer";
-import { addIcon, addPersonIcon, analyticsIcon, calenderIcon, mailIcon, searchIcon } from "../../assets/icons";
+import { addIcon, addPersonIcon, analyticsIcon, cabIcon, calenderIcon, mailIcon, searchIcon } from "../../assets/icons";
 import { deleteAuthAdmin, getAuthAdmin } from "../actions/cookie";
 import { parseJwt } from "../actions/utils";
 import logo from "../assets/anchorage_logo1.png";
@@ -43,6 +43,7 @@ function Navbar() {
     { icon: searchIcon, route: "search-guests", value: "Search Guests" },
     { icon: calenderIcon, route: "manage-rooms", value: "Manage Rooms" },
     { icon: analyticsIcon, route: "analytics", value: "Analytics" },
+    { icon: cabIcon, route: "movement-info", value: "Movement Info" },
     { icon: addPersonIcon, route: "add-guest", value: "Add Guest" },
     { icon: mailIcon, route: "emails", value: "Emails" },
   ];
