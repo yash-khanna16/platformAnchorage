@@ -253,6 +253,8 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
                       {data}
                     </Option>
                   ))} */}
+
+                  
             </Select>
           </FormControl>
         </div>
