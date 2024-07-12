@@ -28,6 +28,7 @@ function Room() {
   const columns = [
     "status",
     "name",
+    "name",
     "checkin",
     "checkout",
     "email",
@@ -41,6 +42,7 @@ function Room() {
   ];
   const headers = [
     "Status",
+    "Name",
     "Name",
     "Check In",
     "Check Out",

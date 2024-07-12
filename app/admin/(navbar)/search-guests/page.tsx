@@ -4,6 +4,7 @@ import Reservations from "../manage-rooms/[room]/Reservations";
 import { searchAllGuests } from "@/app/actions/api";
 import { useDebouncedCallback } from "use-debounce";
 import { getAuthAdmin } from "@/app/actions/cookie";
+import { Box, Typography, IconButton, DialogContent, DialogActions } from "@mui/material";
 
 type ReservationType = {
   additional_info: string | null;
@@ -22,7 +23,7 @@ type ReservationType = {
   remarks: string;
   room: string;
   vessel: string;
-  status: string;
+  status?: string; // Add this line
 };
 
 function Guests() {
@@ -39,22 +40,20 @@ function Guests() {
     "remarks",
     "additional_info",
     "rank",
-    "id",
   ];
   const headers = [
     "Status",
     "Name",
-    "Room No.",
+    "Room",
     "Check In",
     "Check Out",
     "Email",
-    "Phone No.",
+    "Phone",
     "Company",
     "Vessel",
     "Remarks",
     "Additional Information",
     "Rank",
-    "Guest ID",
   ];
   const [search, setSearch] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -129,7 +128,9 @@ function Guests() {
     } else {
       const lowercasedSearch = search.toLowerCase();
       const filtered = rows.filter((row) =>
-        columns.some((column) => row[column as keyof ReservationType]?.toString().toLowerCase().includes(lowercasedSearch))
+        columns.some((column) =>
+          row[column as keyof ReservationType]?.toString().toLowerCase().includes(lowercasedSearch)
+        )
       );
       setFilteredRows(filtered);
     }
@@ -139,8 +140,31 @@ function Guests() {
     handleSearch();
   }, [search, rows]);
 
+  // const exportToCsv = () => {
+  //   // Filter rows where status is "Active"
+  //   const activeRows = filteredRows.filter(row => row.status === "Active");
+
+  //   // Prepare CSV content
+  //   const csvContent = "data:text/csv;charset=utf-8,"
+  //     + columns.join(",") + "\n"
+  //     + activeRows.map(row => columns.map(column => row[column as keyof ReservationType]).join(",")).join("\n");
+
+  //   // Create download link and trigger download
+  //   const encodedUri = encodeURI(csvContent);
+  //   const link = document.createElement('a');
+  //   link.setAttribute('href', encodedUri);
+  //   link.setAttribute('download', 'active_reservations.csv');
+  //   document.body.appendChild(link);
+  //   link.click();
+  //   document.body.removeChild(link);
+  // };
+
   return (
-    <div className="mx-20 my-11 max-[1420px]:mx-10 max-lg:mx-5">
+    <div className="mx-5 mt-11 max-[1420px]:mx-10 max-lg:mx-5">
+      {/* <Button variant="contained" color="primary" onClick={exportToCsv}>Export as CSV</Button> */}
+      <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
+        Search Reservations
+      </Typography>
       <Reservations
         reload={reload}
         setReload={setReload}

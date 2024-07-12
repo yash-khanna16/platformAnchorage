@@ -48,6 +48,7 @@ function Navbar() {
     { icon: table, route: "manage-movement", value: "Manage Movement"},
     { icon: cabIcon, route: "movement-info", value: "Movement Info" },
     { icon: analyticsIcon, route: "analytics", value: "Analytics" },
+    { icon: tableIcon, route: "master-table", value: "Master Table" },
     { icon: addPersonIcon, route: "add-guest", value: "Add Guest" },
     { icon: mailIcon, route: "emails", value: "Emails" },
   ];
