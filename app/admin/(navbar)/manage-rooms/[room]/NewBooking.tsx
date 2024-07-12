@@ -1,14 +1,5 @@
 import { addNewBooking } from "@/app/actions/api";
-import {
-  Button,
-  DialogContent,
-  DialogTitle,
-  FormControl,
-  FormLabel,
-  Modal,
-  ModalClose,
-  ModalDialog,
-} from "@mui/joy";
+import { Button, DialogContent, DialogTitle, FormControl, FormLabel, Modal, ModalClose, ModalDialog } from "@mui/joy";
 import Input from "@mui/joy/Input";
 import { FormHelperText, Snackbar } from "@mui/joy";
 import { useParams, useRouter } from "next/navigation";
@@ -33,15 +24,10 @@ interface FormData {
   breakfast: number;
   veg: number;
   nonVeg: number;
+  id: string;
 }
 
-function NewBooking({
-  reload,
-  setReload,
-}: {
-  reload: boolean;
-  setReload: React.Dispatch<SetStateAction<boolean>>;
-}): JSX.Element {
+function NewBooking({ reload, setReload }: { reload: boolean; setReload: React.Dispatch<SetStateAction<boolean>> }): JSX.Element {
   const params = useParams();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -83,6 +69,15 @@ function NewBooking({
   //   setTimeout(() => tick.current?.play(), 100);
   // }, []);
 
+  const phoneNumberRegex = /^\+?(\d{1,3})?[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
+
+  function isValidPhoneNumber(phoneNumber: string) {
+    // Remove all non-digit characters
+    const digitsOnly = phoneNumber.replace(/\D/g, "");
+    // Check if the cleaned number has at least 10 digits and matches the regex
+    return digitsOnly.length >= 10 && phoneNumberRegex.test(phoneNumber);
+  }
+
   const room = params.room as string;
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -97,42 +92,41 @@ function NewBooking({
     rank: "",
     remarks: "",
     additionalInfo: "",
+    id: "",
     breakfast: 0,
     veg: 0,
     nonVeg: 0,
   });
 
   const [errors, setErrors] = useState<Partial<FormData>>({});
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
 
     // For the Phone Number field, restrict input to numbers only
-    if (name === "phoneNumber") {
-      // Replace non-numeric characters with an empty string
-      const numericValue = value.replace(/\D/g, "").slice(0, 10); // Keep only the first 10 digits
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: numericValue,
-      }));
-      if (numericValue.length < 10) {
-        setErrors((prevData) => ({
-          ...prevData,
-          phoneNumber: "Phone number must be of 10 digits",
-        }));
-      } else {
-        setErrors((prevData) => ({
-          ...prevData,
-          phoneNumber: "",
-        }));
-      }
-    } else {
+    // if (name === "phoneNumber") {
+    //   // Replace non-numeric characters with an empty string
+    //   const numericValue = value.replace(/\D/g, "").slice(0, 10); // Keep only the first 10 digits
+    //   setFormData((prevData) => ({
+    //     ...prevData,
+    //     [name]: numericValue,
+    //   }));
+    //   if (numericValue.length < 10) {
+    //     setErrors((prevData) => ({
+    //       ...prevData,
+    //       phoneNumber: "Phone number must be of 10 digits",
+    //     }));
+    //   } else {
+    //     setErrors((prevData) => ({
+    //       ...prevData,
+    //       phoneNumber: "",
+    //     }));
+    //   }
+    // } else {
       setFormData((prevData) => ({
         ...prevData,
         [name]: value,
       }));
-    }
+    // }
     if (name === "checkoutTime") {
       setErrors((prevData) => ({
         ...prevData,
@@ -157,18 +151,13 @@ function NewBooking({
     e.preventDefault();
 
     const currentDate = new Date();
-    const selectedCheckinDateTime = new Date(
-      `${formData.checkinDate}T${formData.checkinTime}`
-    );
-    const selectedCheckoutDateTime = new Date(
-      `${formData.checkoutDate}T${formData.checkoutTime}`
-    );
+    const selectedCheckinDateTime = new Date(`${formData.checkinDate}T${formData.checkinTime}`);
+    const selectedCheckoutDateTime = new Date(`${formData.checkoutDate}T${formData.checkoutTime}`);
 
     const newErrors: Partial<FormData> = {};
 
     if (selectedCheckoutDateTime <= selectedCheckinDateTime) {
-      newErrors.checkoutDate =
-        "Check-out date and time must be after the check-in date and time.";
+      newErrors.checkoutDate = "Check-out date and time must be after the check-in date and time.";
     }
     if (formData.email) {
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -178,8 +167,11 @@ function NewBooking({
       }
     }
 
-    if (formData.phoneNumber.length < 10) {
-      newErrors.phoneNumber = "Phone number must be of 10 digits";
+    if (formData.phoneNumber.length ) {
+      if (!isValidPhoneNumber(formData.phoneNumber)) {
+        newErrors.phoneNumber = "Invalid Phone Number";
+      }
+      // newErrors.phoneNumber = "Phone number must be of 10 digits";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -187,10 +179,7 @@ function NewBooking({
       return;
     }
 
-    if (
-      selectedCheckoutDateTime > selectedCheckinDateTime &&
-      !isNaN(parseInt(formData.phoneNumber))
-    ) {
+    if (selectedCheckoutDateTime > selectedCheckinDateTime && !isNaN(parseInt(formData.phoneNumber))) {
       setErrors({});
       const apiFormData = {
         checkin: selectedCheckinDateTime,
@@ -204,6 +193,7 @@ function NewBooking({
         name: formData.name,
         phone: parseInt(formData.phoneNumber),
         company: formData.companyName,
+        guestId: formData.id,
         vessel: formData.vessel,
         rank: formData.rank,
         breakfast: formData.breakfast,
@@ -250,14 +240,7 @@ function NewBooking({
 
         <FormControl size="lg" className="space-y-1">
           <FormLabel>Email Address</FormLabel>
-          <Input
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            fullWidth
-            size="lg"
-            placeholder="Email Address"
-          />
+          <Input name="email" value={formData.email} onChange={handleChange} fullWidth size="lg" placeholder="Email Address" />
           {errors.email && (
             <FormControl error>
               {" "}
@@ -279,9 +262,7 @@ function NewBooking({
               size="lg"
               value={formData.checkinDate}
               onChange={handleChange}
-              error={
-                errors.checkinDate !== undefined && errors.checkinDate !== ""
-              }
+              error={errors.checkinDate !== undefined && errors.checkinDate !== ""}
             />
             <Input
               required
@@ -290,9 +271,7 @@ function NewBooking({
               size="lg"
               name="checkinTime"
               value={formData.checkinTime}
-              error={
-                errors.checkinDate !== undefined && errors.checkinDate !== ""
-              }
+              error={errors.checkinDate !== undefined && errors.checkinDate !== ""}
               onChange={handleChange}
             />
           </div>
@@ -317,9 +296,7 @@ function NewBooking({
               size="lg"
               value={formData.checkoutDate}
               name="checkoutDate"
-              error={
-                errors.checkoutDate !== undefined && errors.checkoutDate !== ""
-              }
+              error={errors.checkoutDate !== undefined && errors.checkoutDate !== ""}
               onChange={handleChange}
             />
             <Input
@@ -328,9 +305,7 @@ function NewBooking({
               fullWidth
               size="lg"
               name="checkoutTime"
-              error={
-                errors.checkoutDate !== undefined && errors.checkoutDate !== ""
-              }
+              error={errors.checkoutDate !== undefined && errors.checkoutDate !== ""}
               value={formData.checkoutTime}
               onChange={handleChange}
             />
@@ -357,8 +332,7 @@ function NewBooking({
             slotProps={{
               input: {
                 inputMode: "numeric",
-                pattern: "[0-9]*",
-                maxLength: 10,
+                // pattern: "[0-9]*",
               },
             }}
           />
@@ -368,9 +342,7 @@ function NewBooking({
         </FormControl>
 
         <FormControl size="lg" className="space-y-1">
-          <FormLabel className="text-[#0D141C] font-medium">
-            Company Name
-          </FormLabel>
+          <FormLabel className="text-[#0D141C] font-medium">Company Name</FormLabel>
           <Input
             value={formData.companyName}
             name="companyName"
@@ -383,38 +355,22 @@ function NewBooking({
 
         <FormControl size="lg" className="space-y-1">
           <FormLabel>Vessel</FormLabel>
-          <Input
-            value={formData.vessel}
-            name="vessel"
-            onChange={handleChange}
-            fullWidth
-            size="lg"
-            placeholder="Vessel"
-          />
+          <Input value={formData.vessel} name="vessel" onChange={handleChange} fullWidth size="lg" placeholder="Vessel" />
         </FormControl>
 
         <FormControl size="lg" className="space-y-1">
           <FormLabel>Rank</FormLabel>
-          <Input
-            value={formData.rank}
-            name="rank"
-            onChange={handleChange}
-            fullWidth
-            size="lg"
-            placeholder="Rank"
-          />
+          <Input value={formData.rank} name="rank" onChange={handleChange} fullWidth size="lg" placeholder="Rank" />
+        </FormControl>
+
+        <FormControl size="lg" className="space-y-1">
+          <FormLabel>ID</FormLabel>
+          <Input value={formData.id} name="id" onChange={handleChange} fullWidth size="lg" placeholder="ID" />
         </FormControl>
 
         <FormControl size="lg" className="space-y-1">
           <FormLabel className="text-[#0D141C] font-medium">Remarks</FormLabel>
-          <Input
-            value={formData.remarks}
-            name="remarks"
-            onChange={handleChange}
-            fullWidth
-            size="lg"
-            placeholder="Remarks"
-          />
+          <Input value={formData.remarks} name="remarks" onChange={handleChange} fullWidth size="lg" placeholder="Remarks" />
         </FormControl>
 
         <FormControl size="lg" className="space-y-1">
@@ -429,7 +385,7 @@ function NewBooking({
           />
         </FormControl>
 
-        <div className="space-y-1">
+        {/* <div className="space-y-1">
           <FormControl size="lg">
             <FormLabel>Meals</FormLabel>
           </FormControl>
@@ -492,7 +448,7 @@ function NewBooking({
               />
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
       <Button loading={loading} type="submit" size="lg" className="w-1/2 max-xl:w-full">
         Book Now
@@ -510,9 +466,7 @@ function NewBooking({
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
               <CheckCircle className="h-40 scale-[500%] text-green-600" />
-              <div className="font-semibold text-2xl text-center">
-                Room Booked Successfully!
-              </div>
+              <div className="font-semibold text-2xl text-center">Room Booked Successfully!</div>
             </div>
             {/* <div>
               <div className="font-semibold text-lg">Booking Details:</div>
@@ -579,10 +533,7 @@ function NewBooking({
       >
         {" "}
         <Warning /> {message}{" "}
-        <span
-          onClick={() => setAlert(false)}
-          className="cursor-pointer hover:bg-[#f3eded]"
-        >
+        <span onClick={() => setAlert(false)} className="cursor-pointer hover:bg-[#f3eded]">
           <Close />
         </span>{" "}
       </Snackbar>

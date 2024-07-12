@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Logout } from "@mui/icons-material";
 import Drawer from "@mui/joy/Drawer";
-import { addNewBooking, addPersonIcon, analyticsIcon, calenderIcon, mailIcon, searchIcon ,addMovementIcon, table, cabIcon} from "../../assets/icons";
+import { addNewBooking, addPersonIcon, analyticsIcon,cabIcon, calenderIcon, mailIcon, searchIcon ,addMovementIcon, table, mealIcon} from "../../assets/icons";
 import { deleteAuthAdmin, getAuthAdmin } from "../actions/cookie";
 import { parseJwt } from "../actions/utils";
 import logo from "../assets/anchorage_logo1.png";
@@ -43,10 +43,11 @@ function Navbar() {
     { icon: searchIcon, route: "search-guests", value: "Search Guests" },
     { icon: addNewBooking, route: "add-booking", value: "Add Booking" },
     { icon: calenderIcon, route: "manage-rooms", value: "Manage Rooms" },
+    { icon: mealIcon, route: "manage-meals", value: "Manage Meals" },
     { icon: addMovementIcon, route: "add-movement", value: "Add Movement" },
     { icon: table, route: "manage-movement", value: "Manage Movement"},
-    { icon: analyticsIcon, route: "analytics", value: "Analytics" },
     { icon: cabIcon, route: "movement-info", value: "Movement Info" },
+    { icon: analyticsIcon, route: "analytics", value: "Analytics" },
     { icon: addPersonIcon, route: "add-guest", value: "Add Guest" },
     { icon: mailIcon, route: "emails", value: "Emails" },
   ];

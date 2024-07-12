@@ -1,4 +1,4 @@
-import React, { SetStateAction, useEffect, useState } from "react";
+import React, { SetStateAction, useEffect, useRef, useState } from "react";
 import SearchInput from "@/app/components/Search";
 import { searchIconSecondary } from "@/assets/icons";
 import {
@@ -9,30 +9,20 @@ import {
   GridPaginationModel,
   useGridApiRef,
 } from "@mui/x-data-grid";
-import {
-  Box,
-  Typography,
-  IconButton,
-  DialogContent,
-  DialogActions,
-} from "@mui/material";
+import { Box, Typography, IconButton, DialogContent, DialogActions } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit"; // Import the EditIcon
-import {
-  Button,
-  Chip,
-  DialogTitle,
-  Divider,
-  Modal,
-  ModalClose,
-  ModalDialog,
-  Snackbar,
-} from "@mui/joy";
+import { Button, Chip, DialogTitle, Divider, Modal, ModalClose, ModalDialog, Snackbar } from "@mui/joy";
 import EditBooking from "./EditBooking";
-import { Close, DeleteForever, Info } from "@mui/icons-material";
+import { Close, DeleteForever, FileDownload, Info } from "@mui/icons-material";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
-import { deleteBooking } from "@/app/actions/api";
+import { deleteBooking, fetchMealsByBookingId, fetchMovementByBookingId } from "@/app/actions/api";
 import { useRouter } from "next/navigation";
 import { getAuthAdmin } from "@/app/actions/cookie";
+import CheckInForm from "@/app/admin/(navbar)/manage-rooms/[room]/CheckInForm";
+import { data } from "autoprefixer";
+import CheckInFormPDF from "./CheckInFormPDF"
+import {saveAs} from "file-saver"
+import { pdf } from "@react-pdf/renderer";
 
 interface RowData {
   [key: string]: any;
@@ -67,6 +57,7 @@ interface FormDataReservation {
   remarks: string;
   additionalInfo: string;
   breakfast: number;
+  id: string;
   veg: number;
   nonVeg: number;
   originalEmail: string;
@@ -95,9 +86,11 @@ const Reservations: React.FC<ReservationsProps> = ({
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
+  const [generatePDF, setGeneratePDF] = useState<RowData | null>(null);
+  const pdfDownloadRef = useRef<any>(null);
+
   const [token, setToken] = useState("");
-  const [rowSelectionModel, setRowSelectionModel] =
-    useState<GridRowSelectionModel>([]);
+  const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -105,11 +98,28 @@ const Reservations: React.FC<ReservationsProps> = ({
     });
   }, []);
 
+  async function fetchMeals(bookingId: string) {
+    try {
+      const res = await fetchMealsByBookingId(token,bookingId);
+      return res;
+    } catch(error) {
+      console.log("error fetching meals for bookingID ", bookingId)
+      return null;
+    }
+  }
+  async function fetchMovement(bookingId: string) {
+    try {
+      const res = await fetchMovementByBookingId(token,bookingId);
+      return res;
+    } catch(error) {
+      console.log("error fetching movement for bookingID ", bookingId)
+      return null;
+    }
+  }
+
   const mapToFormData = (id: any): FormDataReservation => {
     const formatDate = (dateStr: string) => {
-      const [day, month, year] = dateStr
-        .split("-")
-        .map((part) => parseInt(part, 10));
+      const [day, month, year] = dateStr.split("-").map((part) => parseInt(part, 10));
       return `${year}-${month}-${day}`;
     };
 
@@ -132,6 +142,7 @@ const Reservations: React.FC<ReservationsProps> = ({
       vessel: id.vessel,
       rank: id.rank,
       remarks: id.remarks,
+      id: id.id,
       additionalInfo: id.additional_info,
       breakfast: parseInt(id.breakfast),
       veg: parseInt(id.meal_veg),
@@ -162,14 +173,18 @@ const Reservations: React.FC<ReservationsProps> = ({
   //   })
   // },[rowsData])
 
+  const downloadPdf = async (data: RowData) => {
+    const fileName = 'CheckInForm.pdf';
+    const blob = await pdf(<CheckInFormPDF data={data} />).toBlob();
+    saveAs(blob, fileName);
+  };
+
   const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
     pageSize: 5,
     page: 0,
   });
 
-  const BoldHeaderCell = (props: any) => (
-    <div style={{ fontWeight: "bold" }}>{props.colDef.headerName}</div>
-  );
+  const BoldHeaderCell = (props: any) => <div style={{ fontWeight: "bold" }}>{props.colDef.headerName}</div>;
   let gridColumns: GridColDef[];
   if (location === "movement") {
     gridColumns = [
@@ -178,26 +193,10 @@ const Reservations: React.FC<ReservationsProps> = ({
         headerName: headers[index],
         // flex: index===,
         // width: 100,
-        flex:
-          index === 0 ||
-          index === 11 ||
-          index === 12 ||
-          index === 13 ||
-          columnName === "status"
-            ? 0
-            : undefined,
-        width:
-          index === 0 ||
-          index === 11 ||
-          index === 12 ||
-          index === 13 ||
-          columnName === "status"
-            ? 120
-            : 200,
+        flex: index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 0 : undefined,
+        width: index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 120 : 200,
         renderHeader: (params: GridColumnHeaderParams) => (
-          <span className="text-[#0D141C] font-semibold pl-3">
-            {headers[index]}
-          </span>
+          <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
         ),
         renderCell: (params: any) => {
           return (
@@ -207,11 +206,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                   size="sm"
                   variant="outlined"
                   color={
-                    params.row[columnName] === "Expired"
-                      ? "danger"
-                      : params.row[columnName] === "Active"
-                      ? "success"
-                      : "warning"
+                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
                   }
                 >
                   {params.row[columnName]}
@@ -231,26 +226,10 @@ const Reservations: React.FC<ReservationsProps> = ({
         headerName: headers[index],
         // flex: index===,
         // width: 100,
-        flex:
-          index === 0 ||
-          index === 11 ||
-          index === 12 ||
-          index === 13 ||
-          columnName === "status"
-            ? 0
-            : undefined,
-        width:
-          index === 0 ||
-          index === 11 ||
-          index === 12 ||
-          index === 13 ||
-          columnName === "status"
-            ? 120
-            : 200,
+        flex: index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 0 : undefined,
+        width: index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 120 : 200,
         renderHeader: (params: GridColumnHeaderParams) => (
-          <span className="text-[#0D141C] font-semibold pl-3">
-            {headers[index]}
-          </span>
+          <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
         ),
         renderCell: (params: any) => {
           return (
@@ -260,11 +239,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                   size="sm"
                   variant="outlined"
                   color={
-                    params.row[columnName] === "Expired"
-                      ? "danger"
-                      : params.row[columnName] === "Active"
-                      ? "success"
-                      : "warning"
+                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
                   }
                 >
                   {params.row[columnName]}
@@ -283,17 +258,47 @@ const Reservations: React.FC<ReservationsProps> = ({
         align: "center",
         headerAlign: "center",
         // flex: 1,
-        width: 120, // Set width to accommodate both icons
+        width: 180, // Set width to accommodate both icons
         renderHeader: (params: GridColumnHeaderParams) => (
-          <span
-            className="text-[#0D141C] font-semibold pl-3 text-center"
-            style={{ display: "block", width: "100%" }}
-          >
+          <span className="text-[#0D141C] font-semibold pl-3 text-center" style={{ display: "block", width: "100%" }}>
             Actions
           </span>
         ),
         renderCell: (params) => (
           <div>
+            <IconButton
+              style={{ marginRight: 5 }}
+              onClick={async()=>{
+                const meals = await fetchMeals(params.row.booking_id);
+                const movements = await fetchMovement(params.row.booking_id);
+                if (meals && movements) {
+                  console.log("meals ", meals)
+                  console.log("movements ", movements)
+                  const data = {
+                    ...params.row,
+                    meals: meals,
+                    movements: movements
+                  }
+                  downloadPdf(data);
+                }
+
+              }}
+              // onClick={() => {
+              //   setGeneratePDF(params.row);
+              //   pdfDownloadRef.current = (
+              //     <>
+              //       <CheckInForm data={params.row} />
+              //     </>
+              //   );
+              //   if (pdfDownloadRef.current) {
+              //     pdfDownloadRef.current.click();
+              //   }
+              //   console.log("row: ", params.row);
+              // }} // Implement your edit logic here
+            >
+              {/* <CheckInForm data={params.row} /> */}
+              <FileDownload className="scale-75" />
+            </IconButton>
             <IconButton
               onClick={() => handleEdit(params.row)} // Implement your edit logic here
               style={{ marginRight: 10 }}
@@ -349,21 +354,17 @@ const Reservations: React.FC<ReservationsProps> = ({
   return (
     <>
       <div>
+        {/* <CheckInForm data={rowsData[0]||null} /> */}
         <div className="mb-6">
-          {location==="movement"?(<Typography
-            className="text-4xl"
-            component="div"
-            fontWeight="bold"
-          >
-            Search Reservations
-          </Typography>):(<Typography
-            className="text-5xl max-[960px]:text-4xl"
-            component="div"
-            fontWeight="bold"
-          >
-            Search Reservations
-          </Typography>)}
-          
+          {location === "movement" ? (
+            <Typography className="text-4xl" component="div" fontWeight="bold">
+              Search Reservations
+            </Typography>
+          ) : (
+            <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
+              Search Reservations
+            </Typography>
+          )}
         </div>
         <SearchInput
           value={search}
@@ -372,18 +373,19 @@ const Reservations: React.FC<ReservationsProps> = ({
           placeholder="Search by guest name, email, company..."
         />
         <br />
-        {location === "movement" ? (<>
+        {location === "movement" ? (
+          <>
             <DataGrid
               apiRef={apiRef}
               rows={rowsData}
-              paginationModel={paginationModel}
-              onPaginationModelChange={setPaginationModel}
+              // paginationModel={paginationModel}
+              // onPaginationModelChange={setPaginationModel}
               loading={loading}
-              pageSizeOptions={[5, 10, 15]} // Use pageSizeOptions instead
-              autoHeight
+              // pageSizeOptions={[100]} // Use pageSizeOptions instead
+              // autoHeight
               columns={gridColumns}
-              pagination
-              checkboxSelection
+              // pagination
+              // checkboxSelection
               getRowId={(row) => row.booking_id} // Specify the custom row ID
               sx={{
                 borderRadius: 3, // Adjust the value to achieve the desired rounding
@@ -395,40 +397,40 @@ const Reservations: React.FC<ReservationsProps> = ({
               getRowClassName={() => "pl-3"} // Apply Tailwind padding utility class to rows
               onRowSelectionModelChange={(newRowSelectionModel) => {
                 if (setSelectedGuest) {
-                  const selectedBookingIds = newRowSelectionModel.map((id) => {
-                    const selectedRow = rowsData.find((row) => row.booking_id === id);
-                    return selectedRow ? selectedRow.booking_id : null;
-                  }).filter((id) => id !== null);
-                  
+                  const selectedBookingIds = newRowSelectionModel
+                    .map((id) => {
+                      const selectedRow = rowsData.find((row) => row.booking_id === id);
+                      return selectedRow ? selectedRow.booking_id : null;
+                    })
+                    .filter((id) => id !== null);
+
                   setSelectedGuest(selectedBookingIds);
                 }
               }}
             />
-            </>
+          </>
         ) : (
-          
           <DataGrid
-          apiRef={apiRef}
-          rows={rowsData}
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          loading={loading}
-          pageSizeOptions={[5, 10, 15]} // Use pageSizeOptions instead
-          autoHeight
-          columns={gridColumns}
-          pagination
+            apiRef={apiRef}
+            rows={rowsData}
+            // paginationModel={paginationModel}
+            // onPaginationModelChange={setPaginationModel}
+            loading={loading}
+            pageSizeOptions={[100]} // Use pageSizeOptions instead
+            // autoHeight
+            columns={gridColumns}
+            // pagination
 
-          getRowId={(row) => row.booking_id} // Specify the custom row ID
-          sx={{
-            borderRadius: 3, // Adjust the value to achieve the desired rounding
-            // overflow: "scroll",
-            "& .MuiDataGrid-root": {
-              borderRadius: "inherit",
-            },
-          }}
-          getRowClassName={() => "pl-3"}  // Apply Tailwind padding utility class to rows
+            getRowId={(row) => row.booking_id} // Specify the custom row ID
+            sx={{
+              borderRadius: 3, // Adjust the value to achieve the desired rounding
+              // overflow: "scroll",
+              "& .MuiDataGrid-root": {
+                borderRadius: "inherit",
+              },
+            }}
+            getRowClassName={() => "pl-3"} // Apply Tailwind padding utility class to rows
           />
-          
         )}
       </div>
       <Modal
@@ -443,14 +445,7 @@ const Reservations: React.FC<ReservationsProps> = ({
             <span className="text-2xl">Edit Booking</span>
           </DialogTitle>
           <DialogContent className="">
-            {editId && (
-              <EditBooking
-                setReload={setReload}
-                reload={reload}
-                setOpenModal={setEdit}
-                initialData={editId}
-              />
-            )}
+            {editId && <EditBooking setReload={setReload} reload={reload} setOpenModal={setEdit} initialData={editId} />}
           </DialogContent>
         </ModalDialog>
       </Modal>
@@ -480,11 +475,7 @@ const Reservations: React.FC<ReservationsProps> = ({
             >
               Confirm
             </Button>
-            <Button
-              variant="plain"
-              color="neutral"
-              onClick={() => setDel(false)}
-            >
+            <Button variant="plain" color="neutral" onClick={() => setDel(false)}>
               Cancel
             </Button>
           </DialogActions>
@@ -499,10 +490,7 @@ const Reservations: React.FC<ReservationsProps> = ({
       >
         {" "}
         <Info /> {message}
-        <span
-          onClick={() => setAlert(false)}
-          className="cursor-pointer hover:bg-[#f3eded]"
-        >
+        <span onClick={() => setAlert(false)} className="cursor-pointer hover:bg-[#f3eded]">
           <Close />
         </span>
       </Snackbar>
