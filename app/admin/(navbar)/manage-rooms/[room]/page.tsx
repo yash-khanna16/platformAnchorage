@@ -26,9 +26,8 @@ function Room() {
   const params = useParams();
   const { room } = params;
   const columns = [
-    "booking_id",
-    "name",
     "status",
+    "name",
     "checkin",
     "checkout",
     "email",
@@ -37,15 +36,12 @@ function Room() {
     "vessel",
     "remarks",
     "additional_info",
-    "breakfast",
-    "meal_non_veg",
-    "meal_veg",
     "rank",
+    "id",
   ];
   const headers = [
-    "ID",
-    "Name",
     "Status",
+    "Name",
     "Check In",
     "Check Out",
     "Email",
@@ -54,10 +50,8 @@ function Room() {
     "Vessel",
     "Remarks",
     "Additional Information",
-    "Breakfast",
-    "Non-Veg Meal",
-    "Veg Meal",
     "Rank",
+    "Guest ID"
   ];
   const [search, setSearch] = useState<string>("");
   const [loading, setLoading] = useState(false);

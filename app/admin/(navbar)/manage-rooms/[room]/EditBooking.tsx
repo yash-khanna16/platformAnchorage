@@ -39,6 +39,7 @@ interface FormData {
   remarks: string;
   additionalInfo: string;
   breakfast: number;
+  id: string;
   veg: number;
   nonVeg: number;
   originalEmail: string;
@@ -117,30 +118,30 @@ function EditBooking({
     const { name, value } = e.target;
     setCheckBox(false)
     // For the Phone Number field, restrict input to numbers only
-    if (name === "phoneNumber") {
-      // Replace non-numeric characters with an empty string
-      const numericValue = value.replace(/\D/g, "").slice(0, 10); // Keep only the first 10 digits
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: numericValue,
-      }));
-      if (numericValue.length < 10) {
-        setErrors((prevData) => ({
-          ...prevData,
-          phoneNumber: "Phone number must be of 10 digits",
-        }));
-      } else {
-        setErrors((prevData) => ({
-          ...prevData,
-          phoneNumber: "",
-        }));
-      }
-    } else {
+    // if (name === "phoneNumber") {
+    //   // Replace non-numeric characters with an empty string
+    //   const numericValue = value.replace(/\D/g, "").slice(0, 10); // Keep only the first 10 digits
+    //   setFormData((prevData) => ({
+    //     ...prevData,
+    //     [name]: numericValue,
+    //   }));
+    //   if (numericValue.length < 10) {
+    //     setErrors((prevData) => ({
+    //       ...prevData,
+    //       phoneNumber: "Phone number must be of 10 digits",
+    //     }));
+    //   } else {
+    //     setErrors((prevData) => ({
+    //       ...prevData,
+    //       phoneNumber: "",
+    //     }));
+    //   }
+    // } else {
       setFormData((prevData) => ({
         ...prevData,
         [name]: value,
       }));
-    }
+    // }
     if (name === "checkoutTime") {
       setErrors((prevData) => ({
         ...prevData,
@@ -160,6 +161,14 @@ function EditBooking({
       [name]: "",
     }));
   };
+  const phoneNumberRegex = /^\+?(\d{1,3})?[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
+
+function isValidPhoneNumber(phoneNumber: string) {
+    // Remove all non-digit characters
+    const digitsOnly = phoneNumber.replace(/\D/g, '');
+    // Check if the cleaned number has at least 10 digits and matches the regex
+    return digitsOnly.length >= 10 && phoneNumberRegex.test(phoneNumber);
+}
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -180,8 +189,11 @@ function EditBooking({
       }
     }
 
-    if (formData.phoneNumber.length < 10) {
-      newErrors.phoneNumber = "Phone number must be of 10 digits";
+    if (formData.phoneNumber.length) {
+      if (!isValidPhoneNumber(formData.phoneNumber)) {
+        newErrors.phoneNumber = "Invalid Phone Number";
+      }
+      // newErrors.phoneNumber = "Phone number must be of 10 digits";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -209,6 +221,7 @@ function EditBooking({
         company: formData.companyName,
         vessel: formData.vessel,
         rank: formData.rank,
+        guestId: formData.id,
         breakfast: formData.breakfast,
         originalEmail: formData.originalEmail,
       };
@@ -379,6 +392,11 @@ function EditBooking({
         </FormControl>
 
         <FormControl size="lg" className="space-y-1">
+          <FormLabel>ID</FormLabel>
+          <Input value={formData.id} name="id" onChange={handleChange} fullWidth size="lg" placeholder="ID" />
+        </FormControl>
+
+        <FormControl size="lg" className="space-y-1">
           <FormLabel className="text-[#0D141C] font-medium">Remarks</FormLabel>
           <Input value={formData.remarks} name="remarks" onChange={handleChange} fullWidth size="lg" placeholder="Remarks" />
         </FormControl>
@@ -395,7 +413,7 @@ function EditBooking({
           />
         </FormControl>
 
-        <div className="space-y-1">
+        {/* <div className="space-y-1">
           <FormControl size="lg">
             <FormLabel>Meals</FormLabel>
           </FormControl>
@@ -458,7 +476,7 @@ function EditBooking({
               />
             </div>
           </div>
-        </div>
+        </div> */}
         <div>
           <FormControl >
             <div className="flex space-x-5">

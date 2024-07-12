@@ -1,5 +1,5 @@
 "use client";
-import { addNewBooking,getAvailableRooms} from "@/app/actions/api";
+import { addNewBooking, getAvailableRooms } from "@/app/actions/api";
 import {
   Button,
   DialogContent,
@@ -32,18 +32,13 @@ interface FormData {
   rank: string;
   remarks: string;
   additionalInfo: string;
+  id: string;
   breakfast: number;
   veg: number;
   nonVeg: number;
 }
 
-function NewBooking({
-  reload,
-  setReload,
-}: {
-  reload: boolean;
-  setReload: React.Dispatch<SetStateAction<boolean>>;
-}): JSX.Element {
+function NewBooking({ reload, setReload }: { reload: boolean; setReload: React.Dispatch<SetStateAction<boolean>> }): JSX.Element {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -60,11 +55,11 @@ function NewBooking({
     });
   }, []);
 
-  const handleChangeRoom= (event: React.SyntheticEvent | null, newValue: string | null) => {
-        if (newValue) {
-          setRoom(newValue);
-        }
-      };
+  const handleChangeRoom = (event: React.SyntheticEvent | null, newValue: string | null) => {
+    if (newValue) {
+      setRoom(newValue);
+    }
+  };
 
   useEffect(() => {
     const currentDate = new Date();
@@ -74,12 +69,9 @@ function NewBooking({
     setMinCheckinTime(formattedTime);
   }, []);
 
-  const [room,setRoom] =useState("");
-  const [roomDisabled,setRoomDisabled] =useState(true);
-  const [availableRooms,setAvailableRooms] =useState([]);
-
-  
-
+  const [room, setRoom] = useState("");
+  const [roomDisabled, setRoomDisabled] = useState(true);
+  const [availableRooms, setAvailableRooms] = useState([]);
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -92,6 +84,7 @@ function NewBooking({
     companyName: "",
     vessel: "",
     rank: "",
+    id: "",
     remarks: "",
     additionalInfo: "",
     breakfast: 0,
@@ -104,29 +97,29 @@ function NewBooking({
     const { name, value } = e.target;
 
     // For the Phone Number field, restrict input to numbers only
-    if (name === "phoneNumber") {
-      const numericValue = value.replace(/\D/g, "").slice(0, 12); // Keep only the first 10 digits
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: numericValue,
-      }));
-      if (numericValue.length < 12) {
-        setErrors((prevData) => ({
-          ...prevData,
-          phoneNumber: "Phone number must be of 12 digits",
-        }));
-      } else {
-        setErrors((prevData) => ({
-          ...prevData,
-          phoneNumber: "",
-        }));
-      }
-    } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    }
+    // if (name === "phoneNumber") {
+    // const numericValue = value.replace(/\D/g, "").slice(0, 12); // Keep only the first 10 digits
+    // setFormData((prevData) => ({
+    //   ...prevData,
+    //   [name]: numericValue,
+    // }));
+    // if (numericValue.length < 12) {
+    //   setErrors((prevData) => ({
+    //     ...prevData,
+    //     phoneNumber: "Phone number must be of 12 digits",
+    //   }));
+    // } else {
+    //   setErrors((prevData) => ({
+    //     ...prevData,
+    //     phoneNumber: "",
+    //   }));
+    // }
+    // } else {
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+    // }
     if (name === "checkoutTime") {
       setErrors((prevData) => ({
         ...prevData,
@@ -147,7 +140,6 @@ function NewBooking({
     }));
   };
 
-
   useEffect(() => {
     const getValues = async () => {
       if (
@@ -160,10 +152,10 @@ function NewBooking({
         const returnDateTime = `${formData.checkoutDate} ${formData.checkoutTime}`;
         if (pickUpDateTime < returnDateTime) {
           try {
-            const newPickUpDateTime=new Date(pickUpDateTime);
-            const newReturnDateTime=new Date(returnDateTime);
-            const result = await getAvailableRooms(token,newPickUpDateTime,newReturnDateTime);
-            const roomsAvailable = result.map((data: {room: string, active: string}) => data.room);
+            const newPickUpDateTime = new Date(pickUpDateTime);
+            const newReturnDateTime = new Date(returnDateTime);
+            const result = await getAvailableRooms(token, newPickUpDateTime, newReturnDateTime);
+            const roomsAvailable = result.map((data: { room: string; active: string }) => data.room);
             setAvailableRooms(roomsAvailable);
             setRoomDisabled(false);
           } catch {
@@ -196,8 +188,10 @@ function NewBooking({
       }
     }
 
-    if (formData.phoneNumber.length < 10) {
-      newErrors.phoneNumber = "Phone number must be of 10 digits";
+    if (formData.phoneNumber.length) {
+      if (!isValidPhoneNumber(formData.phoneNumber)) {
+        newErrors.phoneNumber = "Invalid Phone Number";
+      }
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -205,10 +199,7 @@ function NewBooking({
       return;
     }
 
-    if (
-      selectedCheckoutDateTime > selectedCheckinDateTime &&
-      !isNaN(parseInt(formData.phoneNumber))
-    ) {
+    if (selectedCheckoutDateTime > selectedCheckinDateTime && !isNaN(parseInt(formData.phoneNumber))) {
       setErrors({});
       const apiFormData = {
         checkin: selectedCheckinDateTime,
@@ -224,6 +215,7 @@ function NewBooking({
         company: formData.companyName,
         vessel: formData.vessel,
         rank: formData.rank,
+        guestId: formData.id,
         breakfast: formData.breakfast,
       };
       try {
@@ -248,6 +240,15 @@ function NewBooking({
     }
   };
 
+  const phoneNumberRegex = /^\+?(\d{1,3})?[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
+
+  function isValidPhoneNumber(phoneNumber: string) {
+    // Remove all non-digit characters
+    const digitsOnly = phoneNumber.replace(/\D/g, "");
+    // Check if the cleaned number has at least 10 digits and matches the regex
+    return digitsOnly.length >= 10 && phoneNumberRegex.test(phoneNumber);
+  }
+
   return (
     <div className="mx-32 my-10">
       <form onSubmit={handleSubmit} className="space-y-10 -w-full">
@@ -268,14 +269,7 @@ function NewBooking({
 
           <FormControl size="lg" className="space-y-1">
             <FormLabel>Email Address</FormLabel>
-            <Input
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              fullWidth
-              size="lg"
-              placeholder="Email Address"
-            />
+            <Input name="email" value={formData.email} onChange={handleChange} fullWidth size="lg" placeholder="Email Address" />
             {errors.email && (
               <FormControl error>
                 {" "}
@@ -367,8 +361,8 @@ function NewBooking({
               slotProps={{
                 input: {
                   inputMode: "numeric",
-                  pattern: "[0-9]*",
-                  maxLength: 10,
+                  // pattern: "[0-9]*",
+                  // maxLength: 10,
                 },
               }}
             />
@@ -391,38 +385,22 @@ function NewBooking({
 
           <FormControl size="lg" className="space-y-1">
             <FormLabel>Vessel</FormLabel>
-            <Input
-              value={formData.vessel}
-              name="vessel"
-              onChange={handleChange}
-              fullWidth
-              size="lg"
-              placeholder="Vessel"
-            />
+            <Input value={formData.vessel} name="vessel" onChange={handleChange} fullWidth size="lg" placeholder="Vessel" />
           </FormControl>
 
           <FormControl size="lg" className="space-y-1">
             <FormLabel>Rank</FormLabel>
-            <Input
-              value={formData.rank}
-              name="rank"
-              onChange={handleChange}
-              fullWidth
-              size="lg"
-              placeholder="Rank"
-            />
+            <Input value={formData.rank} name="rank" onChange={handleChange} fullWidth size="lg" placeholder="Rank" />
+          </FormControl>
+
+          <FormControl size="lg" className="space-y-1">
+            <FormLabel>ID</FormLabel>
+            <Input value={formData.id} name="id" onChange={handleChange} fullWidth size="lg" placeholder="ID" />
           </FormControl>
 
           <FormControl size="lg" className="space-y-1">
             <FormLabel className="text-[#0D141C] font-medium">Remarks</FormLabel>
-            <Input
-              value={formData.remarks}
-              name="remarks"
-              onChange={handleChange}
-              fullWidth
-              size="lg"
-              placeholder="Remarks"
-            />
+            <Input value={formData.remarks} name="remarks" onChange={handleChange} fullWidth size="lg" placeholder="Remarks" />
           </FormControl>
 
           <FormControl size="lg" className="space-y-1">
@@ -437,7 +415,7 @@ function NewBooking({
             />
           </FormControl>
 
-          <div className="space-y-1">
+          {/* <div className="space-y-1">
             <FormControl size="lg">
               <FormLabel>Meals</FormLabel>
             </FormControl>
@@ -500,8 +478,8 @@ function NewBooking({
                 />
               </div>
             </div>
-          </div>
-          <FormControl size="lg" className={`space-y-1 ${roomDisabled?"hover:cursor-not-allowed":""}`} >
+          </div> */}
+          <FormControl size="lg" className={`space-y-1 ${roomDisabled ? "hover:cursor-not-allowed" : ""}`}>
             <FormLabel>Room</FormLabel>
             <Select
               placeholder="Select Room"
@@ -533,7 +511,7 @@ function NewBooking({
           open={open}
           onClose={() => {
             setOpen(false);
-            router.push("/admin/search-guests")
+            router.push("/admin/search-guests");
           }}
         >
           <ModalDialog size="lg">

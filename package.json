@@ -16,8 +16,10 @@
     "@mui/joy": "^5.0.0-beta.36",
     "@mui/material": "^5.15.18",
     "@mui/x-data-grid": "^7.5.1",
+    "@react-pdf/renderer": "^3.4.4",
     "autoprefixer": "^10.4.19",
     "chart.js": "^4.4.3",
+    "file-saver": "^2.0.5",
     "jose": "^5.4.0",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^2.5.1",
@@ -27,9 +29,11 @@
     "react": "^18",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
+    "react-pdf": "^9.1.0",
     "use-debounce": "^10.0.1"
   },
   "devDependencies": {
+    "@types/file-saver": "^2.0.7",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20",
     "@types/react": "^18",
