@@ -155,12 +155,12 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
   ];
   const headers = [
     "Name",
-    "Room No.",
+    "Room",
     "Status",
     "Check In",
     "Check Out",
     "Email",
-    "Phone No.",
+    "Phone",
     "Company",
     "Rank",
   ];

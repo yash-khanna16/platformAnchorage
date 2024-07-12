@@ -1,10 +1,10 @@
-"use client"
-import React, { useEffect, useState } from 'react'
-import Reservations from '../manage-rooms/[room]/Reservations'
-import { searchAllGuests } from '@/app/actions/api';
+"use client";
+import React, { useEffect, useState } from "react";
+import Reservations from "../manage-rooms/[room]/Reservations";
+import { searchAllGuests } from "@/app/actions/api";
 import { useDebouncedCallback } from "use-debounce";
-import { getAuthAdmin } from '@/app/actions/cookie';
-
+import { getAuthAdmin } from "@/app/actions/cookie";
+import { Box, Typography, IconButton, DialogContent, DialogActions } from "@mui/material";
 
 type ReservationType = {
   additional_info: string | null;
@@ -23,25 +23,50 @@ type ReservationType = {
   remarks: string;
   room: string;
   vessel: string;
+  status?: string; // Add this line
 };
 
-
 function Guests() {
-  const columns = ["status","name", "room", "checkin", "checkout", "email", "phone", "company", "vessel", "remarks", "additional_info", "breakfast", "meal_non_veg", "meal_veg", "rank"];
-  const headers = ["Status","Name", "Room No.", "Check In", "Check Out", "Email", "Phone No.", "Company", "Vessel", "Remarks", "Additional Information", "Breakfast", "Non-Veg Meal", "Veg Meal", "Rank"];
+  const columns = [
+    "status",
+    "name",
+    "room",
+    "checkin",
+    "checkout",
+    "email",
+    "phone",
+    "company",
+    "vessel",
+    "remarks",
+    "additional_info",
+    "rank",
+  ];
+  const headers = [
+    "Status",
+    "Name",
+    "Room",
+    "Check In",
+    "Check Out",
+    "Email",
+    "Phone",
+    "Company",
+    "Vessel",
+    "Remarks",
+    "Additional Information",
+    "Rank",
+  ];
   const [search, setSearch] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<ReservationType[]>([]);
   const [reload, setReload] = useState(false);
-  const [token, setToken] = useState("")
-  const [filteredRows, setFilteredRows] = useState<ReservationType[]>([])
+  const [token, setToken] = useState("");
+  const [filteredRows, setFilteredRows] = useState<ReservationType[]>([]);
 
   useEffect(() => {
-    getAuthAdmin().then(auth => {
-      if(auth)
-        setToken(auth.value);
-    })
-  },[])
+    getAuthAdmin().then((auth) => {
+      if (auth) setToken(auth.value);
+    });
+  }, []);
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -58,13 +83,13 @@ function Guests() {
       setLoading(true);
       let fetchedRows = await searchAllGuests(token);
       console.log(fetchedRows);
-  
+
       const currentTime = new Date();
-  
+
       fetchedRows = fetchedRows.map((row: ReservationType) => {
         const checkinTime = new Date(row.checkin);
         const checkoutTime = new Date(row.checkout);
-  
+
         let status;
         if (checkoutTime < currentTime) {
           status = "Expired";
@@ -73,7 +98,7 @@ function Guests() {
         } else {
           status = "Active";
         }
-  
+
         return {
           ...row,
           checkin: formatDate(row.checkin),
@@ -81,7 +106,7 @@ function Guests() {
           status: status,
         };
       });
-  
+
       setRows(fetchedRows);
       setFilteredRows(fetchedRows);
       setLoading(false);
@@ -90,7 +115,6 @@ function Guests() {
       console.log(error);
     }
   }
-  
 
   useEffect(() => {
     if (token !== "") {
@@ -104,7 +128,7 @@ function Guests() {
     } else {
       const lowercasedSearch = search.toLowerCase();
       const filtered = rows.filter((row) =>
-        columns.some(column => 
+        columns.some((column) =>
           row[column as keyof ReservationType]?.toString().toLowerCase().includes(lowercasedSearch)
         )
       );
@@ -116,11 +140,44 @@ function Guests() {
     handleSearch();
   }, [search, rows]);
 
+  // const exportToCsv = () => {
+  //   // Filter rows where status is "Active"
+  //   const activeRows = filteredRows.filter(row => row.status === "Active");
+
+  //   // Prepare CSV content
+  //   const csvContent = "data:text/csv;charset=utf-8,"
+  //     + columns.join(",") + "\n"
+  //     + activeRows.map(row => columns.map(column => row[column as keyof ReservationType]).join(",")).join("\n");
+
+  //   // Create download link and trigger download
+  //   const encodedUri = encodeURI(csvContent);
+  //   const link = document.createElement('a');
+  //   link.setAttribute('href', encodedUri);
+  //   link.setAttribute('download', 'active_reservations.csv');
+  //   document.body.appendChild(link);
+  //   link.click();
+  //   document.body.removeChild(link);
+  // };
+
   return (
-    <div className='mx-20 my-11 max-[1420px]:mx-10 max-lg:mx-5'>
-      <Reservations reload={reload} setReload={setReload} loading={loading} handleSearch={handleSearch} search={search} setSearch={setSearch} rowsData={filteredRows}  columns={columns} headers={headers} />
+    <div className="mx-5 mt-11 max-[1420px]:mx-10 max-lg:mx-5">
+      {/* <Button variant="contained" color="primary" onClick={exportToCsv}>Export as CSV</Button> */}
+      <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
+        Search Reservations
+      </Typography>
+      <Reservations
+        reload={reload}
+        setReload={setReload}
+        loading={loading}
+        handleSearch={handleSearch}
+        search={search}
+        setSearch={setSearch}
+        rowsData={filteredRows}
+        columns={columns}
+        headers={headers}
+      />
     </div>
-  )
+  );
 }
 
-export default Guests
+export default Guests;

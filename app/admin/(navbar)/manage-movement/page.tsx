@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Reservations from "./MovementReservation";
 import { fetchMovement } from "@/app/actions/api";
 import { getAuthAdmin } from "@/app/actions/cookie";
+import {Typography} from "@mui/material";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import Edit from "./Edit";
 
@@ -138,7 +139,13 @@ function Movements() {
   }, [search, rows]);
 
   return (
-    <div className="mx-20 my-11 max-[1420px]:mx-10 max-lg:mx-5">
+    <div className="mx-5 my-11 max-[1420px]:mx-10 max-lg:mx-5">
+      <div className="mb-6">
+          <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
+            Search Movement
+          </Typography>
+        </div>
+        
       <Reservations
         reload={reload}
         setReload={setReload}
@@ -151,6 +158,7 @@ function Movements() {
         headers={headers}
         setSeletedMovement={setSeletedMovement}
       />
+      
       {selectedData ? <Edit selectedData={selectedData} /> : ""}
     </div>
   );

@@ -9,13 +9,7 @@ import {
   GridPaginationModel,
   useGridApiRef,
 } from "@mui/x-data-grid";
-import {
-  Box,
-  Typography,
-  IconButton,
-  DialogContent,
-  DialogActions,
-} from "@mui/material";
+import { Box, Typography, IconButton, DialogContent, DialogActions } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit"; // Import the EditIcon
 import {
   Button,
@@ -96,8 +90,7 @@ const Reservations: React.FC<ReservationsProps> = ({
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
   const [token, setToken] = useState("");
-  const [rowSelectionModel, setRowSelectionModel] =
-    useState<GridRowSelectionModel>([]);
+  const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -107,9 +100,7 @@ const Reservations: React.FC<ReservationsProps> = ({
 
   const mapToFormData = (id: any): FormDataReservation => {
     const formatDate = (dateStr: string) => {
-      const [day, month, year] = dateStr
-        .split("-")
-        .map((part) => parseInt(part, 10));
+      const [day, month, year] = dateStr.split("-").map((part) => parseInt(part, 10));
       return `${year}-${month}-${day}`;
     };
 
@@ -162,10 +153,6 @@ const Reservations: React.FC<ReservationsProps> = ({
   //   })
   // },[rowsData])
 
-  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
-    pageSize: 5,
-    page: 0,
-  });
 
   const BoldHeaderCell = (props: any) => (
     <div style={{ fontWeight: "bold" }}>{props.colDef.headerName}</div>
@@ -176,28 +163,68 @@ const Reservations: React.FC<ReservationsProps> = ({
       ...columns.map((columnName, index) => ({
         field: columnName,
         headerName: headers[index],
-        // flex: index===,
         // width: 100,
         flex:
-          index === 0 ||
-          index === 11 ||
-          index === 12 ||
-          index === 13 ||
-          columnName === "status"
+          index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
             ? 0
             : undefined,
         width:
-          index === 0 ||
           index === 11 ||
           index === 12 ||
           index === 13 ||
+          columnName === "room" ||
           columnName === "status"
-            ? 120
-            : 200,
+            ? 100
+            : 160,
         renderHeader: (params: GridColumnHeaderParams) => (
-          <span className="text-[#0D141C] font-semibold pl-3">
-            {headers[index]}
-          </span>
+          <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
+        ),
+        renderCell: (params: any) => {
+          return (
+            <div>
+              {columnName === "status" ? (
+                <Chip
+                  size="sm"
+                  variant="outlined"
+                  color={
+                    params.row[columnName] === "Expired"
+                      ? "danger"
+                      : params.row[columnName] === "Active"
+                      ? "success"
+                      : "warning"
+                  }
+                >
+                  {params.row[columnName]}
+                </Chip>
+              ) : (
+                <>{params.row[columnName]}</>
+              )}
+            </div>
+          );
+        },
+      })),
+    ];
+  }
+  else if(location === "masterList" ||location === "masterMovement" ){
+    gridColumns = [
+      ...columns.map((columnName, index) => ({
+        field: columnName,
+        headerName: headers[index],
+        // width: 100,
+        flex:
+          index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
+            ? 0
+            : undefined,
+        width:
+          index === 11 ||
+          index === 12 ||
+          index === 13 ||
+          columnName === "room" ||
+          columnName === "status"||columnName === "phone"||columnName === "driver"||columnName === "car_name"
+            ? 100
+            : 160,
+        renderHeader: (params: GridColumnHeaderParams) => (
+          <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
         ),
         renderCell: (params: any) => {
           return (
@@ -232,25 +259,19 @@ const Reservations: React.FC<ReservationsProps> = ({
         // flex: index===,
         // width: 100,
         flex:
-          index === 0 ||
-          index === 11 ||
-          index === 12 ||
-          index === 13 ||
-          columnName === "status"
+          index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
             ? 0
             : undefined,
         width:
-          index === 0 ||
           index === 11 ||
           index === 12 ||
           index === 13 ||
+          columnName === "room" ||
           columnName === "status"
-            ? 120
-            : 200,
+            ? 100
+            : 160,
         renderHeader: (params: GridColumnHeaderParams) => (
-          <span className="text-[#0D141C] font-semibold pl-3">
-            {headers[index]}
-          </span>
+          <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
         ),
         renderCell: (params: any) => {
           return (
@@ -350,20 +371,11 @@ const Reservations: React.FC<ReservationsProps> = ({
     <>
       <div>
         <div className="mb-6">
-          {location==="movement"?(<Typography
-            className="text-4xl"
-            component="div"
-            fontWeight="bold"
-          >
-            Search Reservations
-          </Typography>):(<Typography
-            className="text-5xl max-[960px]:text-4xl"
-            component="div"
-            fontWeight="bold"
-          >
-            Search Reservations
-          </Typography>)}
-          
+          {location === "movement" && (
+            <Typography className="text-4xl" component="div" fontWeight="bold">
+              Search Reservations
+            </Typography>
+          )}
         </div>
         <SearchInput
           value={search}
@@ -372,62 +384,113 @@ const Reservations: React.FC<ReservationsProps> = ({
           placeholder="Search by guest name, email, company..."
         />
         <br />
-        {location === "movement" ? (<>
-            <DataGrid
-              apiRef={apiRef}
-              rows={rowsData}
-              paginationModel={paginationModel}
-              onPaginationModelChange={setPaginationModel}
-              loading={loading}
-              pageSizeOptions={[5, 10, 15]} // Use pageSizeOptions instead
-              autoHeight
-              columns={gridColumns}
-              pagination
-              checkboxSelection
-              getRowId={(row) => row.booking_id} // Specify the custom row ID
-              sx={{
-                borderRadius: 3, // Adjust the value to achieve the desired rounding
-                // overflow: "scroll",
-                "& .MuiDataGrid-root": {
-                  borderRadius: "inherit",
-                },
-              }}
-              getRowClassName={() => "pl-3"} // Apply Tailwind padding utility class to rows
-              onRowSelectionModelChange={(newRowSelectionModel) => {
-                if (setSelectedGuest) {
-                  const selectedBookingIds = newRowSelectionModel.map((id) => {
-                    const selectedRow = rowsData.find((row) => row.booking_id === id);
-                    return selectedRow ? selectedRow.booking_id : null;
-                  }).filter((id) => id !== null);
-                  
-                  setSelectedGuest(selectedBookingIds);
-                }
-              }}
-            />
-            </>
-        ) : (
-          
-          <DataGrid
-          apiRef={apiRef}
-          rows={rowsData}
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          loading={loading}
-          pageSizeOptions={[5, 10, 15]} // Use pageSizeOptions instead
-          autoHeight
-          columns={gridColumns}
-          pagination
 
-          getRowId={(row) => row.booking_id} // Specify the custom row ID
-          sx={{
-            borderRadius: 3, // Adjust the value to achieve the desired rounding
-            // overflow: "scroll",
-            "& .MuiDataGrid-root": {
-              borderRadius: "inherit",
-            },
-          }}
-          getRowClassName={() => "pl-3"}  // Apply Tailwind padding utility class to rows
+        {location === "movement" ? (
+          <>
+            <div className="my-5 w-full " style={{ height: "400px" }} id="datagrid-container">
+              <DataGrid
+                apiRef={apiRef}
+                rows={rowsData}
+                paginationModel={{ pageSize: rowsData.length, page: 0 }} // Show all rows on one page
+                rowHeight={50}
+                loading={loading}
+                columns={gridColumns}
+                checkboxSelection
+                getRowId={(row) => row.booking_id} // Specify the custom row ID
+                sx={{
+                  borderRadius: 3, // Adjust the value to achieve the desired rounding
+                  "& .MuiDataGrid-root": {
+                    borderRadius: "inherit",
+                  },
+                  // "& .MuiDataGrid-cell": {
+                  //   border: "1px solid gray", // Add border to each cell
+                  // },
+                  // "& .MuiDataGrid-columnHeaders": {
+                  //   borderBottom: "1px solid gray", // Add border to column headers
+                  // },
+                }}
+                onRowSelectionModelChange={(newRowSelectionModel) => {
+                  if (setSelectedGuest) {
+                    const selectedBookingIds = newRowSelectionModel
+                      .map((id) => {
+                        const selectedRow = rowsData.find((row) => row.booking_id === id);
+                        return selectedRow ? selectedRow.booking_id : null;
+                      })
+                      .filter((id) => id !== null);
+
+                    setSelectedGuest(selectedBookingIds);
+                  }
+                }}
+              />
+            </div>
+          </>
+        ) : (<>{location==="masterMovement"?(<div className="my-2 w-full " style={{ height: "500px" }} id="datagrid-container">
+          <DataGrid
+            apiRef={apiRef}
+            rows={rowsData}
+            loading={loading}
+            columns={gridColumns}
+            paginationModel={{ pageSize: rowsData.length, page: 0 }} // Show all rows on one page
+            rowHeight={70}
+            getRowId={(row) => row.passenger_id} // Specify the custom row ID
+            initialState={{
+              sorting: {
+                sortModel: [{ field: "status", sort: "asc" }], // Adjust 'asc' to 'desc' if needed
+              },
+            }}
+            sx={{
+              borderRadius: 3, // Adjust the value to achieve the desired rounding
+              "& .MuiDataGrid-root": {
+                borderRadius: "inherit",
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                position: "sticky",
+                top: 0,
+                zIndex: 1, // Adjust zIndex to make sure header is above other elements
+                backgroundColor: "white", // Ensure the header has a background color
+              },
+              // "& .MuiDataGrid-cell": {
+              //   border: "1px solid gray", // Add border to each cell
+              // },
+              // "& .MuiDataGrid-columnHeaders": {
+              //   borderBottom: "1px solid gray", // Add border to column headers
+              // },
+            }}
           />
+        </div>):(<div className="my-2 w-full " style={{ height: "500px" }} id="datagrid-container">
+          <DataGrid
+            apiRef={apiRef}
+            rows={rowsData}
+            loading={loading}
+            columns={gridColumns}
+            paginationModel={{ pageSize: rowsData.length, page: 0 }} // Show all rows on one page
+            rowHeight={70}
+            getRowId={(row) => row.booking_id} // Specify the custom row ID
+            initialState={{
+              sorting: {
+                sortModel: [{ field: "status", sort: "asc" }], // Adjust 'asc' to 'desc' if needed
+              },
+            }}
+            sx={{
+              borderRadius: 3, // Adjust the value to achieve the desired rounding
+              "& .MuiDataGrid-root": {
+                borderRadius: "inherit",
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                position: "sticky",
+                top: 0,
+                zIndex: 1, // Adjust zIndex to make sure header is above other elements
+                backgroundColor: "white", // Ensure the header has a background color
+              },
+              // "& .MuiDataGrid-cell": {
+              //   border: "1px solid gray", // Add border to each cell
+              // },
+              // "& .MuiDataGrid-columnHeaders": {
+              //   borderBottom: "1px solid gray", // Add border to column headers
+              // },
+            }}
+          />
+        </div>)}</>
           
         )}
       </div>
@@ -480,11 +543,7 @@ const Reservations: React.FC<ReservationsProps> = ({
             >
               Confirm
             </Button>
-            <Button
-              variant="plain"
-              color="neutral"
-              onClick={() => setDel(false)}
-            >
+            <Button variant="plain" color="neutral" onClick={() => setDel(false)}>
               Cancel
             </Button>
           </DialogActions>
@@ -499,10 +558,7 @@ const Reservations: React.FC<ReservationsProps> = ({
       >
         {" "}
         <Info /> {message}
-        <span
-          onClick={() => setAlert(false)}
-          className="cursor-pointer hover:bg-[#f3eded]"
-        >
+        <span onClick={() => setAlert(false)} className="cursor-pointer hover:bg-[#f3eded]">
           <Close />
         </span>
       </Snackbar>
