@@ -808,11 +808,12 @@ export async function editMovement(
     pickup_location: string;
     drop_location: string;
     passengers: {
-        passenger_id: string;
-        remark: string;
-        name: string;
-        phone: string;
-        company: string;
+      booking_id:any;
+        passenger_id: any;
+        remark: any;
+        name: any;
+        phone: any;
+        company: any;
       }[];
   }
 ) {
@@ -845,7 +846,7 @@ export async function editMovement(
     throw error;
   }
 }
-export async function deleteMovement(token: string,movement_id:string,passenger_id:string) {
+export async function deletePassenger(token: string,movement_id:string,passenger_id:string) {
   try {
     const response = await fetch(`${process.env.BACKEND_URL}/api/movement/deletePassengerFromMovement`, {
       method: "get",
@@ -855,6 +856,26 @@ export async function deleteMovement(token: string,movement_id:string,passenger_
         token: token,
         movementid:movement_id,
         passengerid:passenger_id,
+      },
+      cache: "no-cache",
+    });
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function deleteMovementByMovementId(token: string,movement_id:string) {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/deleteMovementFromMovementId`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        movementid:movement_id,
       },
       cache: "no-cache",
     });

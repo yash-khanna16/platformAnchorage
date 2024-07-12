@@ -20,10 +20,9 @@ import {
   ModalDialog,
   Snackbar,
 } from "@mui/joy";
-import EditBooking from "./EditMovement";
 import { Close, DeleteForever, Info } from "@mui/icons-material";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
-import { deleteMovement } from "@/app/actions/api";
+import { deletePassenger } from "@/app/actions/api";
 import { getAuthAdmin } from "@/app/actions/cookie";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 
@@ -269,7 +268,7 @@ const MovementReservations: React.FC<ReservationsProps> = ({
           }}
         />
       </div>
-      <Modal
+      {/* <Modal
         open={edit}
         onClose={() => {
           setEdit(false);
@@ -291,7 +290,7 @@ const MovementReservations: React.FC<ReservationsProps> = ({
             )}
           </DialogContent>
         </ModalDialog>
-      </Modal>
+      </Modal> */}
       <Modal
         open={del}
         onClose={() => {
