@@ -797,6 +797,27 @@ export async function fetchMovement(token: string) {
     throw error;
   }
 }
+
+export async function fetchMasterMovement(token: string) {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/fetchEachPassenger`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      cache: "no-cache",
+    });
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
 export async function editMovement(
   token: string,
   apiData: {

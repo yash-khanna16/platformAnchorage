@@ -36,6 +36,7 @@ function Room() {
     "vessel",
     "remarks",
     "additional_info",
+    
     "rank",
     "id",
   ];

@@ -8,28 +8,12 @@ import {
   GridPaginationModel,
   useGridApiRef,
 } from "@mui/x-data-grid";
-import { Box, Typography, IconButton, DialogContent, DialogActions } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import {
-  Button,
-  Chip,
-  DialogTitle,
-  Divider,
-  Modal,
-  ModalClose,
-  ModalDialog,
-  Snackbar,
-} from "@mui/joy";
-import { Close, DeleteForever, Info } from "@mui/icons-material";
-import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
-import { deletePassenger } from "@/app/actions/api";
-import { getAuthAdmin } from "@/app/actions/cookie";
+import { Chip } from "@mui/joy";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 
 interface RowData {
   [key: string]: any;
 }
-
 
 interface ReservationsProps {
   rowsData: RowData[];
@@ -41,7 +25,7 @@ interface ReservationsProps {
   handleSearch: (value: string) => void;
   loading: boolean;
   reload: boolean;
-  setSeletedMovement:React.Dispatch<SetStateAction<GridRowSelectionModel | undefined>>;
+  setSeletedMovement: React.Dispatch<SetStateAction<GridRowSelectionModel | undefined>>;
 }
 
 interface Movement {
@@ -73,24 +57,7 @@ const MovementReservations: React.FC<ReservationsProps> = ({
   reload,
   setSeletedMovement,
 }) => {
-  const [edit, setEdit] = useState(false);
-  const [del, setDel] = useState(false);
-  const [editId, setEditId] = useState<Movement | null>(null);
-  const [deleteId, setDeleteId] = useState<{ movementId: string; passengerId: string }>({
-    movementId: "",
-    passengerId: "",
-  });
   const apiRef = useGridApiRef();
-  const [loadingDelete, setLoadingDelete] = useState(false);
-  const [alert, setAlert] = useState(false);
-  const [message, setMessage] = useState("");
-  const [token, setToken] = useState("");
-
-  useEffect(() => {
-    getAuthAdmin().then((auth) => {
-      if (auth) setToken(auth.value);
-    });
-  }, []);
 
   const mapToFormData = (id: any): Movement => {
     const formatDate = (dateStr: string) => {
@@ -124,11 +91,6 @@ const MovementReservations: React.FC<ReservationsProps> = ({
     handleSearch(value);
   };
 
-  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
-    pageSize: 5,
-    page: 0,
-  });
-
   const gridColumns: GridColDef[] = [
     ...columns.map((columnName, index) => ({
       field: columnName,
@@ -138,9 +100,12 @@ const MovementReservations: React.FC<ReservationsProps> = ({
           ? 0
           : undefined,
       width:
-        index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
-          ? 120
-          : 200,
+        index === 0 ||
+        columnName === "car_name" ||
+        columnName === "driver" ||
+        columnName === "status"
+          ? 150
+          : 240,
       renderHeader: (params: GridColumnHeaderParams) => (
         <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
       ),
@@ -168,74 +133,15 @@ const MovementReservations: React.FC<ReservationsProps> = ({
         );
       },
     })),
-    // {
-    //   field: "edit",
-    //   headerName: "Actions",
-    //   sortable: false,
-    //   align: "center",
-    //   headerAlign: "center",
-    //   width: 120,
-    //   renderHeader: (params: GridColumnHeaderParams) => (
-    //     <span className="text-[#0D141C] font-semibold pl-3 text-center">Actions</span>
-    //   ),
-    //   renderCell: (params) => (
-    //     <div>
-    //       <IconButton onClick={() => handleEdit(params.row)} style={{ marginRight: 10 }}>
-    //         <EditIcon className="scale-75" />
-    //       </IconButton>
-    //       <IconButton
-    //         onClick={() => {
-    //           setDel(true);
-    //           setDeleteId({movementId:params.row.movement_id,passengerId:params.row.passenger_id});
-    //         }}
-    //       >
-    //         <DeleteForever className="scale-75 text-red-700" />
-    //       </IconButton>
-    //     </div>
-    //   ),
-    // },
+    
   ];
 
-  const handleEdit = (id: any) => {
-    setEdit(true);
-    const formData: Movement = mapToFormData(id);
-    setEditId(formData);
-  };
-
-  const handleDelete = async () => {
-    try {
-      setLoadingDelete(true);
-      const res = await deleteMovement(token,deleteId.movementId,deleteId.passengerId);
-      setMessage(res.message);
-      setLoadingDelete(false);
-      setDel(false);
-      setDeleteId({
-        movementId: "",
-        passengerId: "",
-      });
-      setAlert(true);
-      setReload(!reload);
-      // setMessage(res.message);
-    } catch (error) {
-      setLoadingDelete(false);
-      setDel(false);
-      setDeleteId({
-        movementId: "",
-        passengerId: "",
-      });
-      setAlert(true);
-      setMessage("Something went wrong, Please try again!");
-    }
-  };
+  
+ 
 
   return (
     <>
-      <div >
-        <div className="mb-6">
-          <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
-            Search Movement
-          </Typography>
-        </div>
+      <div>
         <SearchInput
           value={search}
           onChange={handleSearchInput}
@@ -243,30 +149,39 @@ const MovementReservations: React.FC<ReservationsProps> = ({
           placeholder="Search by guest name, email, company..."
         />
         <br />
-        <DataGrid
-          apiRef={apiRef}
-          rows={rowsData}
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          loading={loading}
-          pageSizeOptions={[5, 10, 15]}
-          autoHeight
-          columns={gridColumns}
-          pagination
-          checkboxSelection
-          disableMultipleRowSelection
-          getRowId={(row) => row.movement_id}
-          sx={{
-            borderRadius: 3,
-            "& .MuiDataGrid-root": {
-              borderRadius: "inherit",
-            },
-          }}
-          getRowClassName={() => "pl-3"}
-          onRowSelectionModelChange={(newRowSelectionModel) => {
+        <div className="my-5 w-full " style={{ height: "400px" }} id="datagrid-container">
+          <DataGrid
+            apiRef={apiRef}
+            rows={rowsData}
+            loading={loading}
+            rowHeight={70}
+            paginationModel={{ pageSize: rowsData.length, page: 0 }}
+            columns={gridColumns}
+            checkboxSelection
+            disableMultipleRowSelection
+            getRowId={(row) => row.movement_id}
+            initialState={{
+              sorting: {
+                sortModel: [{ field: "status", sort: "asc" }], // Adjust 'asc' to 'desc' if needed
+              },
+            }}
+            sx={{
+              borderRadius: 3, // Adjust the value to achieve the desired rounding
+              "& .MuiDataGrid-root": {
+                borderRadius: "inherit",
+              },
+              // "& .MuiDataGrid-cell": {
+              //   border: "1px solid gray", // Add border to each cell
+              // },
+              // "& .MuiDataGrid-columnHeaders": {
+              //   borderBottom: "1px solid gray", // Add border to column headers
+              // },
+            }}
+            onRowSelectionModelChange={(newRowSelectionModel) => {
               setSeletedMovement(newRowSelectionModel);
-          }}
-        />
+            }}
+          />
+        </div>
       </div>
       {/* <Modal
         open={edit}
@@ -291,7 +206,7 @@ const MovementReservations: React.FC<ReservationsProps> = ({
           </DialogContent>
         </ModalDialog>
       </Modal> */}
-      <Modal
+      {/* <Modal
         open={del}
         onClose={() => {
           setDel(false);
@@ -313,8 +228,8 @@ const MovementReservations: React.FC<ReservationsProps> = ({
             </Button>
           </DialogActions>
         </ModalDialog>
-      </Modal>
-      <Snackbar
+      </Modal> */}
+      {/* <Snackbar
         open={alert}
         autoHideDuration={5000}
         onClose={() => {
@@ -327,7 +242,7 @@ const MovementReservations: React.FC<ReservationsProps> = ({
             <Close />
           </IconButton>
         </Box>
-      </Snackbar>
+      </Snackbar> */}
     </>
   );
 };
