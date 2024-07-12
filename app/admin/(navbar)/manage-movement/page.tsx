@@ -16,10 +16,12 @@ type MovementType = {
   driver: string;
   car_name: string;
   passengers: {
-    passenger_name: string;
+    booking_id:string;
+    passenger_id:string;
+    name: string;
     phone: string;
     remark: string;
-    company: string | null;
+    company: string;
   }[];
 };
 
@@ -41,8 +43,8 @@ function Movements() {
     "Pick Up Location",
     "Pick Up Time",
     "Return Time",
-    "Car Name",
     "Drop Location",
+    "Car Name",
   ];
   const [search, setSearch] = useState<string>("");
   const [loading, setLoading] = useState(false);
