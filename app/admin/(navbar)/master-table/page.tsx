@@ -221,10 +221,10 @@ function MasterTable() {
     }
   };
   const handleSearchMovement = () => {
-    if (search.trim() === "") {
+    if (searchMovement.trim() === "") {
       setFilteredRowsMovement(rowsMovement);
     } else {
-      const lowercasedSearch = search.toLowerCase();
+      const lowercasedSearch = searchMovement.toLowerCase();
       const filtered = rowsMovement.filter((row) =>
         columnsMovement.some((column) =>
           row[column as keyof MovementType]?.toString().toLowerCase().includes(lowercasedSearch)

@@ -29,7 +29,7 @@ import {
 } from "@mui/joy";
 import { Typography } from "@mui/material";
 import { Cancel, WarningRounded } from "@mui/icons-material";
-import { CheckCircle, Close, Info, Warning } from "@mui/icons-material";
+import { CheckCircle, Close, Info } from "@mui/icons-material";
 
 type ReservationType = {
   additional_info: string | null;
@@ -387,21 +387,34 @@ function AddMovement() {
     setOpen(true);
   };
   const handleGuest = () => {
-    const newPassengers = selectedGuest.map((selectedUser) => {
-      const newBooking=selectedUser.toString();
-      const passenger = rows.find((row) => row.booking_id === newBooking);
-      if (passenger) {
-        return {
-          ...passenger,
-          remark: "",
-        };
-      }
-      return null;
-    }).filter((passenger) => passenger !== null);
+    if (selectedGuest.length > 0) {
+      let newPassengers = selectedGuest
+        .map((selectedUser) => {
+          const newBooking = selectedUser.toString() as string;
+          const passenger = rows.find((row) => row.booking_id === newBooking);
+          if (passenger && passenger !== undefined) {
+            return {
+              ...passenger,
+              remark: "",
+            } as GuestType;
+          }
+          else{
+            return null;
+          }
+        })
+        .filter((passenger): passenger is GuestType => passenger !== null) as GuestType[];
+
+       newPassengers =  newPassengers.filter(passenger => passenger !== null)
   
-    setSelectedPassenger([...selectedPassenger, ...newPassengers]);
-    setOpen(false);
+      setSelectedPassenger((prevSelectedPassenger) => [
+        ...prevSelectedPassenger,
+        ...newPassengers,
+      ]);
+      setSelectedGuest([]);
+      setOpen(false);
+    }
   };
+  
   const handleDelete = () => {
     const updatedPassengers = selectedPassenger.filter((row) => row.booking_id !== delId);
     setSelectedPassenger(updatedPassengers);
@@ -685,8 +698,8 @@ function AddMovement() {
               </FormHelperText>
             </FormControl>
           )}
-          {selectedPassenger.map((data: GuestType) => (
-            <div className="relative border-2 p-5 rounded-lg my-3">
+          {selectedPassenger.map((data: GuestType, index) => (
+            <div key={index} className="relative border-2 p-5 rounded-lg my-3">
               <div
                 onClick={(event) => {
                   event.stopPropagation();
@@ -700,19 +713,11 @@ function AddMovement() {
               <div className="grid grid-cols-2 gap-4 w-full max-lg:grid-cols-1">
                 <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
                   <FormLabel className="text-[#0D141C] font-medium">Passenger Name</FormLabel>
-                  <Input
-                    name="passangerName"
-                    value={data.name}
-                    
-                    fullWidth
-                    size="lg"
-                    disabled
-                  />
+                  <Input name="passangerName" value={data.name} fullWidth size="lg" disabled />
                 </FormControl>
                 <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
                   <FormLabel className="text-[#0D141C] font-medium">Phone Number</FormLabel>
                   <Input
-                    
                     fullWidth
                     name="phoneNumber"
                     type="tel"
@@ -735,7 +740,6 @@ function AddMovement() {
                     name="company"
                     value={data.company}
                     disabled
-                    
                     fullWidth
                     size="lg"
                     placeholder="Enter Remark"
@@ -757,8 +761,8 @@ function AddMovement() {
               </div>
             </div>
           ))}
-          {manualPassenger.map((data: PassengerType) => (
-            <div className="relative border-2 p-5 rounded-lg my-3">
+          {manualPassenger.map((data: PassengerType, index) => (
+            <div key={index} className="relative border-2 p-5 rounded-lg my-3">
               <div
                 onClick={(event) => {
                   event.stopPropagation();
@@ -844,6 +848,7 @@ function AddMovement() {
         open={open}
         onClose={() => {
           setOpen(false);
+          setSelectedGuest([]);
         }}
       >
         <ModalDialog style={{ width: "75vw" }}>
@@ -1064,5 +1069,6 @@ function AddMovement() {
     </div>
   );
 }
+
 
 export default AddMovement;

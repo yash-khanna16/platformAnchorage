@@ -874,8 +874,9 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
             phone: string;
             remark: string;
             company: string;
-          }) => (
-            <div className="relative border-2 p-5 rounded-lg my-3">
+          },index) => (
+            
+            <div key={index} className="relative border-2 p-5 rounded-lg my-3">
               <div
                 onClick={(event) => {
                   event.stopPropagation();
@@ -952,8 +953,8 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
             </div>
           )
         )}
-        {selectedPassenger.map((data: GuestType) => (
-          <div className="relative border-2 p-5 rounded-lg my-3">
+        {selectedPassenger.map((data: GuestType,index) => (
+          <div key={index} className="relative border-2 p-5 rounded-lg my-3">
             <div
               onClick={(event) => {
                 event.stopPropagation();
@@ -1015,8 +1016,8 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
             </div>
           </div>
         ))}
-        {manualPassenger.map((data: PassengerType) => (
-          <div className="relative border-2 p-5 rounded-lg my-3">
+        {manualPassenger.map((data: PassengerType,index) => (
+          <div key={index} className="relative border-2 p-5 rounded-lg my-3">
             <div
               onClick={(event) => {
                 event.stopPropagation();
