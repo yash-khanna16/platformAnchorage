@@ -38,7 +38,7 @@ interface FormData {
   nonVeg: number;
 }
 
-function NewBooking({ reload, setReload }: { reload: boolean; setReload: React.Dispatch<SetStateAction<boolean>> }): JSX.Element {
+function NewBooking(): JSX.Element {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
