@@ -434,12 +434,13 @@ const Reservations: React.FC<ReservationsProps> = ({
 
         {location === "movement" ? (
           <>
-            <div className="my-5 w-full " style={{ height: "400px" }} id="datagrid-container">
+            <div className="my-5 w-full h-[400px]" id="datagrid-container">
               <DataGrid
                 apiRef={apiRef}
                 rows={rowsData}
                 paginationModel={{ pageSize: rowsData.length, page: 0 }} // Show all rows on one page
                 rowHeight={50}
+                hideFooterPagination
                 loading={loading}
                 columns={gridColumns}
                 checkboxSelection
@@ -471,7 +472,7 @@ const Reservations: React.FC<ReservationsProps> = ({
               />
             </div>
           </>
-        ) : (<>{location==="masterMovement"?(<div className="my-2 w-full " style={{ height: "500px" }} id="datagrid-container">
+        ) : (<>{location==="masterMovement"?(<div className="my-2 w-full h-screen"  id="datagrid-container">
           <DataGrid
             apiRef={apiRef}
             rows={rowsData}
@@ -479,6 +480,7 @@ const Reservations: React.FC<ReservationsProps> = ({
             columns={gridColumns}
             paginationModel={{ pageSize: rowsData.length, page: 0 }} // Show all rows on one page
             rowHeight={70}
+            hideFooterPagination
             getRowId={(row) => row.passenger_id} // Specify the custom row ID
             initialState={{
               sorting: {
@@ -504,7 +506,7 @@ const Reservations: React.FC<ReservationsProps> = ({
               // },
             }}
           />
-        </div>):(<div className="my-2 w-full " style={{ height: "500px" }} id="datagrid-container">
+        </div>):(<div className="my-2 w-full h-screen"  id="datagrid-container">
           <DataGrid
             apiRef={apiRef}
             rows={rowsData}
@@ -512,6 +514,7 @@ const Reservations: React.FC<ReservationsProps> = ({
             columns={gridColumns}
             paginationModel={{ pageSize: rowsData.length, page: 0 }} // Show all rows on one page
             rowHeight={70}
+            hideFooterPagination
             getRowId={(row) => row.booking_id} // Specify the custom row ID
             initialState={{
               sorting: {

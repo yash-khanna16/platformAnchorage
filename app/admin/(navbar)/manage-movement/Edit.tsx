@@ -1,10 +1,4 @@
-import {
-  editMovement,
-  searchAllGuests,
-  deletePassenger,
-  fetchAvailableCars,
-  fetchAvailableDrivers,
-} from "@/app/actions/api";
+import { editMovement, searchAllGuests, deletePassenger, fetchAvailableCars, fetchAvailableDrivers } from "@/app/actions/api";
 import {
   Button,
   DialogContent,
@@ -17,13 +11,15 @@ import {
   ModalDialog,
   Option,
   Snackbar,
+  Table,
+  ButtonGroup,
 } from "@mui/joy";
 import Reservations from "../manage-rooms/[room]/Reservations";
 import { Box, Typography, IconButton, DialogActions } from "@mui/material";
 import Input from "@mui/joy/Input";
 import Checkbox from "@mui/joy/Checkbox";
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
-import { CheckCircle, Close, Info } from "@mui/icons-material";
+import { CheckCircle, Close, Info, Stop } from "@mui/icons-material";
 import { getAuthAdmin } from "@/app/actions/cookie";
 import { Select, MenuItem } from "@mui/joy";
 import { Cancel, WarningRounded } from "@mui/icons-material";
@@ -47,6 +43,7 @@ type MovementType = {
     phone: string;
     remark: string;
     company: string;
+    external_booking: boolean;
   }[];
 };
 
@@ -67,6 +64,7 @@ type EditMovementType = {
     name: string;
     phone: string;
     remark: string;
+    external_booking: boolean;
     company: string;
   }[];
 };
@@ -99,6 +97,7 @@ type PassengerType = {
   phoneNumber: string;
   remark: string;
   company: string;
+  external_booking: boolean;
 };
 
 type GuestType = {
@@ -133,6 +132,16 @@ type ErrorType = {
   passengerNumber: string;
 };
 
+type Conflict = {
+  movement_id: string;
+  pickup_location: string;
+  pickup_time: string; // Use string for ISO date strings
+  return_time: string; // Use string for ISO date strings
+  car_number: string;
+  driver: string;
+  drop_location: string;
+};
+
 const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
   const formatDateString = (dateString: string) => {
     const [day, month, year] = dateString.split("-");
@@ -142,28 +151,17 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
     const formattedDay = `0${date.getDate()}`.slice(-2);
     return `${formattedYear}-${formattedMonth}-${formattedDay}`;
   };
-  const columns = [
-    "name",
-    "room",
-    "status",
-    "checkin",
-    "checkout",
-    "email",
-    "phone",
-    "company",
-    "rank",
-  ];
-  const headers = [
-    "Name",
-    "Room",
-    "Status",
-    "Check In",
-    "Check Out",
-    "Email",
-    "Phone",
-    "Company",
-    "Rank",
-  ];
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const day = ("0" + date.getDate()).slice(-2);
+    const month = ("0" + (date.getMonth() + 1)).slice(-2);
+    const year = date.getFullYear();
+    const hours = ("0" + date.getHours()).slice(-2);
+    const minutes = ("0" + date.getMinutes()).slice(-2);
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
+  };
+  const columns = ["name", "room", "status", "checkin", "checkout", "email", "phone", "company", "rank"];
+  const headers = ["Name", "Room", "Status", "Check In", "Check Out", "Email", "Phone", "Company", "Rank"];
   const [pickup_date, pickup_time] = selectedData.pickup_time.split(" ");
   const [return_date, return_time] = selectedData.return_time.split(" ");
   const [formData, setFormData] = useState<EditMovementType>({
@@ -219,7 +217,10 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
     phoneNumber: "",
     remark: "",
     company: "",
+    external_booking: true,
   });
+  const [errorModal, setErrorModal] = useState(false);
+  const [conflicts, setConflicts] = useState<Conflict[]>([]);
 
   useEffect(() => {
     setFormData({
@@ -287,10 +288,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
       [name]: name === "phoneNumber" ? value.replace(/\D/g, "").slice(0, 10) : value,
     }));
   };
-  const handleChangePassenger = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    passenger_id: string
-  ) => {
+  const handleChangePassenger = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, passenger_id: string) => {
     const { name, value } = e.target;
     const newPassenger = formData.passengers.map(
       (data: {
@@ -300,6 +298,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
         phone: string;
         remark: string;
         company: string;
+        external_booking: boolean;
       }) => {
         if (data.passenger_id === passenger_id) {
           return { ...data, [name]: value };
@@ -320,9 +319,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
       const res = await deletePassenger(token, formData.movement_id, deleteId);
       setMessage(res.message);
       if (res.message === "Passenger and related records deleted successfully.") {
-        const newPassengersList = formData.passengers.filter(
-          (data) => data.passenger_id !== deleteId
-        );
+        const newPassengersList = formData.passengers.filter((data) => data.passenger_id !== deleteId);
         setFormData({ ...formData, passengers: newPassengersList });
       }
       setLoadingDelete(false);
@@ -348,18 +345,9 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
     setManualPassenger(updatedPassengers);
     setManualDel(false);
   };
-  const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    const day = ("0" + date.getDate()).slice(-2);
-    const month = ("0" + (date.getMonth() + 1)).slice(-2);
-    const year = date.getFullYear();
-    const hours = ("0" + date.getHours()).slice(-2);
-    const minutes = ("0" + date.getMinutes()).slice(-2);
-    return `${day}-${month}-${year} ${hours}:${minutes}`;
-  };
 
   const handleGuest = () => {
-    const newPassengers = selectedGuest
+    const newPassengers: GuestType[] = selectedGuest
       .map((selectedUser) => {
         const newBooking = selectedUser.toString();
         const passenger = rows.find((row) => row.booking_id === newBooking);
@@ -371,11 +359,26 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
         }
         return null;
       })
-      .filter((passenger) => passenger !== null);
+      .filter((passenger) => passenger !== null) as GuestType[];
 
-    setSelectedPassenger([...selectedPassenger, ...newPassengers]);
+    const updatedPassengers = [...selectedPassenger];
+
+    newPassengers.forEach((newPassenger) => {
+      const existingPassengerIndex = updatedPassengers.findIndex((passenger) => passenger.booking_id === newPassenger.booking_id);
+      if (existingPassengerIndex !== -1) {
+        updatedPassengers[existingPassengerIndex] = {
+          ...updatedPassengers[existingPassengerIndex],
+          ...newPassenger,
+        };
+      } else {
+        updatedPassengers.push(newPassenger);
+      }
+    });
+
+    setSelectedPassenger(updatedPassengers);
     setPassengerModal(false);
   };
+
   useEffect(() => {
     if (token !== "") {
       getGuests();
@@ -446,11 +449,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
         company: entry.company,
       };
     });
-    const allPassengerList = [
-      ...newManualPassenger,
-      ...newSelectedPassenger,
-      ...formData.passengers,
-    ];
+    const allPassengerList = [...newManualPassenger, ...newSelectedPassenger, ...formData.passengers];
     if (allPassengerList.length === 0) {
       newErrors.passengerNumber = "Add atleast one passenger to continue";
     }
@@ -483,12 +482,17 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
     };
     try {
       const res = await editMovement(token, dataSend);
-      setOpenConfirm(true);
       setMessage(res.message);
       setAlert(true);
       setMessage(res.message);
-      setReload(!reload);
       console.log("res: ", res);
+      if (res.message === "Conflicting Movements!") {
+        setErrorModal(true);
+        setConflicts(res.conflicts);
+      } else {
+        setReload(!reload);
+        setOpenConfirm(true);
+      }
       setSubmitLoading(false);
     } catch (error) {
       setSubmitLoading(false);
@@ -503,17 +507,12 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
     setManualPassenger([...manualPassenger, passengerDetails]);
     console.log(manualPassenger);
     setManually(false);
-    setPassengerDetails({ name: "", phoneNumber: "", remark: "", company: "" });
+    setPassengerDetails({ name: "", phoneNumber: "", remark: "", company: "", external_booking: true });
   };
-  const handlePassengerChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
-    bookingId: string | undefined
-  ) => {
+  const handlePassengerChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, bookingId: string | undefined) => {
     console.log(bookingId);
     setSelectedPassenger((prevSelectedPassenger) =>
-      prevSelectedPassenger.map((guest) =>
-        guest.booking_id === bookingId ? { ...guest, remark: e.target.value } : guest
-      )
+      prevSelectedPassenger.map((guest) => (guest.booking_id === bookingId ? { ...guest, remark: e.target.value } : guest))
     );
   };
 
@@ -523,9 +522,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
     } else {
       const lowercasedSearch = search.toLowerCase();
       const filtered = rows.filter((row) =>
-        columns.some((column) =>
-          row[column as keyof ReservationType]?.toString().toLowerCase().includes(lowercasedSearch)
-        )
+        columns.some((column) => row[column as keyof ReservationType]?.toString().toLowerCase().includes(lowercasedSearch))
       );
       setFilteredRows(filtered);
     }
@@ -550,12 +547,17 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
       };
       try {
         const res = await editMovement(token, dataSend);
-        setOpenConfirm(true);
         setMessage(res.message);
         setAlert(true);
         setMessage(res.message);
-        setReload(!reload);
         console.log("res: ", res);
+        if (res.message === "Conflicting Movements!") {
+          setErrorModal(true);
+          setConflicts(res.conflicts);
+        } else {
+          setReload(!reload);
+          setOpenConfirm(true);
+        }
         setSubmitLoading(false);
       } catch (error) {
         setSubmitLoading(false);
@@ -568,7 +570,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
       setAlert(true);
     }
   };
-  
+
   const handleDelay = async (delay: number) => {
     const returnTime = `${formData.return_date}T${formData.return_time}`;
     let returnDateTime = new Date(returnTime);
@@ -588,13 +590,17 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
     };
     try {
       const res = await editMovement(token, dataSend);
-      if(res.message==='Movement updated successfully!'){
-        setOpenConfirm(true);
-      }
       setMessage(res.message);
       setAlert(true);
-      setReload(!reload);
+      setMessage(res.message);
       console.log("res: ", res);
+      if (res.message === "Conflicting Movements!") {
+        setErrorModal(true);
+        setConflicts(res.conflicts);
+      } else {
+        setReload(!reload);
+        setOpenConfirm(true);
+      }
       setSubmitLoading(false);
     } catch (error) {
       setSubmitLoading(false);
@@ -603,11 +609,11 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
       console.log("error: ", error);
     }
   };
-  const deleteMovement=async ()=>{
+  const deleteMovement = async () => {
     setDelMovement(false);
     try {
       const res = await deleteMovementByMovementId(token, formData.movement_id);
-      if(res.message==='Movement and related data deleted successfully!'){
+      if (res.message === "Movement and related data deleted successfully!") {
         setDeleteConfirm(true);
       }
       setMessage(res.message);
@@ -621,75 +627,41 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
       setAlert(true);
       console.log("error: ", error);
     }
-  }
-  
+  };
+
   return (
     <div className="mt-10 border p-5 rounded-md relative">
       <div
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setDelMovement(true);
-                }}
-                className="absolute -right-[18px] rounded-full z-20 -top-[20px] text-slate-400  hover:bg-red-50 p-2 "
-              >
-                <Cancel />
-              </div>
+        onClick={(event) => {
+          event.stopPropagation();
+          setDelMovement(true);
+        }}
+        className="absolute -right-[18px] rounded-full z-20 -top-[20px] text-slate-400  hover:bg-red-50 p-2 "
+      >
+        <Cancel />
+      </div>
       <div className="grid grid-cols-2 gap-4 w-full max-lg:grid-cols-1">
-        <Typography
-          className="text-4xl  mb-2 max-[960px]:text-3xl"
-          component="div"
-          fontWeight="bold"
-        >
+        <Typography className="text-4xl  mb-2 max-[960px]:text-3xl" component="div" fontWeight="bold">
           Movement Details
         </Typography>
-        <div className="grid grid-cols-5 gap-4 w-full max-sm:grid-cols-3">
-          <Button onClick={handleStop} type="button" size="lg" fullWidth className="bg-red-600">
-            Stop
-          </Button>
-          <Button
-            onClick={() => {
-              handleDelay(1);
-            }}
-            type="button"
-            size="lg"
-            fullWidth
-            className="bg-green-600"
-          >
-            +1
-          </Button>
-          <Button
-            onClick={() => {
-              handleDelay(6);
-            }}
-            type="button"
-            size="lg"
-            fullWidth
-            className="bg-green-600"
-          >
-            +6
-          </Button>
-          <Button
-            onClick={() => {
-              handleDelay(12);
-            }}
-            type="button"
-            size="lg"
-            fullWidth
-            className="bg-green-600"
-          >
-            +12
-          </Button>
-          <Button
-            onClick={() => {
-              handleDelay(24);
-            }}
-            type="button"
-            size="lg"
-            fullWidth
-            className="bg-green-600"
-          >
-            +24
-          </Button>
+        <div className="flex justify-end w-full">
+          <ButtonGroup orientation="horizontal">
+            <Button onClick={handleStop} startDecorator={<Stop />} type="button" size="lg" color="danger">
+              Stop
+            </Button>
+            <Button onClick={() => handleDelay(1)} type="button" size="lg" color="success">
+              +1 hr
+            </Button>
+            <Button onClick={() => handleDelay(6)} type="button" size="lg" color="success">
+              +6 hr
+            </Button>
+            <Button onClick={() => handleDelay(12)} type="button" size="lg" color="success">
+              +12 hr
+            </Button>
+            <Button onClick={() => handleDelay(24)} type="button" size="lg" color="success">
+              +24 hr
+            </Button>
+          </ButtonGroup>
         </div>
       </div>
       <form onSubmit={submitForm}>
@@ -806,10 +778,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
           </div>
         </FormControl>
         <div className="grid grid-cols-2 gap-4 w-full max-lg:grid-cols-1">
-          <FormControl
-            sx={{ m: 1, minWidth: 120 }}
-            className={`${driverCarLoading ? "hover:cursor-not-allowed" : ""}`}
-          >
+          <FormControl sx={{ m: 1, minWidth: 120 }} className={`${driverCarLoading ? "hover:cursor-not-allowed" : ""}`}>
             <FormLabel id="demo-simple-select-helper-label">Driver</FormLabel>
             <Select
               value={newDriver}
@@ -832,10 +801,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
               ))}
             </Select>
           </FormControl>
-          <FormControl
-            sx={{ m: 1, minWidth: 120 }}
-            className={`${driverCarLoading ? "hover:cursor-not-allowed" : ""}`}
-          >
+          <FormControl sx={{ m: 1, minWidth: 120 }} className={`${driverCarLoading ? "hover:cursor-not-allowed" : ""}`}>
             <FormLabel id="demo-simple-select-helper-label">Car</FormLabel>
             <Select
               value={newCar}
@@ -859,22 +825,21 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
             </Select>
           </FormControl>
         </div>
-        <Typography
-          className="text-4xl text-center my-5 max-[960px]:text-3xl"
-          component="div"
-          fontWeight="bold"
-        >
+        <Typography className="text-4xl text-center my-5 max-[960px]:text-3xl" component="div" fontWeight="bold">
           Passenger Details
         </Typography>
         {formData.passengers.map(
-          (data: {
-            passenger_id: string;
-            name: string;
-            phone: string;
-            remark: string;
-            company: string;
-          },index) => (
-            
+          (
+            data: {
+              passenger_id: string;
+              name: string;
+              phone: string;
+              remark: string;
+              external_booking: boolean;
+              company: string;
+            },
+            index
+          ) => (
             <div key={index} className="relative border-2 p-5 rounded-lg my-3">
               <div
                 onClick={(event) => {
@@ -892,6 +857,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
                   <Input
                     name="name"
                     value={data.name}
+                    disabled={!data.external_booking}
                     required
                     onChange={(e) => {
                       handleChangePassenger(e, data.passenger_id);
@@ -908,6 +874,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
                     type="tel"
                     size="lg"
                     required
+                    disabled={!data.external_booking}
                     value={data.phone}
                     onChange={(e) => {
                       handleChangePassenger(e, data.passenger_id);
@@ -926,6 +893,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
                   <FormLabel className="text-[#0D141C] font-medium">Company</FormLabel>
                   <Input
                     name="company"
+                    disabled={!data.external_booking}
                     value={data.company}
                     onChange={(e) => {
                       handleChangePassenger(e, data.passenger_id);
@@ -952,7 +920,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
             </div>
           )
         )}
-        {selectedPassenger.map((data: GuestType,index) => (
+        {selectedPassenger.map((data: GuestType, index) => (
           <div key={index} className="relative border-2 p-5 rounded-lg my-3">
             <div
               onClick={(event) => {
@@ -990,14 +958,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
 
               <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
                 <FormLabel className="text-[#0D141C] font-medium">Company</FormLabel>
-                <Input
-                  name="company"
-                  value={data.company}
-                  disabled
-                  fullWidth
-                  size="lg"
-                  placeholder="Enter Remark"
-                />
+                <Input name="company" value={data.company} disabled fullWidth size="lg" placeholder="Enter Remark" />
               </FormControl>
               <FormControl size="lg" className="my-1">
                 <FormLabel className="text-[#0D141C] font-medium">Remark</FormLabel>
@@ -1015,7 +976,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
             </div>
           </div>
         ))}
-        {manualPassenger.map((data: PassengerType,index) => (
+        {manualPassenger.map((data: PassengerType, index) => (
           <div key={index} className="relative border-2 p-5 rounded-lg my-3">
             <div
               onClick={(event) => {
@@ -1030,14 +991,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
             <div className="grid grid-cols-2 gap-4 w-full max-lg:grid-cols-1">
               <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
                 <FormLabel className="text-[#0D141C] font-medium">Passenger Name</FormLabel>
-                <Input
-                  name="passangerName"
-                  value={data.name}
-                  required
-                  fullWidth
-                  size="lg"
-                  disabled
-                />
+                <Input name="passangerName" value={data.name} required fullWidth size="lg" disabled />
               </FormControl>
               <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
                 <FormLabel className="text-[#0D141C] font-medium">Phone Number</FormLabel>
@@ -1113,6 +1067,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
             name: "",
             phoneNumber: "",
             remark: "",
+            external_booking: true,
           });
         }}
       >
@@ -1261,12 +1216,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
           <Divider />
           <DialogContent>Are you sure you want to delete this Passenger?</DialogContent>
           <DialogActions>
-            <Button
-              variant="solid"
-              color="danger"
-              loading={loadingDelete}
-              onClick={handlePassengerDelete}
-            >
+            <Button variant="solid" color="danger" loading={loadingDelete} onClick={handlePassengerDelete}>
               Confirm
             </Button>
             <Button variant="plain" color="neutral" onClick={() => setDel(false)}>
@@ -1334,8 +1284,50 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
               <CheckCircle className="h-40 scale-[500%] text-green-600" />
-              <div className="font-semibold text-2xl text-center">
-                Movement Edited Successfully!
+              <div className="font-semibold text-2xl text-center">Movement Edited Successfully!</div>
+            </div>
+          </DialogContent>
+        </ModalDialog>
+      </Modal>
+      <Modal
+        open={errorModal}
+        onClose={() => {
+          setErrorModal(false);
+        }}
+      >
+        <ModalDialog size="lg">
+          <ModalClose />
+          <DialogTitle className="">Edit Movement Error</DialogTitle>
+          <DialogContent className="h-fit">
+            <div className="flex flex-col h-56 items-center overflow-hidden ">
+              <div className="font-semibold text-xl text-center">
+                Conflicting Entries found while editing with the following movements:
+              </div>
+              <div className="my-5">
+                <Table borderAxis="both">
+                  <thead>
+                    <tr>
+                      <th>Pickup Time</th>
+                      <th>Return Time</th>
+                      <th>Car Number</th>
+                      <th>Driver</th>
+                      <th>Pickup Location</th>
+                      <th>Drop Location</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {conflicts.map((conflict, index) => (
+                      <tr key={index}>
+                        <td>{formatDate(conflict.pickup_time)}</td>
+                        <td>{formatDate(conflict.return_time)}</td>
+                        <td>{conflict.car_number}</td>
+                        <td>{conflict.driver}</td>
+                        <td>{conflict.pickup_location}</td>
+                        <td>{conflict.drop_location}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
               </div>
             </div>
           </DialogContent>
@@ -1354,9 +1346,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
               <CheckCircle className="h-40 scale-[500%] text-green-600" />
-              <div className="font-semibold text-2xl text-center">
-                Movement Deleted Successfully!
-              </div>
+              <div className="font-semibold text-2xl text-center">Movement Deleted Successfully!</div>
             </div>
           </DialogContent>
         </ModalDialog>
@@ -1399,7 +1389,6 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
         </Box>
       </Snackbar>
     </div>
-    
   );
 };
 
