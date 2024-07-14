@@ -22,6 +22,7 @@ type MovementType = {
     name: string;
     phone: string;
     remark: string;
+    external_booking: boolean;
     company: string;
   }[];
 };
