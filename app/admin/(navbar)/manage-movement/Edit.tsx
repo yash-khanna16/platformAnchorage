@@ -1300,7 +1300,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
           <DialogTitle className="">Edit Movement Error</DialogTitle>
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
-              <div className="font-semibold text-xl text-center">
+              <div className="font-semibold text-xl w-full">
                 Conflicting Entries found while editing with the following movements:
               </div>
               <div className="my-5">
