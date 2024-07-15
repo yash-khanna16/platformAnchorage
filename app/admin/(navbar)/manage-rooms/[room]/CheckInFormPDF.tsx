@@ -288,7 +288,7 @@ const MyDocument = ({data}:{data:any}) => {
                                 </View> */}
                                       <View style={{ display: "flex", flexDirection: "row", width: "100%" }}>
                                         <View style={{ width: "100%", padding: 5, borderRight: 1 }}>
-                                          <Text style={{ margin: "auto" }}>{data.lunch_nonveg}</Text>
+                                          <Text style={{ margin: "auto" }}>{data.lunch_veg}</Text>
                                         </View>
                                         <View style={{ width: "100%", padding: 5, borderRight: 1 }}>
                                           <Text style={{ margin: "auto" }}>{data.lunch_nonveg}</Text>

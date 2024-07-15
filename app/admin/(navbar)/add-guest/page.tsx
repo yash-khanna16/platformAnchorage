@@ -10,7 +10,7 @@ import { getAuthAdmin } from "@/app/actions/cookie";
 type guestType = {
   guestEmail: string;
   guestName: string;
-  guestPhone: number | null;
+  guestPhone: string;
   guestCompany: string;
   guestVessel: string;
   guestRank: string;
@@ -23,7 +23,7 @@ function AddGuest() {
   const [token, setToken] = useState("");
   const [formData, setFormData] = useState<guestType>({
     guestName: "",
-    guestPhone: null,
+    guestPhone: "",
     guestEmail: "",
     guestCompany: "",
     guestVessel: "",
@@ -96,7 +96,7 @@ function AddGuest() {
               required
               type="tel"
               name="guestPhone"
-              value={formData.guestPhone as number}
+              value={formData.guestPhone}
               onChange={handleChange}
               placeholder="Enter Phone No."
               id="guestPhone"

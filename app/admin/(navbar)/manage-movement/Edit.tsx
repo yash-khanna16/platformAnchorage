@@ -546,6 +546,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
         passengers: formData.passengers,
       };
       try {
+        console.log("datasend: ", dataSend)
         const res = await editMovement(token, dataSend);
         setMessage(res.message);
         setAlert(true);
