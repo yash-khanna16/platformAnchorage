@@ -204,7 +204,7 @@ function isValidPhoneNumber(phoneNumber: string) {
     if (roomNumber !== formData.room) {
       formData.room = roomNumber;
     }
-    if (selectedCheckoutDateTime > selectedCheckinDateTime && !isNaN(parseInt(formData.phoneNumber))) {
+    if (selectedCheckoutDateTime > selectedCheckinDateTime) {
       setErrors({});
       const apiFormData = {
         bookingId: initialData.booking_id,
@@ -217,7 +217,7 @@ function isValidPhoneNumber(phoneNumber: string) {
         additional: formData.additionalInfo,
         room: formData.room,
         name: formData.name,
-        phone: parseInt(formData.phoneNumber),
+        phone: (formData.phoneNumber),
         company: formData.companyName,
         vessel: formData.vessel,
         rank: formData.rank,

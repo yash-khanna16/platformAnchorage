@@ -179,7 +179,7 @@ function NewBooking({ reload, setReload }: { reload: boolean; setReload: React.D
       return;
     }
 
-    if (selectedCheckoutDateTime > selectedCheckinDateTime && !isNaN(parseInt(formData.phoneNumber))) {
+    if (selectedCheckoutDateTime > selectedCheckinDateTime) {
       setErrors({});
       const apiFormData = {
         checkin: selectedCheckinDateTime,
@@ -191,7 +191,7 @@ function NewBooking({ reload, setReload }: { reload: boolean; setReload: React.D
         additional: formData.additionalInfo,
         room: room,
         name: formData.name,
-        phone: parseInt(formData.phoneNumber),
+        phone: (formData.phoneNumber),
         company: formData.companyName,
         guestId: formData.id,
         vessel: formData.vessel,
@@ -329,12 +329,6 @@ function NewBooking({ reload, setReload }: { reload: boolean; setReload: React.D
             type="tel"
             size="lg"
             placeholder="Phone Number"
-            slotProps={{
-              input: {
-                inputMode: "numeric",
-                // pattern: "[0-9]*",
-              },
-            }}
           />
           <FormControl error>
             <FormHelperText>{errors.phoneNumber}</FormHelperText>

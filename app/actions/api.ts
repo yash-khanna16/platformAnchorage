@@ -81,7 +81,7 @@ export async function addNewBooking(
     additional: string;
     room: string;
     name: string;
-    phone: number;
+    phone: string;
     company: string;
     vessel: string;
     rank: string;
@@ -133,7 +133,7 @@ export async function addGuest(
   formData: {
     guestEmail: string;
     guestName: string;
-    guestPhone: number | null;
+    guestPhone: string | null;
     guestCompany: string;
     guestVessel: string;
     guestRank: string;
@@ -172,7 +172,7 @@ export async function editBooking(
     additional: string;
     room: string;
     name: string;
-    phone: number;
+    phone: string;
     company: string;
     vessel: string;
     rank: string;

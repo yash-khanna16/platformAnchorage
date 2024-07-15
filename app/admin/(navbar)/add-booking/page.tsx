@@ -199,7 +199,7 @@ function NewBooking(): JSX.Element {
       return;
     }
 
-    if (selectedCheckoutDateTime > selectedCheckinDateTime && !isNaN(parseInt(formData.phoneNumber))) {
+    if (selectedCheckoutDateTime > selectedCheckinDateTime) {
       setErrors({});
       const apiFormData = {
         checkin: selectedCheckinDateTime,
@@ -211,7 +211,7 @@ function NewBooking(): JSX.Element {
         additional: formData.additionalInfo,
         room: room,
         name: formData.name,
-        phone: parseInt(formData.phoneNumber),
+        phone: (formData.phoneNumber),
         company: formData.companyName,
         vessel: formData.vessel,
         rank: formData.rank,
@@ -358,13 +358,6 @@ function NewBooking(): JSX.Element {
               type="tel"
               size="lg"
               placeholder="Phone Number"
-              slotProps={{
-                input: {
-                  inputMode: "numeric",
-                  // pattern: "[0-9]*",
-                  // maxLength: 10,
-                },
-              }}
             />
             <FormControl error>
               <FormHelperText>{errors.phoneNumber}</FormHelperText>
