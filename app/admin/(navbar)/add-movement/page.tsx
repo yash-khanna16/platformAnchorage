@@ -50,21 +50,10 @@ type ReservationType = {
   vessel: string;
 };
 type GuestType = {
-  additional_info?: string | null;
   booking_id?: string;
-  breakfast?: string | null;
-  checkin?: string;
-  checkout?: string;
   company?: string;
-  email?: string;
-  guest_email?: string;
-  meal_non_veg?: number;
-  meal_veg?: number;
   name?: string;
   phone?: string;
-  rank?: string | null;
-  remarks?: string;
-  room?: string;
   vessel?: string;
   remark?: string;
 };
@@ -397,24 +386,21 @@ function AddMovement() {
               ...passenger,
               remark: "",
             } as GuestType;
-          }
-          else{
+          } else {
             return null;
           }
         })
         .filter((passenger): passenger is GuestType => passenger !== null) as GuestType[];
 
-       newPassengers =  newPassengers.filter(passenger => passenger !== null)
-  
-      setSelectedPassenger((prevSelectedPassenger) => [
-        ...prevSelectedPassenger,
-        ...newPassengers,
-      ]);
+      newPassengers = newPassengers.filter((passenger) => passenger !== null);
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      setSelectedPassenger((prevSelectedPassenger) => [...prevSelectedPassenger,...(newPassengers as GuestType[])]);
       setSelectedGuest([]);
       setOpen(false);
     }
   };
-  
+
   const handleDelete = () => {
     const updatedPassengers = selectedPassenger.filter((row) => row.booking_id !== delId);
     setSelectedPassenger(updatedPassengers);
@@ -1069,6 +1055,5 @@ function AddMovement() {
     </div>
   );
 }
-
 
 export default AddMovement;

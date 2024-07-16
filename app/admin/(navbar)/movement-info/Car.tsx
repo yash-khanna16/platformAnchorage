@@ -53,7 +53,7 @@ const Car: React.FC<PropsType> = ({ name, distance, time, number, reload, setRel
       </div>
       <div className="flex items-center">
         <div className="font-bold">{name}</div>
-        <Image width={160} height={160} src={car.src} alt="car" />
+        <Image width={140} height={140} src={car.src} alt="car" />
       </div>
       <div className="flex gap-x-5 mt-3">
         <div className="text-sm px-2 py-1 bg-[#eee] rounded-3xl w-fit font-semibold flex gap-x-2 items-center text-slate-600">

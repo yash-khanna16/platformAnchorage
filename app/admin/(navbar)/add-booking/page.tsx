@@ -43,8 +43,6 @@ function NewBooking(): JSX.Element {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const tick = useRef(null);
-  const [minCheckinDate, setMinCheckinDate] = useState<string>("");
-  const [minCheckinTime, setMinCheckinTime] = useState<string>("");
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
   const [token, setToken] = useState("");
@@ -61,13 +59,6 @@ function NewBooking(): JSX.Element {
     }
   };
 
-  useEffect(() => {
-    const currentDate = new Date();
-    const formattedDate = currentDate.toISOString().split("T")[0]; // YYYY-MM-DD
-    const formattedTime = currentDate.toTimeString().split(" ")[0].slice(0, 5); // HH:MM
-    setMinCheckinDate(formattedDate);
-    setMinCheckinTime(formattedTime);
-  }, []);
 
   const [room, setRoom] = useState("");
   const [roomDisabled, setRoomDisabled] = useState(true);
@@ -250,7 +241,7 @@ function NewBooking(): JSX.Element {
   }
 
   return (
-    <div className="mx-32 my-10">
+    <div className="mx-32 my-10 max-md:mx-10">
       <form onSubmit={handleSubmit} className="space-y-10 -w-full">
         <div className="text-3xl font-semibold mb-6">Add New Booking</div>
         <div className="grid grid-cols-2 gap-4 w-full max-lg:grid-cols-1">
