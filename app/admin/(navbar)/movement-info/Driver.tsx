@@ -32,7 +32,7 @@ const Driver: React.FC<{ name: string; status: string, reload: boolean, setReloa
   }
 
   return (
-    <div className="font-semibold gap-y-2 relative w-[120px] flex flex-col cursor-pointer items-center">
+    <div className="font-semibold gap-y-2 relative w-[100px] flex flex-col cursor-pointer items-center">
       <Badge
         color="warning"
         size="lg"
@@ -58,8 +58,8 @@ const Driver: React.FC<{ name: string; status: string, reload: boolean, setReloa
         </div>
         <Avatar
           sx={{
-            width: "100px",
-            height: "100px",
+            width: "80px",
+            height: "80px",
             fontSize: "2rem",
           }}
         />

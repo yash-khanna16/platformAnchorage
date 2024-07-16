@@ -508,7 +508,7 @@ const Reservations: React.FC<ReservationsProps> = ({
               // },
             }}
           />
-        </div>):(<div className="my-2 w-full h-screen"  id="datagrid-container">
+        </div>):(<div className="my-2 w-full h-[72vh]"  id="datagrid-container">
           <DataGrid
             apiRef={apiRef}
             rows={rowsData}

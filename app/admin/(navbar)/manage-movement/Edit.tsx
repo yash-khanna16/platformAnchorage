@@ -1,4 +1,10 @@
-import { editMovement, searchAllGuests, deletePassenger, fetchAvailableCars, fetchAvailableDrivers } from "@/app/actions/api";
+import {
+  editMovement,
+  searchAllGuests,
+  deletePassenger,
+  fetchAvailableCars,
+  fetchAvailableDrivers,
+} from "@/app/actions/api";
 import {
   Button,
   DialogContent,
@@ -26,6 +32,7 @@ import { Cancel, WarningRounded } from "@mui/icons-material";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { deleteMovementByMovementId } from "@/app/actions/api";
+import { stopIcon } from "@/assets/icons";
 
 type MovementType = {
   movement_id: string;
@@ -160,8 +167,28 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
     const minutes = ("0" + date.getMinutes()).slice(-2);
     return `${day}-${month}-${year} ${hours}:${minutes}`;
   };
-  const columns = ["name", "room", "status", "checkin", "checkout", "email", "phone", "company", "rank"];
-  const headers = ["Name", "Room", "Status", "Check In", "Check Out", "Email", "Phone", "Company", "Rank"];
+  const columns = [
+    "name",
+    "room",
+    "status",
+    "checkin",
+    "checkout",
+    "email",
+    "phone",
+    "company",
+    "rank",
+  ];
+  const headers = [
+    "Name",
+    "Room",
+    "Status",
+    "Check In",
+    "Check Out",
+    "Email",
+    "Phone",
+    "Company",
+    "Rank",
+  ];
   const [pickup_date, pickup_time] = selectedData.pickup_time.split(" ");
   const [return_date, return_time] = selectedData.return_time.split(" ");
   console.log(pickup_date,pickup_time,return_date,return_time);
@@ -289,7 +316,10 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
       [name]: name === "phoneNumber" ? value.replace(/\D/g, "").slice(0, 10) : value,
     }));
   };
-  const handleChangePassenger = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, passenger_id: string) => {
+  const handleChangePassenger = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    passenger_id: string
+  ) => {
     const { name, value } = e.target;
     const newPassenger = formData.passengers.map(
       (data: {
@@ -320,7 +350,9 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
       const res = await deletePassenger(token, formData.movement_id, deleteId);
       setMessage(res.message);
       if (res.message === "Passenger and related records deleted successfully.") {
-        const newPassengersList = formData.passengers.filter((data) => data.passenger_id !== deleteId);
+        const newPassengersList = formData.passengers.filter(
+          (data) => data.passenger_id !== deleteId
+        );
         setFormData({ ...formData, passengers: newPassengersList });
       }
       setLoadingDelete(false);
@@ -365,7 +397,9 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
     const updatedPassengers = [...selectedPassenger];
 
     newPassengers.forEach((newPassenger) => {
-      const existingPassengerIndex = updatedPassengers.findIndex((passenger) => passenger.booking_id === newPassenger.booking_id);
+      const existingPassengerIndex = updatedPassengers.findIndex(
+        (passenger) => passenger.booking_id === newPassenger.booking_id
+      );
       if (existingPassengerIndex !== -1) {
         updatedPassengers[existingPassengerIndex] = {
           ...updatedPassengers[existingPassengerIndex],
@@ -450,7 +484,11 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
         company: entry.company,
       };
     });
-    const allPassengerList = [...newManualPassenger, ...newSelectedPassenger, ...formData.passengers];
+    const allPassengerList = [
+      ...newManualPassenger,
+      ...newSelectedPassenger,
+      ...formData.passengers,
+    ];
     if (allPassengerList.length === 0) {
       newErrors.passengerNumber = "Add atleast one passenger to continue";
     }
@@ -508,12 +546,23 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
     setManualPassenger([...manualPassenger, passengerDetails]);
     console.log(manualPassenger);
     setManually(false);
-    setPassengerDetails({ name: "", phoneNumber: "", remark: "", company: "", external_booking: true });
+    setPassengerDetails({
+      name: "",
+      phoneNumber: "",
+      remark: "",
+      company: "",
+      external_booking: true,
+    });
   };
-  const handlePassengerChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>, bookingId: string | undefined) => {
+  const handlePassengerChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    bookingId: string | undefined
+  ) => {
     console.log(bookingId);
     setSelectedPassenger((prevSelectedPassenger) =>
-      prevSelectedPassenger.map((guest) => (guest.booking_id === bookingId ? { ...guest, remark: e.target.value } : guest))
+      prevSelectedPassenger.map((guest) =>
+        guest.booking_id === bookingId ? { ...guest, remark: e.target.value } : guest
+      )
     );
   };
 
@@ -523,7 +572,9 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
     } else {
       const lowercasedSearch = search.toLowerCase();
       const filtered = rows.filter((row) =>
-        columns.some((column) => row[column as keyof ReservationType]?.toString().toLowerCase().includes(lowercasedSearch))
+        columns.some((column) =>
+          row[column as keyof ReservationType]?.toString().toLowerCase().includes(lowercasedSearch)
+        )
       );
       setFilteredRows(filtered);
     }
@@ -547,7 +598,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
         passengers: formData.passengers,
       };
       try {
-        console.log("datasend: ", dataSend)
+        console.log("datasend: ", dataSend);
         const res = await editMovement(token, dataSend);
         setMessage(res.message);
         setAlert(true);
@@ -643,27 +694,34 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
         <Cancel />
       </div>
       <div className="grid grid-cols-2 gap-4 w-full max-lg:grid-cols-1">
-        <Typography className="text-4xl  mb-2 max-[960px]:text-3xl" component="div" fontWeight="bold">
+        <Typography
+          className="text-4xl  mb-2 max-[960px]:text-3xl"
+          component="div"
+          fontWeight="bold"
+        >
           Movement Details
         </Typography>
-        <div className="flex justify-end w-full">
-          <ButtonGroup orientation="horizontal">
-            <Button onClick={handleStop} startDecorator={<Stop />} type="button" size="lg" color="danger">
-              Stop
-            </Button>
-            <Button onClick={() => handleDelay(1)} type="button" size="lg" color="success">
+        <div className="flex justify-end w-full max-sm:justify-normal">
+            <button
+              onClick={handleStop}
+              type="button"
+              className="border-red-500 flex items-center text-red-600 border rounded-s-md p-3 hover:bg-red-100"
+            >
+              {stopIcon}
+              <div className="pl-2">Stop</div>
+            </button>
+            <button onClick={() => handleDelay(1)} type="button" className="border-green-500 flex items-center text-green-600 border-t border-b  p-3 hover:bg-green-100">
               +1 hr
-            </Button>
-            <Button onClick={() => handleDelay(6)} type="button" size="lg" color="success">
+            </button>
+            <button onClick={() => handleDelay(6)} type="button" className="border-green-500 flex items-center text-green-600 border p-3 hover:bg-green-100">
               +6 hr
-            </Button>
-            <Button onClick={() => handleDelay(12)} type="button" size="lg" color="success">
+            </button>
+            <button onClick={() => handleDelay(12)} type="button" className="border-green-500 flex items-center text-green-600 border-t border-b  p-3 hover:bg-green-100">
               +12 hr
-            </Button>
-            <Button onClick={() => handleDelay(24)} type="button" size="lg" color="success">
+            </button>
+            <button onClick={() => handleDelay(24)} type="button" className="border-green-500 flex items-center text-green-600 border rounded-e-md  p-3 hover:bg-green-100">
               +24 hr
-            </Button>
-          </ButtonGroup>
+            </button>
         </div>
       </div>
       <form onSubmit={submitForm}>
@@ -780,7 +838,10 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
           </div>
         </FormControl>
         <div className="grid grid-cols-2 gap-4 w-full max-lg:grid-cols-1">
-          <FormControl sx={{ m: 1, minWidth: 120 }} className={`${driverCarLoading ? "hover:cursor-not-allowed" : ""}`}>
+          <FormControl
+            sx={{ m: 1, minWidth: 120 }}
+            className={`${driverCarLoading ? "hover:cursor-not-allowed" : ""}`}
+          >
             <FormLabel id="demo-simple-select-helper-label">Driver</FormLabel>
             <Select
               value={newDriver}
@@ -803,7 +864,10 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
               ))}
             </Select>
           </FormControl>
-          <FormControl sx={{ m: 1, minWidth: 120 }} className={`${driverCarLoading ? "hover:cursor-not-allowed" : ""}`}>
+          <FormControl
+            sx={{ m: 1, minWidth: 120 }}
+            className={`${driverCarLoading ? "hover:cursor-not-allowed" : ""}`}
+          >
             <FormLabel id="demo-simple-select-helper-label">Car</FormLabel>
             <Select
               value={newCar}
@@ -827,7 +891,11 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
             </Select>
           </FormControl>
         </div>
-        <Typography className="text-4xl text-center my-5 max-[960px]:text-3xl" component="div" fontWeight="bold">
+        <Typography
+          className="text-4xl text-center my-5 max-[960px]:text-3xl"
+          component="div"
+          fontWeight="bold"
+        >
           Passenger Details
         </Typography>
         {formData.passengers.map(
@@ -960,7 +1028,14 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
 
               <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
                 <FormLabel className="text-[#0D141C] font-medium">Company</FormLabel>
-                <Input name="company" value={data.company} disabled fullWidth size="lg" placeholder="Enter Remark" />
+                <Input
+                  name="company"
+                  value={data.company}
+                  disabled
+                  fullWidth
+                  size="lg"
+                  placeholder="Enter Remark"
+                />
               </FormControl>
               <FormControl size="lg" className="my-1">
                 <FormLabel className="text-[#0D141C] font-medium">Remark</FormLabel>
@@ -993,7 +1068,14 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
             <div className="grid grid-cols-2 gap-4 w-full max-lg:grid-cols-1">
               <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
                 <FormLabel className="text-[#0D141C] font-medium">Passenger Name</FormLabel>
-                <Input name="passangerName" value={data.name} required fullWidth size="lg" disabled />
+                <Input
+                  name="passangerName"
+                  value={data.name}
+                  required
+                  fullWidth
+                  size="lg"
+                  disabled
+                />
               </FormControl>
               <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
                 <FormLabel className="text-[#0D141C] font-medium">Phone Number</FormLabel>
@@ -1218,7 +1300,12 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
           <Divider />
           <DialogContent>Are you sure you want to delete this Passenger?</DialogContent>
           <DialogActions>
-            <Button variant="solid" color="danger" loading={loadingDelete} onClick={handlePassengerDelete}>
+            <Button
+              variant="solid"
+              color="danger"
+              loading={loadingDelete}
+              onClick={handlePassengerDelete}
+            >
               Confirm
             </Button>
             <Button variant="plain" color="neutral" onClick={() => setDel(false)}>
@@ -1286,7 +1373,9 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
               <CheckCircle className="h-40 scale-[500%] text-green-600" />
-              <div className="font-semibold text-2xl text-center">Movement Edited Successfully!</div>
+              <div className="font-semibold text-2xl text-center">
+                Movement Edited Successfully!
+              </div>
             </div>
           </DialogContent>
         </ModalDialog>
@@ -1348,7 +1437,9 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
               <CheckCircle className="h-40 scale-[500%] text-green-600" />
-              <div className="font-semibold text-2xl text-center">Movement Deleted Successfully!</div>
+              <div className="font-semibold text-2xl text-center">
+                Movement Deleted Successfully!
+              </div>
             </div>
           </DialogContent>
         </ModalDialog>
