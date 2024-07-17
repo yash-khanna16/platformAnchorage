@@ -547,7 +547,7 @@ function Analytics() {
                 graphType={selectedOption}
                 theme="cyan"
                 chartData={roomData}
-                title="Rooms Booked Per Day"
+                title="Bookings Per Day"
               />
             </div>
             <div className="p-5 shadow-md w-full xl:h-[45vh]  border rounded-xl max-lg:p-0">

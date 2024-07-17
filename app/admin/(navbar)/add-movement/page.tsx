@@ -268,6 +268,7 @@ function AddMovement() {
         car_number: formData.carName,
         passengers: newManualPassenger,
       };
+      console.log(dataSend)
       try {
         const result = await addMovement(token, dataSend);
         setMessage(result.message);
@@ -275,6 +276,7 @@ function AddMovement() {
         if (result.message === "Movement added successfully!") {
           setOpenConfirm(true);
         }
+        
       } catch {
         console.log("something went wrong");
       }
@@ -297,6 +299,7 @@ function AddMovement() {
         car_number: formData.carName,
         passengers: newSelectedPassenger,
       };
+      console.log(dataSend)
       try {
         const result = await addMovement(token, dataSend);
         setMessage(result.message);
@@ -336,6 +339,7 @@ function AddMovement() {
         car_number: formData.carName,
         passengers: allPassenger,
       };
+      console.log(dataSend)
       try {
         const result = await addMovement(token, dataSend);
         setMessage(result.message);
@@ -526,7 +530,7 @@ function AddMovement() {
               required
               fullWidth
               size="lg"
-              placeholder="Enter Pick Up Location"
+              placeholder="Enter Drop Location"
             />
             {errors.dropLocation && (
               <FormControl error>

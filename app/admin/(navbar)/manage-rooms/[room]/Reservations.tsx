@@ -288,7 +288,7 @@ const Reservations: React.FC<ReservationsProps> = ({
           index === 12 ||
           index === 13 ||
           columnName === "room" ||
-          columnName === "status"
+          columnName === "status"|| columnName==="rank"
             ? 100
             : 160,
         renderHeader: (params: GridColumnHeaderParams) => (
@@ -334,6 +334,7 @@ const Reservations: React.FC<ReservationsProps> = ({
               onClick={async()=>{
                 const meals = await fetchMeals(params.row.booking_id);
                 const movements = await fetchMovement(params.row.booking_id);
+                console.log(movements);
                 if (meals && movements) {
                   console.log("meals ", meals)
                   console.log("movements ", movements)

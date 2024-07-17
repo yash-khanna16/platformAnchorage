@@ -97,6 +97,8 @@ type ReservationType = {
 
 interface EditMovementProps {
   selectedData: MovementType;
+  reload:boolean;
+  setReload:React.Dispatch<SetStateAction<boolean>>;
 }
 
 type PassengerType = {
@@ -149,7 +151,7 @@ type Conflict = {
   drop_location: string;
 };
 
-const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
+const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) => {
   const formatDateString = (dateString: string) => {
     const [day, month, year] = dateString.split("-");
     const date = new Date(`${year}-${month}-${day}`);
@@ -229,7 +231,6 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
   const [rows, setRows] = useState<ReservationType[]>([]);
   const [filteredRows, setFilteredRows] = useState<ReservationType[]>([]);
   const [search, setSearch] = useState<string>("");
-  const [reload, setReload] = useState(false);
   const [selectedGuest, setSelectedGuest] = useState<GridRowSelectionModel[]>([]);
   const [manually, setManually] = useState(false);
   const [selectedPassenger, setSelectedPassenger] = useState<GuestType[]>([]);
@@ -1364,7 +1365,6 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData }) => {
         open={openConfirm}
         onClose={() => {
           setOpenConfirm(false);
-          window.location.reload();
         }}
       >
         <ModalDialog size="lg">
