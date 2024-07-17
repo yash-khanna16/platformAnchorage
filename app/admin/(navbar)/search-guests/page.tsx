@@ -28,32 +28,34 @@ type ReservationType = {
 
 function Guests() {
   const columns = [
-    "status",
-    "name",
     "room",
+    "status",
+    "rank",
+    "name",
+    "phone",
+    "company",
     "checkin",
     "checkout",
     "email",
-    "phone",
-    "company",
     "vessel",
     "remarks",
     "additional_info",
-    "rank",
+    
   ];
   const headers = [
-    "Status",
-    "Name",
     "Room",
+    "Status",
+    "Rank",
+    "Name",
+    "Phone",
+    "Company",
     "Check In",
     "Check Out",
     "Email",
-    "Phone",
-    "Company",
     "Vessel",
     "Remarks",
     "Additional Information",
-    "Rank",
+    
   ];
   const [search, setSearch] = useState<string>("");
   const [loading, setLoading] = useState(false);

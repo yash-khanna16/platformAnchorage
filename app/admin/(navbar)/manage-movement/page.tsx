@@ -119,7 +119,7 @@ function Movements() {
     const newSelectedMovement = seletedMovement?.toString();
     const seletedData = rows.find((data) => data.movement_id === newSelectedMovement);
     setSelectedData(seletedData);
-  }, [seletedMovement]);
+  }, [seletedMovement,rows]);
 
   const handleSearch = () => {
     if (search.trim() === "") {
@@ -160,7 +160,7 @@ function Movements() {
         setSeletedMovement={setSeletedMovement}
       />
       
-      {selectedData ? <Edit selectedData={selectedData} /> : ""}
+      {selectedData ? <Edit selectedData={selectedData} reload={reload} setReload={setReload} /> : ""}
     </div>
   );
 }
