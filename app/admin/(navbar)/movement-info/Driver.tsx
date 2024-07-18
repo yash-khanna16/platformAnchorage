@@ -32,13 +32,13 @@ const Driver: React.FC<{ name: string; status: string, reload: boolean, setReloa
   }
 
   return (
-    <div className="font-semibold gap-y-2 relative w-[100px] flex flex-col cursor-pointer items-center">
+    <div className="font-semibold  gap-y-2 relative w-[100px] flex flex-col cursor-pointer items-center  ">
       <Badge
         color="warning"
         size="lg"
         sx={{
           "& .MuiBadge-badge": {
-            backgroundColor: status === "green" ? "#00fc4c" : status === "red" ? "#ff3d3d" : "#fa9a6e",
+            backgroundColor: status === "green" ? "#079c34" : status === "red" ? "#f01717" : "#fa9a6e",
             color: "#ffffff",
             width: "20px",
             height: "20px",

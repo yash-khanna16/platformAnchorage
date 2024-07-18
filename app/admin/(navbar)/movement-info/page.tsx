@@ -168,7 +168,7 @@ function Movement() {
             Add Driver
           </Button>
         </div>
-        <div className="flex flex-wrap gap-x-5 my-10 gap-y-10 max">
+        <div className="flex flex-wrap justify-around gap-x-5 my-10 gap-y-10 max">
           {loading && <CircularProgress />}
           {!loading && (
             <>

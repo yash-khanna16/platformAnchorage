@@ -259,6 +259,8 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
       return_date: formatDateString(return_date),
       return_time: return_time,
     });
+    setNewDriver(selectedData.driver)
+    setNewCar(selectedData.car_number)
     console.log(formData);
   }, [selectedData]);
 
