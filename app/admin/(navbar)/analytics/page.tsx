@@ -70,6 +70,7 @@ function Analytics() {
       const currentMonth = (currentDate.getMonth() + 1).toString();
       const currentYear = currentDate.getFullYear().toString();
       const currentQuarter = Math.ceil(parseInt(currentMonth) / 3).toString();
+      console.log("fetching data for: ", currentMonth, currentYear)
 
       let room;
       let meal;
@@ -86,6 +87,7 @@ function Analytics() {
         meal = await fetchMeals(token, currentMonth, currentYear);
         company = await fetchCompanies(token, currentMonth, currentYear);
         breakfast = await fetchBreakfast(token, currentMonth, currentYear);
+        console.log("meals: ", meal)
         const transformedRoom = room.map(
           (entry: { booking_date: string; rooms_booked: string }) => ({
             date: entry.booking_date.slice(8, 10),
@@ -98,6 +100,8 @@ function Analytics() {
             data: entry.average_meals_per_day,
           })
         );
+
+
 
         const transformedBreakfast = breakfast.map(
           (entry: {
@@ -193,6 +197,7 @@ function Analytics() {
           }
         );
 
+
         setRoomData(transformedRoom);
         setMealData(transformedMeal);
         setBreakfastData(transformedBreakfast);
@@ -243,7 +248,6 @@ function Analytics() {
       breakfast = await fetchBreakfastYear(token, prevYear);
     }
 
-    console.log("meals: ", meal);
 
     let prevTotal: number = 0;
     let numberOfdays: number = 0;

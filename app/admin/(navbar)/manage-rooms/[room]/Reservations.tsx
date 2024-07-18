@@ -10,7 +10,6 @@ import {
   useGridApiRef,
 } from "@mui/x-data-grid";
 import { Box, Typography, IconButton, DialogContent, DialogActions } from "@mui/material";
-import { Box, Typography, IconButton, DialogContent, DialogActions } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit"; // Import the EditIcon
 import { Button, Chip, DialogTitle, Divider, Modal, ModalClose, ModalDialog, Snackbar } from "@mui/joy";
 import EditBooking from "./EditBooking";
@@ -92,7 +91,6 @@ const Reservations: React.FC<ReservationsProps> = ({
 
   const [token, setToken] = useState("");
   const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
-  const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -121,7 +119,6 @@ const Reservations: React.FC<ReservationsProps> = ({
 
   const mapToFormData = (id: any): FormDataReservation => {
     const formatDate = (dateStr: string) => {
-      const [day, month, year] = dateStr.split("-").map((part) => parseInt(part, 10));
       const [day, month, year] = dateStr.split("-").map((part) => parseInt(part, 10));
       return `${year}-${month}-${day}`;
     };
@@ -175,6 +172,13 @@ const Reservations: React.FC<ReservationsProps> = ({
   //     includeOutliers: true,
   //   })
   // },[rowsData])
+
+  const downloadPdf = async (data: RowData) => {
+    const fileName = 'CheckInForm.pdf';
+    console.log("data: ", data)
+    const blob = await pdf(<CheckInFormPDF data={data} />).toBlob();
+    saveAs(blob, fileName);
+  };
 
 
   const BoldHeaderCell = (props: any) => <div style={{ fontWeight: "bold" }}>{props.colDef.headerName}</div>;
@@ -413,6 +417,7 @@ const Reservations: React.FC<ReservationsProps> = ({
   return (
     <>
       <div>
+
         {/* <CheckInForm data={rowsData[0]||null} /> */}
         <div className="mb-6">
           {location === "movement" && (
@@ -584,7 +589,6 @@ const Reservations: React.FC<ReservationsProps> = ({
               Confirm
             </Button>
             <Button variant="plain" color="neutral" onClick={() => setDel(false)}>
-            <Button variant="plain" color="neutral" onClick={() => setDel(false)}>
               Cancel
             </Button>
           </DialogActions>
@@ -599,7 +603,6 @@ const Reservations: React.FC<ReservationsProps> = ({
       >
         {" "}
         <Info /> {message}
-        <span onClick={() => setAlert(false)} className="cursor-pointer hover:bg-[#f3eded]">
         <span onClick={() => setAlert(false)} className="cursor-pointer hover:bg-[#f3eded]">
           <Close />
         </span>

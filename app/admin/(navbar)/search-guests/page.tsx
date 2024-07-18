@@ -5,6 +5,8 @@ import { searchAllGuests } from "@/app/actions/api";
 import { useDebouncedCallback } from "use-debounce";
 import { getAuthAdmin } from "@/app/actions/cookie";
 import { Box, Typography, IconButton, DialogContent, DialogActions } from "@mui/material";
+import CheckInFormPDF from "@/app/admin/(navbar)/manage-rooms/[room]/CheckInFormPDF";
+import { PDFViewer } from "@react-pdf/renderer";
 
 type ReservationType = {
   additional_info: string | null;
@@ -128,9 +130,7 @@ function Guests() {
     } else {
       const lowercasedSearch = search.toLowerCase();
       const filtered = rows.filter((row) =>
-        columns.some((column) =>
-          row[column as keyof ReservationType]?.toString().toLowerCase().includes(lowercasedSearch)
-        )
+        columns.some((column) => row[column as keyof ReservationType]?.toString().toLowerCase().includes(lowercasedSearch))
       );
       setFilteredRows(filtered);
     }
@@ -158,10 +158,63 @@ function Guests() {
   //   link.click();
   //   document.body.removeChild(link);
   // };
+  const data = {
+    additional_info: "additional new",
+    booking_id: "95a7e25a-131a-48d9-9d1b-16b55345b9f0",
+    breakfast: 0,
+    checkin: "09-07-2024 20:35",
+    checkout: "31-07-2024 20:34",
+    company: "DSEU",
+    email: "afsd@afd.com",
+    guest_email: "afsd@afd.com",
+    id: "2131542AABC",
+    meal_non_veg: 0,
+    meal_veg: 0,
+    meals: [
+      {
+        date: "2024-07-09T00:00:00Z",
+        breakfast_veg: 1,
+        breakfast_nonveg: 0,
+        lunch_veg: 1,
+        lunch_nonveg: 1,
+        dinner_veg: 1,
+        dinner_nonveg: 1,
+      },
+      {
+        date: "2024-07-10T00:00:00Z",
+        breakfast_veg: 1,
+        breakfast_nonveg: 1,
+        lunch_veg: 0,
+        lunch_nonveg: 1,
+        dinner_veg: 1,
+        dinner_nonveg: 1,
+      },
+      // Add remaining meal objects as needed
+    ],
+    movements: [
+      {
+        pickup_time: "2024-07-09T10:00:00Z",
+        return_time: "2024-07-09T18:00:00Z",
+        pickup_location: "Location A",
+        drop_location: "Location B",
+        car_number: "DL-1AB-1234",
+      },
+    ],
+    name: "abas",
+    phone: "4234432234",
+    rank: "43",
+    remarks: "535",
+    room: "304",
+    status: "Active",
+    vessel: "43",
+  };
 
   return (
     <div className="mx-5 mt-11 max-[1420px]:mx-10 max-lg:mx-5">
       {/* <Button variant="contained" color="primary" onClick={exportToCsv}>Export as CSV</Button> */}
+      {/* <PDFViewer width="100%" height={1000}>
+        <CheckInFormPDF data={data} />
+      </PDFViewer> */}
       <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
         Search Reservations
       </Typography>
