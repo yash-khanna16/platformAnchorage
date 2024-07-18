@@ -98,7 +98,7 @@ function EditBooking({
     return `${year}-${month}-${day}`;
   };
 
-  const room = params.room as string;
+  const room = decodeURIComponent(params.room as string);
   console.log(initialData);
   const initialFormData = {
     ...initialData,

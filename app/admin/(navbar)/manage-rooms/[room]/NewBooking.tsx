@@ -78,7 +78,7 @@ function NewBooking({ reload, setReload }: { reload: boolean; setReload: React.D
     return digitsOnly.length >= 10 && phoneNumberRegex.test(phoneNumber);
   }
 
-  const room = params.room as string;
+  const room = decodeURIComponent(params.room as string);
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",

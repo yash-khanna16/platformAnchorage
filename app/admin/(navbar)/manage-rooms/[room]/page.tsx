@@ -24,7 +24,7 @@ type ReservationType = {
 
 function Room() {
   const params = useParams();
-  const { room } = params;
+  const room = decodeURIComponent(params.room as string);
   const columns = [
     "status",
     "name",
