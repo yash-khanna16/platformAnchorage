@@ -175,6 +175,7 @@ const Reservations: React.FC<ReservationsProps> = ({
 
   const downloadPdf = async (data: RowData) => {
     const fileName = 'CheckInForm.pdf';
+    console.log("data: ", data)
     const blob = await pdf(<CheckInFormPDF data={data} />).toBlob();
     saveAs(blob, fileName);
   };
@@ -416,6 +417,7 @@ const Reservations: React.FC<ReservationsProps> = ({
   return (
     <>
       <div>
+
         {/* <CheckInForm data={rowsData[0]||null} /> */}
         <div className="mb-6">
           {location === "movement" && (
