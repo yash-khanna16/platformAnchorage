@@ -64,14 +64,17 @@ function Movements() {
   }, []);
 
   const formatDate = (dateString: string): string => {
+    console.log(dateString);
     const date = new Date(dateString);
-    const day = ("0" + date.getDate()).slice(-2);
-    const month = ("0" + (date.getMonth() + 1)).slice(-2);
-    const year = date.getFullYear();
-    const hours = ("0" + date.getHours()).slice(-2);
-    const minutes = ("0" + date.getMinutes()).slice(-2);
+    console.log(date);
+    const day = ("0" + date.getUTCDate()).slice(-2);
+    const month = ("0" + (date.getUTCMonth() + 1)).slice(-2);
+    const year = date.getUTCFullYear();
+    const hours = ("0" + date.getUTCHours()).slice(-2);
+    const minutes = ("0" + date.getUTCMinutes()).slice(-2);
     return `${day}-${month}-${year} ${hours}:${minutes}`;
   };
+  
 
   async function getGuests() {
     try {
