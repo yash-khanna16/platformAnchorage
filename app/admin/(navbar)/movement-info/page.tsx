@@ -154,9 +154,9 @@ function Movement() {
   }, [token]);
   return (
     <div className="flex py-5 px-5 h-screen overflow-hidden">
-      <div className="w-[30%] p-5 overflow-auto h-screen">
-        <div className="text-3xl font-semibold text-center flex justify-between">
-          <div>Drivers</div>
+      <div className="w-[30%] p-2 overflow-auto h-screen max-lg:w-[40%]">
+        <div className="text-3xl max-lg:text-2xl font-semibold text-center flex justify-between max-md:flex-col max-md:gap-y-4">
+          <div >Drivers</div>
           <Button
             color="neutral"
             onClick={() => {
@@ -168,7 +168,7 @@ function Movement() {
             Add Driver
           </Button>
         </div>
-        <div className="flex flex-wrap gap-x-5 my-10 gap-y-10">
+        <div className="flex flex-wrap gap-x-5 my-10 gap-y-10 max">
           {loading && <CircularProgress />}
           {!loading && (
             <>
@@ -179,8 +179,8 @@ function Movement() {
           )}
         </div>
       </div>
-      <div className="w-[70%] py-5 px-12 overflow-auto h-screen border-l">
-        <div className="text-3xl font-semibold text-center flex justify-between w-full">
+      <div className="w-[70%] py-5 px-12 max-lg:p-2 overflow-auto h-screen border-l max-lg:w-[60%]">
+        <div className="text-3xl max-lg:text-2xl font-semibold text-center flex justify-between max-md:flex-col max-md:gap-y-4">
           <div>Cars</div>
           <div>
             <Button

@@ -6,8 +6,17 @@ import React, { use, useEffect, useRef, useState } from "react";
 import veg from "@/app/assets/veg.svg";
 import nonveg from "@/app/assets/nonveg.svg";
 import Image from "next/image";
-import { Add, Check, CheckCircle, Close, KeyboardArrowLeft, KeyboardArrowRight, Remove, Warning } from "@mui/icons-material";
-import { useDebounce} from "use-debounce";
+import {
+  Add,
+  Check,
+  CheckCircle,
+  Close,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  Remove,
+  Warning,
+} from "@mui/icons-material";
+import { useDebounce } from "use-debounce";
 import SearchInput from "@/app/components/Search";
 import { searchIconSecondary } from "@/assets/icons";
 
@@ -42,14 +51,18 @@ type MealsAPIType = {
 type MealType = "breakfast" | "lunch" | "dinner";
 
 function Meals() {
-  const [date, setDate] = useState(new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString().split("T")[0]);
+  const [date, setDate] = useState(
+    new Date(Date.now() + 5.5 * 60 * 60 * 1000).toISOString().split("T")[0]
+  );
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState<ReservationType[]>([]);
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
   const [values] = useDebounce(rows, 1000);
-  const [alertType, setAlertType] = useState<"danger" | "neutral" | "success" | "warning">("neutral");
+  const [alertType, setAlertType] = useState<"danger" | "neutral" | "success" | "warning">(
+    "neutral"
+  );
   const isFirstRender = useRef(true);
   const [search, setSearch] = useState("");
   const [allRows, setAllRows] = useState<ReservationType[]>([]);
@@ -187,7 +200,7 @@ function Meals() {
       }
       return newRows;
     });
-  
+
     setAllRows((prevAllRows) => {
       const newAllRows = prevAllRows.map((row) => {
         if (row.booking_id === rows[index].booking_id) {
@@ -208,8 +221,49 @@ function Meals() {
       return newAllRows;
     });
   };
-  
-  
+  const handleMeals = (
+    index: number,
+    mealType: MealType,
+    isVeg: boolean,
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    isFirstRender.current = false;
+    setRows((prevRows) => {
+      const newRows = [...prevRows];
+      if (isVeg) {
+        newRows[index] = {
+          ...newRows[index],
+          [`${mealType}_veg`]: e.target.value,
+        };
+      } else {
+        newRows[index] = {
+          ...newRows[index],
+          [`${mealType}_nonveg`]: e.target.value,
+        };
+      }
+      return newRows;
+    });
+
+    setAllRows((prevAllRows) => {
+      const newAllRows = prevAllRows.map((row) => {
+        if (row.booking_id === rows[index].booking_id) {
+          if (isVeg) {
+            return {
+              ...row,
+              [`${mealType}_veg`]: e.target.value,
+            };
+          } else {
+            return {
+              ...row,
+              [`${mealType}_nonveg`]: e.target.value,
+            };
+          }
+        }
+        return row;
+      });
+      return newAllRows;
+    });
+  };
 
   const handleDecrement = (index: number, mealType: MealType, isVeg: boolean) => {
     isFirstRender.current = false;
@@ -228,7 +282,7 @@ function Meals() {
       }
       return newRows;
     });
-  
+
     setAllRows((prevAllRows) => {
       const newAllRows = prevAllRows.map((row) => {
         if (row.booking_id === rows[index].booking_id) {
@@ -249,7 +303,6 @@ function Meals() {
       return newAllRows;
     });
   };
-  
 
   const columns = ["room", "name", "status"];
 
@@ -261,7 +314,9 @@ function Meals() {
     } else {
       const lowercasedSearch = search.toLowerCase();
       const filtered = allRows.filter((row) =>
-        columns.some((column) => row[column as keyof ReservationType]?.toString().toLowerCase().includes(lowercasedSearch))
+        columns.some((column) =>
+          row[column as keyof ReservationType]?.toString().toLowerCase().includes(lowercasedSearch)
+        )
       );
       setRows(filtered);
     }
@@ -273,7 +328,7 @@ function Meals() {
 
   return (
     <div>
-      <div className="my-10  mx-14 space-y-8">
+      <div className="my-10  mx-14 max-xl:mx-1 space-y-8">
         <div className="flex justify-between">
           <div className="text-3xl font-semibold">Manage Meals</div>
           <Input
@@ -288,10 +343,18 @@ function Meals() {
         </div>
         <div>
           <div className="flex justify-between my-5">
-            <Button onClick={handlePrevDate} startDecorator={<KeyboardArrowLeft fontSize="small" />} size="sm">
+            <Button
+              onClick={handlePrevDate}
+              startDecorator={<KeyboardArrowLeft fontSize="small" />}
+              size="sm"
+            >
               Prev&nbsp;&nbsp;
             </Button>
-            <Button onClick={handleNextDate} endDecorator={<KeyboardArrowRight fontSize="small" />} size="sm">
+            <Button
+              onClick={handleNextDate}
+              endDecorator={<KeyboardArrowRight fontSize="small" />}
+              size="sm"
+            >
               &nbsp;&nbsp;Next
             </Button>
           </div>
@@ -305,7 +368,7 @@ function Meals() {
               placeholder="Search by guest name, room number ..."
             />
           </div>
-          <div className="border border-1 ">
+          <div className="border border-1 max-lg:hidden">
             <Table borderAxis="bothBetween">
               <thead className="">
                 <tr className="">
@@ -329,7 +392,13 @@ function Meals() {
                     <th scope="row" className="">
                       <div className="text-center">
                         <Chip
-                          color={row.status === "Active" ? "success" : row.status === "Upcoming" ? "warning" : "danger"}
+                          color={
+                            row.status === "Active"
+                              ? "success"
+                              : row.status === "Upcoming"
+                              ? "warning"
+                              : "danger"
+                          }
                           variant="outlined"
                         >
                           {row.status}
@@ -338,7 +407,13 @@ function Meals() {
                     </th>
                     <td className="">
                       <div className="flex relative justify-center items-center space-y-3 space-x-4">
-                        <Image alt="veg" className="absolute left-2" width={24} height={24} src={veg.src} />
+                        <Image
+                          alt="veg"
+                          className="absolute left-2"
+                          width={24}
+                          height={24}
+                          src={veg.src}
+                        />
                         <div className="flex">
                           <Button
                             color="neutral"
@@ -360,7 +435,13 @@ function Meals() {
                         </div>
                       </div>
                       <div className="flex relative justify-center items-center space-y-3 space-x-4">
-                        <Image alt="nonveg" className="absolute left-2 " width={24} height={24} src={nonveg.src} />
+                        <Image
+                          alt="nonveg"
+                          className="absolute left-2 "
+                          width={24}
+                          height={24}
+                          src={nonveg.src}
+                        />
                         <div className="flex">
                           <Button
                             color="neutral"
@@ -384,19 +465,41 @@ function Meals() {
                     </td>
                     <td className="">
                       <div className="flex relative justify-center items-center space-y-3 space-x-4">
-                        <Image alt="veg" className="absolute left-2" width={24} height={24} src={veg.src} />
+                        <Image
+                          alt="veg"
+                          className="absolute left-2"
+                          width={24}
+                          height={24}
+                          src={veg.src}
+                        />
                         <div className="flex">
-                          <Button color="neutral" variant="plain" size="sm" onClick={() => handleDecrement(index, "lunch", true)}>
+                          <Button
+                            color="neutral"
+                            variant="plain"
+                            size="sm"
+                            onClick={() => handleDecrement(index, "lunch", true)}
+                          >
                             <Remove fontSize="small" />
                           </Button>
                           <Input className="w-12" value={row.lunch_veg} readOnly />
-                          <Button color="neutral" variant="plain" size="sm" onClick={() => handleIncrement(index, "lunch", true)}>
+                          <Button
+                            color="neutral"
+                            variant="plain"
+                            size="sm"
+                            onClick={() => handleIncrement(index, "lunch", true)}
+                          >
                             <Add fontSize="small" />
                           </Button>
                         </div>
                       </div>
                       <div className="flex relative justify-center items-center space-y-3 space-x-4">
-                        <Image alt="nonveg" className="absolute left-2 " width={24} height={24} src={nonveg.src} />
+                        <Image
+                          alt="nonveg"
+                          className="absolute left-2 "
+                          width={24}
+                          height={24}
+                          src={nonveg.src}
+                        />
                         <div className="flex">
                           <Button
                             color="neutral"
@@ -420,7 +523,13 @@ function Meals() {
                     </td>
                     <td className="">
                       <div className="flex relative justify-center items-center space-y-3 space-x-4">
-                        <Image alt="veg" className="absolute left-2" width={24} height={24} src={veg.src} />
+                        <Image
+                          alt="veg"
+                          className="absolute left-2"
+                          width={24}
+                          height={24}
+                          src={veg.src}
+                        />
                         <div className="flex">
                           <Button
                             color="neutral"
@@ -442,7 +551,13 @@ function Meals() {
                         </div>
                       </div>
                       <div className="flex relative justify-center items-center space-y-3 space-x-4">
-                        <Image alt="nonveg" className="absolute left-2 " width={24} height={24} src={nonveg.src} />
+                        <Image
+                          alt="nonveg"
+                          className="absolute left-2 "
+                          width={24}
+                          height={24}
+                          src={nonveg.src}
+                        />
                         <div className="flex">
                           <Button
                             color="neutral"
@@ -462,6 +577,144 @@ function Meals() {
                             <Add fontSize="small" />
                           </Button>
                         </div>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
+          <div className="border border-1 hidden max-lg:block">
+            <Table borderAxis="bothBetween">
+              <thead className="">
+                <tr className="">
+                  <th style={{ padding: "10px", width: "120px" }}>Room Number</th>
+                  <th style={{ padding: "10px", width: "70px" }}>Status</th>
+                  <th style={{ padding: "10px" }}>Breakfast</th>
+                  <th style={{ padding: "10px" }}>Lunch</th>
+                  <th style={{ padding: "10px" }}>Dinner</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((row, index) => (
+                  <tr key={index}>
+                    <th scope="row" style={{ padding: "0px" }}>
+                      <div className="px-1 flex ">
+                        <div>
+                          {row.room} {row.name}
+                        </div>
+                      </div>
+                    </th>
+                    <th scope="row" style={{ padding: "0px" }}>
+                      <div className="text-center">
+                        <Chip
+                          color={
+                            row.status === "Active"
+                              ? "success"
+                              : row.status === "Upcoming"
+                              ? "warning"
+                              : "danger"
+                          }
+                          variant="outlined"
+                        >
+                          {row.status}
+                        </Chip>
+                      </div>
+                    </th>
+                    <td className="" style={{ padding: "0px" }}>
+                      <div className="flex justify-around items-center my-2">
+                        <Image
+                          alt="veg"
+                          width={20}
+                          height={20}
+                          src={veg.src}
+                        />
+                        <Input
+                          className="w-10"
+                          value={row.breakfast_veg}
+                          onChange={(e) => {
+                            handleMeals(index, "breakfast", true, e);
+                          }}
+                        />
+                      </div>
+                      <div className="flex justify-around items-center  my-2">
+                        <Image
+                          alt="nonveg"
+                          width={20}
+                          height={20}
+                          src={nonveg.src}
+                        />
+                        <Input
+                          className="w-10"
+                          value={row.breakfast_veg}
+                          onChange={(e) => {
+                            handleMeals(index, "breakfast", false, e);
+                          }}
+                        />
+                      </div>
+                    </td>
+                    <td className="" style={{ padding: "0px" }}>
+                    <div className="flex justify-around items-center  my-2">
+                        <Image
+                          alt="veg"
+                          width={20}
+                          height={20}
+                          src={veg.src}
+                        />
+                        <Input
+                          className="w-10"
+                          value={row.breakfast_veg}
+                          onChange={(e) => {
+                            handleMeals(index, "lunch", true, e);
+                          }}
+                        />
+                      </div>
+                      <div className="flex  justify-around items-center  my-2">
+                        <Image
+                          alt="nonveg"
+                          width={20}
+                          height={20}
+                          src={nonveg.src}
+                        />
+                        <Input
+                          className="w-10"
+                          value={row.breakfast_veg}
+                          onChange={(e) => {
+                            handleMeals(index, "lunch", false, e);
+                          }}
+                        />
+                      </div>
+                    </td>
+                    <td className="" style={{ padding: "0px" }}>
+                    <div className="flex   justify-around items-center  my-2">
+                        <Image
+                          alt="veg"
+                          width={20}
+                          height={20}
+                          src={veg.src}
+                        />
+                        <Input
+                          className="w-10"
+                          value={row.breakfast_veg}
+                          onChange={(e) => {
+                            handleMeals(index, "dinner", true, e);
+                          }}
+                        />
+                      </div>
+                      <div className="flex   justify-around items-center  my-2">
+                        <Image
+                          alt="nonveg"
+                          width={20}
+                          height={20}
+                          src={nonveg.src}
+                        />
+                        <Input
+                          className="w-10"
+                          value={row.breakfast_veg}
+                          onChange={(e) => {
+                            handleMeals(index, "dinner", false, e);
+                          }}
+                        />
                       </div>
                     </td>
                   </tr>
