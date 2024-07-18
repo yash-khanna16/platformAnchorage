@@ -105,10 +105,15 @@ function MasterTable() {
   const [token, setToken] = useState("");
   const [filteredRows, setFilteredRows] = useState<ReservationType[]>([]);
   const [searchMovement, setSearchMovement] = useState<string>("");
+  const [searchTransport, setSearchTransport] = useState<string>("");
   const [loadingMovement, setLoadingMovement] = useState(false);
+  const [loadingTransport, setLoadingTransport] = useState(false);
   const [rowsMovement, setRowsMovement] = useState<MovementType[]>([]);
+  const [rowsTransport, setRowsTransport] = useState<MovementType[]>([]);
   const [reloadMovement, setReloadMovement] = useState(false);
+  const [reloadTransport, setReloadTransport] = useState(false);
   const [filteredRowsMovement, setFilteredRowsMovement] = useState<MovementType[]>([]);
+  const [filteredRowsTransport, setFilteredRowsTransport] = useState<MovementType[]>([]);
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -168,10 +173,9 @@ function MasterTable() {
     try {
       setLoading(true);
       let fetchedRows = await fetchMasterMovement(token);
-      console.log(fetchedRows);
-
+      
       const currentTime = new Date();
-
+  
       fetchedRows = fetchedRows.map((row: MovementType) => {
         const pickUpTime = new Date(row.pickup_time);
         const returnTime = new Date(row.return_time);
@@ -183,7 +187,7 @@ function MasterTable() {
         } else {
           status = "Active";
         }
-
+  
         return {
           ...row,
           pickup_time: formatDate(row.pickup_time),
@@ -193,12 +197,20 @@ function MasterTable() {
       });
       setRowsMovement(fetchedRows);
       setFilteredRowsMovement(fetchedRows);
+      console.log(fetchedRows);
+  
+      const externalPassenger = fetchedRows.filter((data: any) => data.external_booking === true);
+      console.log(externalPassenger);
+  
+      setRowsTransport(externalPassenger);
+      setFilteredRowsTransport(externalPassenger);
       setLoading(false);
     } catch (error) {
       setLoadingMovement(false);
       console.log(error);
     }
   }
+  
 
   useEffect(() => {
     if (token !== "") {
@@ -233,6 +245,19 @@ function MasterTable() {
       setFilteredRowsMovement(filtered);
     }
   };
+  const handleSearchTransport = () => {
+    if (searchTransport.trim() === "") {
+      setFilteredRowsTransport(rowsTransport);
+    } else {
+      const lowercasedSearch = searchTransport.toLowerCase();
+      const filtered = rowsTransport.filter((row) =>
+        columnsMovement.some((column) =>
+          row[column as keyof MovementType]?.toString().toLowerCase().includes(lowercasedSearch)
+        )
+      );
+      setFilteredRowsTransport(filtered);
+    }
+  };
 
   useEffect(() => {
     handleSearch();
@@ -264,6 +289,15 @@ function MasterTable() {
     );
     exportToExcel(data, columnsMovement, "movements.xlsx");
   };
+  const exportExternalMovementsToExcel = () => {
+    const data = filteredRowsTransport.map((row) =>
+      columnsMovement.reduce((obj, column) => {
+        obj[column] = row[column as keyof MovementType];
+        return obj;
+      }, {} as any)
+    );
+    exportToExcel(data, columnsMovement, "external_movements.xlsx");
+  };
 
   return (
     <>
@@ -274,10 +308,13 @@ function MasterTable() {
         <Button variant="contained" color="primary" onClick={exportMovementsToExcel} className="ml-4">
           Export Movements as Excel
         </Button>
+        <Button variant="contained" color="primary" onClick={exportExternalMovementsToExcel} className="ml-4">
+          Export External Movements as Excel
+        </Button>
       </div>
       <div className="mx-5 mt-4 max-[1420px]:mx-10 max-lg:mx-5">
         <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
-          Search Reservations
+          Master Reservations
         </Typography>
         <Reservations
           reload={reload}
@@ -295,7 +332,7 @@ function MasterTable() {
       <div className="mx-5 my-11 max-[1420px]:mx-10 max-lg:mx-5">
         <div className="mb-6">
           <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
-            Search Movement
+            Master Movements
           </Typography>
         </div>
         <Reservations
@@ -306,6 +343,25 @@ function MasterTable() {
           search={searchMovement}
           setSearch={setSearchMovement}
           rowsData={filteredRowsMovement}
+          columns={columnsMovement}
+          headers={headersMovement}
+          location="masterMovement"
+        />
+      </div>
+      <div className="mx-5 my-11 max-[1420px]:mx-10 max-lg:mx-5">
+        <div className="mb-6">
+          <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
+            External Movements
+          </Typography>
+        </div>
+        <Reservations
+          reload={reloadTransport}
+          setReload={setReloadTransport}
+          loading={loadingTransport}
+          handleSearch={handleSearchTransport}
+          search={searchTransport}
+          setSearch={setSearchTransport}
+          rowsData={filteredRowsTransport}
           columns={columnsMovement}
           headers={headersMovement}
           location="masterMovement"

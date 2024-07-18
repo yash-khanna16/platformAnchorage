@@ -40,7 +40,7 @@ function Navbar() {
   }, [token]);
 
   const options = [
-    { icon: searchIcon, route: "search-guests", value: "Search Guests" },
+    { icon: searchIcon, route: "search-guests", value: "Search Reservations" },
     { icon: addNewBooking, route: "add-booking", value: "Add Booking" },
     { icon: calenderIcon, route: "manage-rooms", value: "Manage Rooms" },
     { icon: mealIcon, route: "manage-meals", value: "Manage Meals" },

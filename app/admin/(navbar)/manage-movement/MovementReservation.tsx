@@ -136,9 +136,6 @@ const MovementReservations: React.FC<ReservationsProps> = ({
     
   ];
 
-  
- 
-
   return (
     <>
       <div>
