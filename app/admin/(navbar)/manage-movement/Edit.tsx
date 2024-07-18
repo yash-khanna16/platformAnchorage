@@ -193,12 +193,11 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
   ];
   const [pickup_date, pickup_time] = selectedData.pickup_time.split(" ");
   const [return_date, return_time] = selectedData.return_time.split(" ");
-  console.log(pickup_date,pickup_time,return_date,return_time);
   const [formData, setFormData] = useState<EditMovementType>({
     ...selectedData,
-    pickup_date: pickup_date,
+    pickup_date: formatDateString(pickup_date),
     pickup_time: pickup_time,
-    return_date: return_date,
+    return_date: formatDateString(return_date),
     return_time: return_time,
   });
   const [checkBox, setCheckBox] = useState(false);
@@ -733,7 +732,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
             <FormLabel className="text-[#0D141C] font-medium">Pick Up Location</FormLabel>
             <Input
               name="pickup_location"
-              // onChange={handleChange}
+              onChange={handleChange}
               value={formData.pickup_location}
               required
               fullWidth
@@ -745,7 +744,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
             <FormLabel className="text-[#0D141C] font-medium">Drop Location</FormLabel>
             <Input
               name="drop_location"
-              // onChange={handleChange}
+              onChange={handleChange}
               value={formData.drop_location}
               required
               fullWidth
@@ -763,9 +762,8 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
               name="pickup_date"
               size="lg"
               value={formData.pickup_date}
-              // onChange={handleChange}
+              onChange={handleChange}
             />
-            
             {/* {errors.pickup_date && (
             <FormControl error>
               {" "}
@@ -782,7 +780,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
               size="lg"
               name="pickup_time"
               value={formData.pickup_time}
-              // onChange={handleChange}
+              onChange={handleChange}
             />
             {/* {errors.pickup_time && (
             <FormControl error>
@@ -801,8 +799,9 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
               name="return_date"
               size="lg"
               value={formData.return_date}
-              // onChange={handleChange}
+              onChange={handleChange}
             />
+
             {/* {errors.return_date && (
             <FormControl error>
               {" "}
@@ -819,7 +818,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
               size="lg"
               name="return_time"
               value={formData.return_time}
-              // onChange={handleChange}
+              onChange={handleChange}
             />
             {/* {errors.return_time && (
             <FormControl error>
