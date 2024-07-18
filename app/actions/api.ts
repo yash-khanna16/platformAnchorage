@@ -82,7 +82,6 @@ export async function addNewBooking(
     room: string;
     name: string;
     phone: string;
-    phone: string;
     company: string;
     vessel: string;
     rank: string;
@@ -1005,128 +1004,6 @@ export async function fetchMovementByBookingId(token: string,bookingId: string) 
       console.log("error fetching movement ", data)
       throw new Error("Internal Server Error!");
     }
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-}
-export async function fetchMealsByDate(token: string,date: string) {
-  try {
-    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/fetchMealsByDate`, {
-      method: "get",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-        token: token,
-        date: date
-      },
-      cache: "no-cache",
-    });
-    // console.log("res: ", response);
-    const data = await response.json(); // Parse the JSON response
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-}
-
-export async function updateMeals(token: string,body:  {
-  booking_id: string;
-  date: string;
-  breakfast_veg: number;
-  breakfast_nonveg: number;
-  lunch_veg: number;
-  lunch_nonveg: number;
-  dinner_veg: number;
-  dinner_nonveg: number;
-}[]) {
-  try {
-    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/updateMeals`, {
-      method: "post",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-        token: token,
-      },
-      body: JSON.stringify(body),
-      cache: "no-cache",
-    });
-    // console.log("res: ", response);
-    const data = await response.json(); // Parse the JSON response
-    if (!response.ok) {
-      console.log("error updating meals ", data)
-      throw new Error("Internal Server Error!");
-    }
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-}
-export async function fetchMealsByBookingId(token: string,bookingId: string) {
-  try {
-    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/fetchMealsByBookingId`, {
-      method: "get",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-        token: token,
-        bookingid: bookingId
-      },
-      cache: "no-cache",
-    });
-    // console.log("res: ", response);
-    const data = await response.json(); // Parse the JSON response
-    if (!response.ok) {
-      console.log("error fetching meals ", data)
-      throw new Error("Internal Server Error!");
-    }
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-}
-export async function fetchMovementByBookingId(token: string,bookingId: string) {
-  try {
-    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/fetchMovementByBookingId`, {
-      method: "get",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-        token: token,
-        bookingid: bookingId
-      },
-      cache: "no-cache",
-    });
-    // console.log("res: ", response);
-    const data = await response.json(); // Parse the JSON response
-    if (!response.ok) {
-      console.log("error fetching movement ", data)
-      throw new Error("Internal Server Error!");
-    }
-    return data;
-  } catch (error) {
-    console.log(error);
-    throw error;
-  }
-}
-export async function deleteMovementByMovementId(token: string,movement_id:string) {
-  try {
-    const response = await fetch(`${process.env.BACKEND_URL}/api/movement/deleteMovementFromMovementId`, {
-      method: "get",
-      mode: "cors",
-      headers: {
-        "Content-Type": "application/json",
-        token: token,
-        movementid:movement_id,
-      },
-      cache: "no-cache",
-    });
-    // console.log("res: ", response);
-    const data = await response.json(); // Parse the JSON response
     return data;
   } catch (error) {
     console.log(error);
