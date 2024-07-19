@@ -646,7 +646,7 @@ function Meals() {
                         />
                         <Input
                           className="w-10"
-                          value={row.breakfast_veg}
+                          value={row.breakfast_nonveg}
                           onChange={(e) => {
                             handleMeals(index, "breakfast", false, e);
                           }}
@@ -663,7 +663,7 @@ function Meals() {
                         />
                         <Input
                           className="w-10"
-                          value={row.breakfast_veg}
+                          value={row.lunch_veg}
                           onChange={(e) => {
                             handleMeals(index, "lunch", true, e);
                           }}
@@ -678,7 +678,7 @@ function Meals() {
                         />
                         <Input
                           className="w-10"
-                          value={row.breakfast_veg}
+                          value={row.lunch_nonveg}
                           onChange={(e) => {
                             handleMeals(index, "lunch", false, e);
                           }}
@@ -695,7 +695,7 @@ function Meals() {
                         />
                         <Input
                           className="w-10"
-                          value={row.breakfast_veg}
+                          value={row.dinner_veg}
                           onChange={(e) => {
                             handleMeals(index, "dinner", true, e);
                           }}
@@ -710,7 +710,7 @@ function Meals() {
                         />
                         <Input
                           className="w-10"
-                          value={row.breakfast_veg}
+                          value={row.dinner_nonveg}
                           onChange={(e) => {
                             handleMeals(index, "dinner", false, e);
                           }}
