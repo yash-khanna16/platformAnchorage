@@ -174,7 +174,12 @@ const Reservations: React.FC<ReservationsProps> = ({
   // },[rowsData])
 
   const downloadPdf = async (data: RowData) => {
-    const fileName = 'CheckInForm.pdf';
+    let guestName=data.name.split(" ");
+    let filePrefix="";
+    guestName.map((word:string)=>{
+      filePrefix=filePrefix+word+"_";
+    })
+    const fileName = `${filePrefix}CheckInForm.pdf`;
     console.log("data: ", data)
     const blob = await pdf(<CheckInFormPDF data={data} />).toBlob();
     saveAs(blob, fileName);
