@@ -492,7 +492,7 @@ const Reservations: React.FC<ReservationsProps> = ({
             getRowId={(row) => row.passenger_id} // Specify the custom row ID
             initialState={{
               sorting: {
-                sortModel: [{ field: "status", sort: "asc" }], // Adjust 'asc' to 'desc' if needed
+                sortModel: [{ field: "pickup_time", sort: "asc" }], // Adjust 'asc' to 'desc' if needed
               },
             }}
             sx={{
