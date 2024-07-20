@@ -460,8 +460,8 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
   const submitForm = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const newErrors: Partial<ErrorType> = {};
-    const pickUpDateTime = `${formData.pickup_date}T${formData.pickup_time}`;
-    const returnDateTime = `${formData.return_date}T${formData.return_time}`;
+    const pickUpDateTime = new Date(`${formData.pickup_date}T${formData.pickup_time}`);
+    const returnDateTime = new Date(`${formData.return_date}T${formData.return_time}`);
     if (pickUpDateTime > returnDateTime) {
       newErrors.returnDate = "Return Date and Time is smaller than Pick Up";
       newErrors.returnTime = "Return Date and Time is smaller than Pick Up";
@@ -592,8 +592,8 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
       const dataSend = {
         movement_id: formData.movement_id,
         pickup_location: formData.pickup_location,
-        pickup_time: pickUpTime,
-        return_time: `${formatDateString(newReturnDate)}T${newReturnTime}`,
+        pickup_time: new Date(pickUpTime),
+        return_time: new Date(`${formatDateString(newReturnDate)}T${newReturnTime}`),
         drop_location: formData.drop_location,
         driver: newDriver,
         car_number: newCar,
@@ -636,8 +636,8 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
     const dataSend = {
       movement_id: formData.movement_id,
       pickup_location: formData.pickup_location,
-      pickup_time: pickUpTime,
-      return_time: `${formatDateString(newReturnDate)}T${newReturnTime}`,
+      pickup_time: new Date(pickUpTime),
+      return_time: new Date(`${formatDateString(newReturnDate)}T${newReturnTime}`),
       drop_location: formData.drop_location,
       driver: newDriver,
       car_number: newCar,

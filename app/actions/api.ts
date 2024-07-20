@@ -684,8 +684,8 @@ export async function addMovement(
   token: string,
   movementData: {
     pickup_location: string;
-    pickup_time: string;
-    return_time: string;
+    pickup_time: Date;
+    return_time: Date;
     drop_location: string;
     driver: string;
     car_number: string;
@@ -822,8 +822,8 @@ export async function editMovement(
   token: string,
   apiData: {
     movement_id: string;
-    pickup_time: string;
-    return_time: string;
+    pickup_time: Date;
+    return_time: Date;
     driver: string;
     car_number: string;
     pickup_location: string;

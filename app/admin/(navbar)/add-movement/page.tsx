@@ -223,8 +223,8 @@ function AddMovement() {
     if (formData.carName === "") {
       newErrors.carName = "Please select a car";
     }
-    const pickUpDateTime = `${formData.pickUpDate}T${formData.pickUpTime}`;
-    const returnDateTime = `${formData.returnDate}T${formData.returnTime}`;
+    const pickUpDateTime = new Date(`${formData.pickUpDate}T${formData.pickUpTime}`);
+    const returnDateTime = new Date(`${formData.returnDate}T${formData.returnTime}`);
     if (pickUpDateTime > returnDateTime) {
       newErrors.returnDate = "Return Date and Time is smaller than Pick Up";
       newErrors.returnTime = "Return Date and Time is smaller than Pick Up";
