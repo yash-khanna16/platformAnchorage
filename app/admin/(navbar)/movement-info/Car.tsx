@@ -51,7 +51,7 @@ const Car: React.FC<PropsType> = ({ name, distance, time, number, reload, setRel
       >
         <Cancel />
       </div>
-      <div className="flex items-center">
+      <div className="flex items-center justify-between">
         <div className="font-bold">{name}</div>
         <Image width={140} height={140} src={car.src} alt="car" />
       </div>
