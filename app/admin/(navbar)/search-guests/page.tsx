@@ -7,6 +7,7 @@ import { getAuthAdmin } from "@/app/actions/cookie";
 import { Box, Typography, IconButton, DialogContent, DialogActions } from "@mui/material";
 import CheckInFormPDF from "@/app/admin/(navbar)/manage-rooms/[room]/CheckInFormPDF";
 import { PDFViewer } from "@react-pdf/renderer";
+import { Skeleton } from "@mui/joy";
 
 type ReservationType = {
   additional_info: string | null;
@@ -42,7 +43,6 @@ function Guests() {
     "vessel",
     "remarks",
     "additional_info",
-    
   ];
   const headers = [
     "Room",
@@ -57,7 +57,6 @@ function Guests() {
     "Vessel",
     "Remarks",
     "Additional Information",
-    
   ];
   const [search, setSearch] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -220,17 +219,17 @@ function Guests() {
       <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
         Search Reservations
       </Typography>
-      <Reservations
-        reload={reload}
-        setReload={setReload}
-        loading={loading}
-        handleSearch={handleSearch}
-        search={search}
-        setSearch={setSearch}
-        rowsData={filteredRows}
-        columns={columns}
-        headers={headers}
-      />
+        <Reservations
+          reload={reload}
+          setReload={setReload}
+          loading={loading}
+          handleSearch={handleSearch}
+          search={search}
+          setSearch={setSearch}
+          rowsData={filteredRows}
+          columns={columns}
+          headers={headers}
+        />
     </div>
   );
 }

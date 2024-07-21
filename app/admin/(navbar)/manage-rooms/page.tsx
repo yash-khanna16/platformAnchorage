@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { FormLabel } from "@mui/joy";
 import { getRole, addNewBooking, addNewRoom, deleteRoom, getAvailableRooms, getInstantRooms } from "@/app/actions/api";
-import { CircularProgress } from "@mui/material";
+import { CircularProgress, Skeleton } from "@mui/material";
 import { Add, Cancel, Close, DeleteForever, Info, WarningRounded } from "@mui/icons-material";
 import { getAuthAdmin } from "@/app/actions/cookie";
 
@@ -48,6 +48,56 @@ function CheckAvailableRooms() {
   const [delId, setDelId] = useState("");
   const [admin, setAdmin] = useState("admin");
   const [token, setToken] = useState("");
+
+  function generatePredefinedData() {
+    const predefinedNames = [
+      "101",
+      "102",
+      "103",
+      "104",
+      "105",
+      "106",
+      "107",
+      "108",
+      "109",
+      "110",
+      "111",
+      "112",
+      "114",
+      "301",
+      "302",
+      "303",
+      "304",
+      "305",
+      "306",
+      "401",
+      "402",
+      "403",
+      "404",
+      "501",
+      "502",
+      "503",
+      "504",
+      "601",
+      "602",
+      "603",
+      "604",
+      "701",
+      "702",
+      "703",
+      "704",
+    ];
+    const data = predefinedNames.map((name) => ({
+      status: "0/4",
+      name: name,
+      upcoming: "",
+    }));
+    data.push({ name: "A-36 Studio 1", status: "0/4", upcoming: "" });
+    return data;
+  }
+
+  // Generate the data
+  const [dummyData,setDummyData] = useState(generatePredefinedData());
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -83,8 +133,6 @@ function CheckAvailableRooms() {
     };
     getTokenData();
   }, []);
-
-
 
   const handleCheckinDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCheckinDate(e.target.value);
@@ -206,22 +254,11 @@ function CheckAvailableRooms() {
             <div>Check-In </div>
             <div className="flex max-[1300px]:flex-col space-x-2 max-[1300px]:space-x-0 max-[1300px]:space-y-3">
               <Input type="date" fullWidth required value={checkinDate} onChange={handleCheckinDateChange} />
-              <Input
-                type="time"
-                fullWidth
-                required
-                value={checkinTime}
-                onChange={handleCheckinTimeChange}
-              />
+              <Input type="time" fullWidth required value={checkinTime} onChange={handleCheckinTimeChange} />
             </div>
             <div>Check-Out</div>
             <div className="flex max-[1300px]:flex-col space-x-2 max-[1300px]:space-x-0 max-[1300px]:space-y-3">
-              <Input
-                fullWidth
-                required
-                type="date"
-                onChange={handleCheckoutDateChange}
-              />
+              <Input fullWidth required type="date" onChange={handleCheckoutDateChange} />
               <Input onChange={handleCheckoutTimeChange} required type="time" fullWidth />
             </div>
             {error !== "" && (
@@ -238,17 +275,30 @@ function CheckAvailableRooms() {
       </div>
       <div className="px-8 w-[90%] max-lg:w-[70%] max-lg:mx-auto max-md:w-full max-lg:px-1">
         <div className="flex justify-between">
-          <div className="text-2xl font-semibold mb-6">Choose room</div>
-          {admin === "superadmin" && (
+          <div className={`text-2xl font-semibold mb-6 ${loading && "animate-pulse"}`}>Choose room</div>
+          {admin === "superadmin" && !loading && (
             <div>
-              <Button variant="outlined" onClick={() => setOpen(true)} color="neutral" startDecorator={<Add />}>
-                Add Room
-              </Button>
+                <Button variant="outlined" onClick={() => setOpen(true)} color="neutral" startDecorator={<Add />}>
+                  Add Room
+                </Button>
             </div>
           )}
+          {loading && <div className="h-9 animate-pulse bg-gray-200 w-32 rounded-md"></div>}
         </div>
         <div className={` justify-start max-sm:justify-around items-center  flex gap-x-4 gap-y-4 flex-wrap`}>
-          {loading && <CircularProgress />}
+          {loading && (
+            <>
+              {dummyData.map((room, key) => (
+                <div
+                  key={key}
+                  className={`border relative animate-pulse hover:bg-slate-100 transition-all duration-500 space-y-3 p-4 w-[150px]  h-20 rounded-lg`}
+                >
+                  <div className="h-3 w-20 rounded-2xl bg-gray-200 animate-pulse"></div>
+                  <div className="h-3 w-12 rounded-2xl bg-gray-200 animate-pulse"></div>
+                </div>
+              ))}
+            </>
+          )}
           {!loading &&
             rooms.map((room, key) => (
               <div

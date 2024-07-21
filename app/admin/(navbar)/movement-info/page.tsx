@@ -48,6 +48,56 @@ function Movement() {
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
   const [reload, setReload] = useState(false);
+
+  function generatePredefinedData() {
+    const predefinedNames = [
+      "101",
+      "102",
+      "103",
+      "104",
+      "105",
+      "106",
+      "107",
+      "108",
+      "109",
+      "110",
+      "111",
+      "112",
+      "114",
+      "301",
+      "302",
+      "303",
+      "304",
+      "305",
+      "306",
+      "401",
+      "402",
+      "403",
+      "404",
+      "501",
+      "502",
+      "503",
+      "504",
+      "601",
+      "602",
+      "603",
+      "604",
+      "701",
+      "702",
+      "703",
+      "704",
+    ];
+    const data = predefinedNames.map((name) => ({
+      status: "0/4",
+      name: name,
+      upcoming: "",
+    }));
+    data.push({ name: "A-36 Studio 1", status: "0/4", upcoming: "" });
+    return data;
+  }
+
+  // Generate the data
+  const dummyData = generatePredefinedData();
   // const [carLoading, setCarLoading] = useState(false)
   // const [driverLoading, setDriverLoading] = useState(false)
 
@@ -156,70 +206,92 @@ function Movement() {
     <div className="flex py-5 px-5 h-screen overflow-hidden">
       <div className="w-[30%] p-2 overflow-auto h-screen max-lg:w-[40%]">
         <div className="text-3xl max-lg:text-2xl font-semibold text-center flex justify-between max-md:flex-col max-md:gap-y-4">
-          <div >Drivers</div>
-          <Button
-            color="neutral"
-            onClick={() => {
-              setAddDriverModal(true);
-            }}
-            variant="outlined"
-            startDecorator={<Add />}
-          >
-            Add Driver
-          </Button>
-        </div>
-        <div className="flex flex-wrap justify-around gap-x-5 my-10 gap-y-10 max">
-          {loading && <CircularProgress />}
+          <div className={`${loading && "animate-pulse"}`}>Drivers</div>
+          {loading && <div className="h-9 animate-pulse bg-gray-200 w-32 rounded-md"></div>}
           {!loading && (
-            <>
-              {drivers.map((driver, index) => (
-                <Driver reload={reload} setReload={setReload} key={index} status={driver.status === 1 ? "green" : "red"} name={driver.name} />
-              ))}
-            </>
+            <Button
+              color="neutral"
+              onClick={() => {
+                setAddDriverModal(true);
+              }}
+              variant="outlined"
+              startDecorator={<Add />}
+            >
+              Add Driver
+            </Button>
           )}
         </div>
+        {loading && (
+          <div className="flex flex-wrap animate-pulse justify-around gap-x-10 my-10 gap-y-10 max">
+            {dummyData.map((element, index) => (
+              <div className="flex flex-col items-center justify-center space-y-3" key={index}>
+                <div className="w-[90px] h-[90px] rounded-full bg-gray-200"></div>
+                <div className="w-16 h-5 bg-gray-200 rounded-2xl"></div>
+              </div>
+            ))}
+          </div>
+        )}
+        {!loading && (
+          <div className="flex flex-wrap justify-around gap-x-5 my-10 gap-y-10 max">
+            {drivers.map((driver, index) => (
+              <Driver
+                reload={reload}
+                setReload={setReload}
+                key={index}
+                status={driver.status === 1 ? "green" : "red"}
+                name={driver.name}
+              />
+            ))}
+          </div>
+        )}
       </div>
       <div className="w-[70%] py-5 px-12 max-lg:p-2 overflow-auto h-screen border-l max-lg:w-[60%]">
         <div className="text-3xl max-lg:text-2xl font-semibold text-center flex justify-between max-md:flex-col max-md:gap-y-4">
-          <div>Cars</div>
+          <div className={`${loading && "animate-pulse"}`}>Cars</div>
           <div>
-            <Button
-              color="neutral"
-              variant="outlined"
-              onClick={() => {
-                setAddCarModal(true);
-              }}
-              startDecorator={<Add />}
-            >
-              Add Car
-            </Button>
+            {loading && <div className="h-9 animate-pulse bg-gray-200 w-32 rounded-md"></div>}
+            {!loading && (
+              <Button
+                color="neutral"
+                variant="outlined"
+                onClick={() => {
+                  setAddCarModal(true);
+                }}
+                startDecorator={<Add />}
+              >
+                Add Car
+              </Button>
+            )}
           </div>
         </div>
-        <div className="flex gap-x-8 gap-y-5 flex-wrap my-10">
-          {loading ? (
-            <CircularProgress />
-          ) : (
-            <>
-              {cars.map((car, index) => (
-                <Car
-                  key={index}
-                  reload={reload}
-                  setReload={setReload}
-                  name={`${car.name}`}
-                  number={car.number}
-                  distance=""
-                  time=""
-                />
-              ))}
-            </>
-          )}
-          {/* <CircularProgress /> */}
-          {/* {!loading && (
-            <>
-              
-            </>
-          )} */}
-        </div>
+        {loading && (
+          <div className="flex gap-x-8 gap-y-5 animate-pulse flex-wrap my-10">
+            {dummyData.map((element, index) => (
+              <div className="h-40 w-[300px] flex border rounded-2xl ">
+                <div className="w-1/2">
+                  <div className="w-28 h-6 mt-10 mx-5 bg-gray-200 rounded-2xl"></div>
+                  <div className="w-16 h-6 mt-10 mx-5 bg-gray-200 rounded-2xl"></div>
+                </div>
+                <div className="w-24 h-20 my-auto mx-5 rounded-md bg-gray-200"></div>
+              </div>
+            ))}
+          </div>
+        )}
+        {!loading && (
+          <div className="flex gap-x-8 gap-y-5 flex-wrap my-10">
+            {cars.map((car, index) => (
+              <Car
+                key={index}
+                reload={reload}
+                setReload={setReload}
+                name={`${car.name}`}
+                number={car.number}
+                distance=""
+                time=""
+              />
+            ))}
+          </div>
+        )}
       </div>
       <Modal open={addCarModal} onClose={() => setAddCarModal(false)}>
         <ModalDialog>
