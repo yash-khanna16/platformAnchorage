@@ -158,7 +158,7 @@ const MyDocument = ({ data }: { data: any }) => {
                     <Text>Phone No: {data.phone}</Text>
                   </View>
                   <View style={{ ...styles.rowItemRight, width: "80%" }}>
-                    <Text>Email: {data.email}</Text>
+                    <Text>Email: {data.guest_email}</Text>
                   </View>
                 </View>
                 <View style={styles.row}>
@@ -243,18 +243,22 @@ const MyDocument = ({ data }: { data: any }) => {
                           <View style={{ display: "flex", flexDirection: "row", borderBottom: 1, width: "100%" }}>
                             <View style={{ display: "flex", flexDirection: "row", width: "100%" }}>
                               <View style={{ width: "100%", padding: 5, borderRight: 1 }}>
-                                <Image src={veg.src} style={{ width: 10, height: 10, margin: "auto" }} />
+                                {/* <Image src={veg.src} style={{ width: 10, height: 10, margin: "auto" }} /> */}
+                                <Text>Veg</Text>
                               </View>
                               <View style={{ width: "100%", padding: 5, borderRight: 1 }}>
-                                <Image src={nonVeg.src} style={{ width: 10, height: 10, margin: "auto" }} />
+                                <Text>N.Veg</Text>
+                                {/* <Image src={nonVeg.src} style={{ width: 10, height: 10, margin: "auto" }} /> */}
                               </View>
                             </View>
                             <View style={{ display: "flex", flexDirection: "row", width: "100%" }}>
                               <View style={{ width: "100%", padding: 5, borderRight: 1 }}>
-                                <Image src={veg.src} style={{ width: 10, height: 10, margin: "auto" }} />
+                                <Text>Veg</Text>
+                                {/* <Image src={veg.src} style={{ width: 10, height: 10, margin: "auto" }} /> */}
                               </View>
                               <View style={{ width: "100%", padding: 5 }}>
-                                <Image src={nonVeg.src} style={{ width: 10, height: 10, margin: "auto" }} />
+                                <Text>N.Veg</Text>
+                                {/* <Image src={nonVeg.src} style={{ width: 10, height: 10, margin: "auto" }} /> */}
                               </View>
                             </View>
                           </View>

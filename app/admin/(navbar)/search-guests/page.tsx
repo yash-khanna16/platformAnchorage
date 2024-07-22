@@ -40,6 +40,7 @@ function Guests() {
     "checkin",
     "checkout",
     "email",
+    "guest_email",
     "vessel",
     "remarks",
     "additional_info",
@@ -54,6 +55,7 @@ function Guests() {
     "Check In",
     "Check Out",
     "Email",
+    "Guest Email",
     "Vessel",
     "Remarks",
     "Additional Information",
@@ -106,9 +108,12 @@ function Guests() {
           ...row,
           checkin: formatDate(row.checkin),
           checkout: formatDate(row.checkout),
+          guest_email: row.guest_email.endsWith("@chotahaathi.com") ? "" : row.guest_email,
           status: status,
         };
       });
+
+      console.log("fetched Rows: ", fetchedRows)
 
       setRows(fetchedRows);
       setFilteredRows(fetchedRows);

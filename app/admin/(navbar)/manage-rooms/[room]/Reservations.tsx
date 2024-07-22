@@ -193,6 +193,7 @@ const Reservations: React.FC<ReservationsProps> = ({
       ...columns.map((columnName, index) => ({
         field: columnName,
         headerName: headers[index],
+        hide: columnName === "email",
         // width: 100,
         flex:
           index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
@@ -239,7 +240,8 @@ const Reservations: React.FC<ReservationsProps> = ({
     gridColumns = [
       ...columns.map((columnName, index) => ({
         field: columnName,
-        headerName: headers[index],
+        headerName: headers[index],        
+        hide: columnName === "email",
         // width: 100,
         flex:
           index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
@@ -282,8 +284,7 @@ const Reservations: React.FC<ReservationsProps> = ({
       ...columns.map((columnName, index) => ({
         field: columnName,
         headerName: headers[index],
-        // flex: index===,
-        // width: 100,
+        hide: index===7,
         flex:
           index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
             ? 0
@@ -528,6 +529,11 @@ const Reservations: React.FC<ReservationsProps> = ({
               sorting: {
                 sortModel: [{ field: "status", sort: "asc" }], // Adjust 'asc' to 'desc' if needed
               },
+              columns: {
+                columnVisibilityModel: {
+                  email: false
+                }
+              }
             }}
             sx={{
               borderRadius: 3, // Adjust the value to achieve the desired rounding
