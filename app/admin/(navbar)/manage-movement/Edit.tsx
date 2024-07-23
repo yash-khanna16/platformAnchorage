@@ -260,6 +260,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
     });
     setNewDriver(selectedData.driver)
     setNewCar(selectedData.car_number)
+    setCheckBox(false)
     console.log(formData);
   }, [selectedData]);
 
@@ -292,6 +293,10 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
       setNewCar(formData.car_number);
     }
   }, [checkBox]);
+
+  useEffect(()=>{
+    setCheckBox(false)
+  },[formData.pickup_date,formData.pickup_time,formData.return_date,return_time])
 
   const handleChangeDriver = (event: React.SyntheticEvent | null, newValue: string | null) => {
     if (newValue) {
