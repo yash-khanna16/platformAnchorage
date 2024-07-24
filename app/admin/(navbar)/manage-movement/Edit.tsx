@@ -11,6 +11,7 @@ import {
   DialogTitle,
   FormControl,
   FormLabel,
+  FormHelperText,
   Modal,
   ModalClose,
   Divider,
@@ -33,6 +34,7 @@ import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { deleteMovementByMovementId } from "@/app/actions/api";
 import { stopIcon } from "@/assets/icons";
+import zIndex from "@mui/material/styles/zIndex";
 
 type MovementType = {
   movement_id: string;
@@ -97,8 +99,8 @@ type ReservationType = {
 
 interface EditMovementProps {
   selectedData: MovementType;
-  reload:boolean;
-  setReload:React.Dispatch<SetStateAction<boolean>>;
+  reload: boolean;
+  setReload: React.Dispatch<SetStateAction<boolean>>;
 }
 
 type PassengerType = {
@@ -151,7 +153,7 @@ type Conflict = {
   drop_location: string;
 };
 
-const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) => {
+const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) => {
   const formatDateString = (dateString: string) => {
     const [day, month, year] = dateString.split("-");
     const date = new Date(`${year}-${month}-${day}`);
@@ -258,9 +260,9 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
       return_date: formatDateString(return_date),
       return_time: return_time,
     });
-    setNewDriver(selectedData.driver)
-    setNewCar(selectedData.car_number)
-    setCheckBox(false)
+    setNewDriver(selectedData.driver);
+    setNewCar(selectedData.car_number);
+    setCheckBox(false);
     console.log(formData);
   }, [selectedData]);
 
@@ -294,9 +296,9 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
     }
   }, [checkBox]);
 
-  useEffect(()=>{
-    setCheckBox(false)
-  },[formData.pickup_date,formData.pickup_time,formData.return_date,return_time])
+  useEffect(() => {
+    setCheckBox(false);
+  }, [formData.pickup_date, formData.pickup_time, formData.return_date, formData.return_time]);
 
   const handleChangeDriver = (event: React.SyntheticEvent | null, newValue: string | null) => {
     if (newValue) {
@@ -465,6 +467,9 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
   const submitForm = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const newErrors: Partial<ErrorType> = {};
+    if (formData.pickup_location === "") {
+      newErrors.pickUpLocation = "Please choose a Pick Up Location";
+    }
     const pickUpDateTime = new Date(`${formData.pickup_date}T${formData.pickup_time}`);
     const returnDateTime = new Date(`${formData.return_date}T${formData.return_time}`);
     if (pickUpDateTime > returnDateTime) {
@@ -526,6 +531,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
       car_number: newCar,
       passengers: allPassengerList,
     };
+    console.log(dataSend)
     try {
       const res = await editMovement(token, dataSend);
       setMessage(res.message);
@@ -539,6 +545,8 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
         setReload(!reload);
         setOpenConfirm(true);
       }
+      setManualPassenger([]);
+      setSelectedPassenger([]);
       setSubmitLoading(false);
     } catch (error) {
       setSubmitLoading(false);
@@ -709,26 +717,42 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
           Movement Details
         </Typography>
         <div className="flex justify-end w-full max-sm:justify-normal">
-            <button
-              onClick={handleStop}
-              type="button"
-              className="border-red-500 flex items-center text-red-600 border rounded-s-md p-3 hover:bg-red-100"
-            >
-              {stopIcon}
-              <div className="pl-2">Stop</div>
-            </button>
-            <button onClick={() => handleDelay(1)} type="button" className="border-green-500 flex items-center text-green-600 border-t border-b  p-3 hover:bg-green-100">
-              +1 hr
-            </button>
-            <button onClick={() => handleDelay(6)} type="button" className="border-green-500 flex items-center text-green-600 border p-3 hover:bg-green-100">
-              +6 hr
-            </button>
-            <button onClick={() => handleDelay(12)} type="button" className="border-green-500 flex items-center text-green-600 border-t border-b  p-3 hover:bg-green-100">
-              +12 hr
-            </button>
-            <button onClick={() => handleDelay(24)} type="button" className="border-green-500 flex items-center text-green-600 border rounded-e-md  p-3 hover:bg-green-100">
-              +24 hr
-            </button>
+          <button
+            onClick={handleStop}
+            type="button"
+            className="border-red-500 flex items-center text-red-600 border rounded-s-md p-3 hover:bg-red-100"
+          >
+            {stopIcon}
+            <div className="pl-2">Stop</div>
+          </button>
+          <button
+            onClick={() => handleDelay(1)}
+            type="button"
+            className="border-green-500 flex items-center text-green-600 border-t border-b  p-3 hover:bg-green-100"
+          >
+            +1 hr
+          </button>
+          <button
+            onClick={() => handleDelay(6)}
+            type="button"
+            className="border-green-500 flex items-center text-green-600 border p-3 hover:bg-green-100"
+          >
+            +6 hr
+          </button>
+          <button
+            onClick={() => handleDelay(12)}
+            type="button"
+            className="border-green-500 flex items-center text-green-600 border-t border-b  p-3 hover:bg-green-100"
+          >
+            +12 hr
+          </button>
+          <button
+            onClick={() => handleDelay(24)}
+            type="button"
+            className="border-green-500 flex items-center text-green-600 border rounded-e-md  p-3 hover:bg-green-100"
+          >
+            +24 hr
+          </button>
         </div>
       </div>
       <form onSubmit={submitForm}>
@@ -769,12 +793,6 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
               value={formData.pickup_date}
               onChange={handleChange}
             />
-            {/* {errors.pickup_date && (
-            <FormControl error>
-              {" "}
-              <FormHelperText>{errors.pickup_date}</FormHelperText>
-            </FormControl>
-          )} */}
           </FormControl>
           <FormControl size="lg" className="my-1">
             <FormLabel className="text-[#0D141C] font-medium">Pick Up Time</FormLabel>
@@ -787,12 +805,6 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
               value={formData.pickup_time}
               onChange={handleChange}
             />
-            {/* {errors.pickup_time && (
-            <FormControl error>
-              {" "}
-              <FormHelperText>{errors.pickup_time}</FormHelperText>
-            </FormControl>
-          )} */}
           </FormControl>
 
           <FormControl size="lg" className="my-1">
@@ -807,12 +819,12 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
               onChange={handleChange}
             />
 
-            {/* {errors.return_date && (
-            <FormControl error>
-              {" "}
-              <FormHelperText>{errors.return_date}</FormHelperText>
-            </FormControl>
-          )} */}
+            {errors.returnDate && (
+              <FormControl error>
+                {" "}
+                <FormHelperText>{errors.returnDate}</FormHelperText>
+              </FormControl>
+            )}
           </FormControl>
           <FormControl size="lg" className="my-1">
             <FormLabel className="text-[#0D141C] font-medium">Expected Return Time</FormLabel>
@@ -825,12 +837,12 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
               value={formData.return_time}
               onChange={handleChange}
             />
-            {/* {errors.return_time && (
-            <FormControl error>
-              {" "}
-              <FormHelperText>{errors.return_time}</FormHelperText>
-            </FormControl>
-          )} */}
+            {errors.returnTime && (
+              <FormControl error>
+                {" "}
+                <FormHelperText>{errors.returnTime}</FormHelperText>
+              </FormControl>
+            )}
           </FormControl>
         </div>
         <FormControl>
@@ -905,6 +917,15 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
         >
           Passenger Details
         </Typography>
+
+        {errors.passengerNumber && (
+          <FormControl error>
+            {" "}
+            <div className="text-center mb-5 text-red-500 font-semibold text-2xl">
+              {errors.passengerNumber}
+            </div>
+          </FormControl>
+        )}
         {formData.passengers.map(
           (
             data: {
@@ -1163,7 +1184,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
         }}
       >
         <ModalDialog style={{ width: "50vw" }}>
-          <ModalClose />
+          <ModalClose style={{zIndex:"10"}}/>
           <DialogContent className="h-fit">
             <Typography className="text-4xl mb-5" component="div" fontWeight="bold">
               Add Details
@@ -1260,7 +1281,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
         }}
       >
         <ModalDialog style={{ width: "75vw" }}>
-          <ModalClose />
+          <ModalClose style={{zIndex:"10"}}/>
           <DialogContent className="h-fit">
             <Reservations
               reload={reload}
@@ -1374,7 +1395,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
         }}
       >
         <ModalDialog size="lg">
-          <ModalClose />
+          <ModalClose style={{zIndex:"10"}}/>
           <DialogTitle className="">Movement Confirmation</DialogTitle>
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
@@ -1393,7 +1414,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
         }}
       >
         <ModalDialog size="lg">
-          <ModalClose />
+          <ModalClose style={{zIndex:"10"}}/>
           <DialogTitle className="">Edit Movement Error</DialogTitle>
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
@@ -1438,7 +1459,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData,reload,setReload }) =>
         }}
       >
         <ModalDialog size="lg">
-          <ModalClose />
+          <ModalClose style={{zIndex:"10"}}/>
           <DialogTitle className="">Movement Confirmation</DialogTitle>
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
