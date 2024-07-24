@@ -15,7 +15,7 @@ import { Button, Chip, DialogTitle, Divider, Modal, ModalClose, ModalDialog, Sna
 import EditBooking from "./EditBooking";
 import { Close, DeleteForever, FileDownload, Info } from "@mui/icons-material";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
-import { deleteBooking, fetchMealsByBookingId, fetchMovementByBookingId } from "@/app/actions/api";
+import { deleteBooking, fetchMealsByBookingId, fetchMovementByBookingId, fetchOccupancyByBookingId } from "@/app/actions/api";
 import { useRouter } from "next/navigation";
 import { getAuthAdmin } from "@/app/actions/cookie";
 import CheckInForm from "@/app/admin/(navbar)/manage-rooms/[room]/CheckInForm";
@@ -113,6 +113,15 @@ const Reservations: React.FC<ReservationsProps> = ({
       return res;
     } catch(error) {
       console.log("error fetching movement for bookingID ", bookingId)
+      return null;
+    }
+  }
+  async function fetchOccupancy(bookingId: string) {
+    try {
+      const res = await fetchOccupancyByBookingId(token,bookingId);
+      return res;
+    } catch(error) {
+      console.log("error fetching occupancy for bookingID ", bookingId)
       return null;
     }
   }
@@ -340,14 +349,17 @@ const Reservations: React.FC<ReservationsProps> = ({
               onClick={async()=>{
                 const meals = await fetchMeals(params.row.booking_id);
                 const movements = await fetchMovement(params.row.booking_id);
+                const occupancy = await fetchOccupancy(params.row.booking_id);
+                
                 console.log(movements);
-                if (meals && movements) {
+                if (meals && movements && occupancy) {
                   console.log("meals ", meals)
                   console.log("movements ", movements)
                   const data = {
                     ...params.row,
                     meals: meals,
-                    movements: movements
+                    movements: movements,
+                    occupancy: occupancy,
                   }
                   downloadPdf(data);
                 }

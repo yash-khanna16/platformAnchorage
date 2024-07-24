@@ -164,55 +164,68 @@ function Guests() {
   //   link.click();
   //   document.body.removeChild(link);
   // };
-  const data = {
-    additional_info: "additional new",
-    booking_id: "95a7e25a-131a-48d9-9d1b-16b55345b9f0",
+ const data = {
+    additional_info: "AIRPORT PICK UP",
+    booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b",
     breakfast: 0,
-    checkin: "09-07-2024 20:35",
-    checkout: "31-07-2024 20:34",
-    company: "DSEU",
-    email: "afsd@afd.com",
-    guest_email: "afsd@afd.com",
-    id: "2131542AABC",
+    checkin: "2024-06-22T02:30:00.000Z",
+    checkout: "2024-07-31T11:40:00.000Z",
+    company: "PERSONAL",
+    email: "tarunrs@gmail.com",
+    guest_email: "tarunrs@gmail.com",
+    id: null,
     meal_non_veg: 0,
     meal_veg: 0,
     meals: [
-      {
-        date: "2024-07-09T00:00:00Z",
-        breakfast_veg: 1,
-        breakfast_nonveg: 0,
-        lunch_veg: 1,
-        lunch_nonveg: 1,
-        dinner_veg: 1,
-        dinner_nonveg: 1,
-      },
-      {
-        date: "2024-07-10T00:00:00Z",
-        breakfast_veg: 1,
-        breakfast_nonveg: 1,
-        lunch_veg: 0,
-        lunch_nonveg: 1,
-        dinner_veg: 1,
-        dinner_nonveg: 1,
-      },
-      // Add remaining meal objects as needed
+      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-01T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
+      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-11T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 1, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
+      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-12T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
+      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-13T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
+      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-14T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
+      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-15T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
+      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-16T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
+      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-17T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
+      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-18T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
+      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-19T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
+      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-20T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
+      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-21T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
+      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-23T00:00:00.000Z", breakfast_veg: 1, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
+      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-24T00:00:00.000Z", breakfast_veg: 1, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 }
     ],
-    movements: [
+    movements: [],
+    name: "YASH KHANNA",
+    occupancy: [
       {
-        pickup_time: "2024-07-09T10:00:00Z",
-        return_time: "2024-07-09T18:00:00Z",
-        pickup_location: "Location A",
-        drop_location: "Location B",
-        car_number: "DL-1AB-1234",
-      },
+        bookings: [
+          {
+            additional_info: "AIRPORT PICK UP",
+            booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b",
+            breakfast: 0,
+            checkin: "2024-06-22T02:30:00.000Z",
+            checkout: "2024-07-31T11:40:00.000Z",
+            company: "PERSONAL",
+            guest_email: "tarunrs@gmail.com",
+            meal_non_veg: 0,
+            meal_veg: 0,
+            name: "YASH KHANNA",
+            phone: "9999020069",
+            rank: "",
+            remarks: "PERSONAL",
+            room: "305",
+            vessel: ""
+          }
+        ],
+        end: "2024-07-31T11:40:00.000Z",
+        occupancy: "SINGLE OCCUPANCY",
+        start: "2024-06-22T02:30:00.000Z"
+      }
     ],
-    name: "abas",
-    phone: "4234432234",
-    rank: "43",
-    remarks: "535",
-    room: "304",
+    phone: "9999020069",
+    rank: "",
+    remarks: "PERSONAL",
+    room: "305",
     status: "Active",
-    vessel: "43",
+    vessel: ""
   };
 
   return (
