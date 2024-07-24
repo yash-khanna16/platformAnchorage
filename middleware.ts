@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 
 export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
-  const adminRoutes = ["/admin/search-guests","/admin/manage-rooms","/admin/send-email","/admin/add-guest","/admin/analytics"] ;
+  const adminRoutes = ["/admin/search-guests","/admin/manage-rooms","/admin/send-email","/admin/add-guest","/admin/analytics", "/admin/add-booking", "/admin/manage-meals", "/admin/add-movement", "/admin/manage-movement", "/admin/movement-info", "/admin/master-table"] ;
   const isAdminRoute = adminRoutes.includes(path);
   const adminCookie = await validate(cookies().get("admin")?.value);
 
