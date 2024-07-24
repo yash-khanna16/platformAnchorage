@@ -25,6 +25,19 @@ const chunkArray = (array: any[], chunkSize: number) => {
   }
   return chunks;
 };
+function formatDateToDDMMYYYYHHMM(dateString: string): string {
+  const date = new Date(dateString);
+
+  // Get day, month, year, hours, and minutes
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0"); // Months are zero-based
+  const year = date.getUTCFullYear();
+  const hours = String(date.getUTCHours()).padStart(2, "0");
+  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+
+  // Format the date string as DD-MM-YYYY HH:MM
+  return `${day}-${month}-${year} ${hours}:${minutes}`;
+}
 
 const styles = StyleSheet.create({
   page: {
@@ -427,7 +440,104 @@ const MyDocument = ({ data }: { data: any }) => {
       <Page size="A4" style={styles.page}>
         <View style={{ padding: 30, paddingBottom: 40, width: "100%", height: "100%", border: 1 }}>
           <View style={{ border: 1, padding: 20, height: "100%" }}>
-            <Text style={{ fontSize: 20, textDecoration: 'underline' }}>FEEDBACK FORM</Text>
+            <Text style={{ fontSize: 20 }}>OCCUPANCY TIMELINE</Text>
+            {/* HEADER */}
+            <View style={{ display: "flex", flexDirection: "row", marginTop: 10, width: "100%" }}>
+              <View
+                style={{ border: 1, borderRight: 0, padding: 5, width: "17%", alignItems: "center", justifyContent: "center" }}
+              >
+                <Text>TYPE</Text>
+              </View>
+              <View
+                style={{ border: 1, borderRight: 0, padding: 5, width: "17%", alignItems: "center", justifyContent: "center" }}
+              >
+                <Text>START TIME</Text>
+              </View>
+              <View
+                style={{ border: 1, borderRight: 0, padding: 5, width: "17%", alignItems: "center", justifyContent: "center" }}
+              >
+                <Text>END TIME</Text>
+              </View>
+              <View style={{ border: 1, textAlign: "center", width: "49%" }}>
+                <View style={{ padding: 5 }}>
+                  <Text>GUEST INFORMATION</Text>
+                </View>
+                <View style={{ display: "flex", flexDirection: "row", width: 239 }}>
+                  <View style={{ padding: 5,  borderTop: 1,borderRight: 1,  width:'100%' }}>
+                    <Text>NAME</Text>
+                  </View>
+                  <View style={{ padding: 5,  borderTop: 1, borderRight: 1, width:'100%' }}>
+                    <Text>RANK</Text>
+                  </View>
+                  <View style={{ padding: 5,  borderTop: 1,width:'100%' }}>
+                    <Text>COMPANY</Text>
+                  </View>
+                </View>
+              </View>
+            </View>
+
+            {data.occupancy.map((occupancy: any, index: number) => (
+              <View key={index} style={{ display: "flex", flexDirection: "row" }}>
+                <View
+                  style={{
+                    padding: 5,
+                    width: "17%",
+                    alignItems: "center",
+                    borderBottom: 1,
+                    borderLeft: 1,
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text>{occupancy.occupancy}</Text>
+                </View>
+                <View
+                  style={{
+                    padding: 5,
+                    width: "17%",
+                    alignItems: "center",
+                    borderBottom: 1,
+                    borderLeft: 1,
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text>{formatDateToDDMMYYYYHHMM(occupancy.start)}</Text>
+                </View>
+                <View
+                  style={{
+                    padding: 5,
+                    width: "17%",
+                    borderBottom: 1,
+                    borderLeft: 1,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Text>{formatDateToDDMMYYYYHHMM(occupancy.end)}</Text>
+                </View>
+                <View style={{ width: "49%" }}>
+                  {occupancy.bookings.map((booking: any, index: number) => (
+                    <View key={index} style={{ display: "flex", flexDirection: "row", width: 240.7 }}>
+                      <View style={{ padding: 5, borderBottom: 1,borderRight: 1, width: 242, borderLeft: 1,minHeight: 40 }}>
+                        <Text>{booking.name}</Text>
+                      </View>
+                      <View style={{ padding: 5, borderBottom: 1, borderRight: 1, width: 239,minHeight: 40 }}>
+                        <Text>{booking.rank}</Text>
+                      </View>
+                      <View style={{ padding: 5, borderBottom: 1,borderRight: 1, width: '100%',minHeight: 40 }}>
+                        <Text>{booking.company}</Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            ))}
+          </View>
+        </View>
+      </Page>
+      <Page size="A4" style={styles.page}>
+        <View style={{ padding: 30, paddingBottom: 40, width: "100%", height: "100%", border: 1 }}>
+          <View style={{ border: 1, padding: 20, height: "100%" }}>
+            <Text style={{ fontSize: 20, textDecoration: "underline" }}>FEEDBACK FORM</Text>
             <View style={{ marginVertical: 20, fontSize: 12 }}>
               <Text>KINDLY WRITE A FEW WORDS ON OUR SERVICES:</Text>
             </View>
@@ -514,7 +624,7 @@ const MyDocument = ({ data }: { data: any }) => {
             <View style={{ fontSize: 12, marginTop: 8 }}>
               <Text>ANY OTHER COMMENTS: </Text>
             </View>
-            <View style={{ fontSize: 12, marginTop: 'auto',padding: 20,marginLeft: "auto" }}>
+            <View style={{ fontSize: 12, marginTop: "auto", padding: 20, marginLeft: "auto" }}>
               <Text>SIGNATURE </Text>
             </View>
           </View>

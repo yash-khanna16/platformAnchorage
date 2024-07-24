@@ -1010,3 +1010,27 @@ export async function fetchMovementByBookingId(token: string,bookingId: string) 
     throw error;
   }
 }
+export async function fetchOccupancyByBookingId(token: string,bookingId: string) {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/fetchOccupancyByBooking`, {
+      method: "get",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+        bookingid: bookingId
+      },
+      cache: "no-cache",
+    });
+    // console.log("res: ", response);
+    const data = await response.json(); // Parse the JSON response
+    if (!response.ok) {
+      console.log("error fetching occupancy ", data)
+      throw new Error("Internal Server Error!");
+    }
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
