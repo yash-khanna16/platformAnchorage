@@ -115,7 +115,7 @@ function AddMovement() {
   const [rows, setRows] = useState<ReservationType[]>([]);
   const [reload, setReload] = useState(false);
   const [alert, setAlert] = useState(false);
-  const [message, setMessage] = useState(false);
+  const [message, setMessage] = useState("");
   const [driverCar, setDriverCar] = useState(true);
   const [open, setOpen] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);
@@ -279,6 +279,8 @@ function AddMovement() {
         
       } catch {
         console.log("something went wrong");
+        setAlert(true);
+        setMessage("Something went wrong! Please try again later.");
       }
     } else if (manualPassenger.length === 0) {
       const newSelectedPassenger = selectedPassenger.map((entry: GuestType) => {
@@ -309,6 +311,8 @@ function AddMovement() {
         }
       } catch {
         console.log("something went wrong");
+        setAlert(true);
+        setMessage("Something went wrong! Please try again later.");
       }
     } else {
       const newManualPassenger = manualPassenger.map((entry: PassengerType) => {
@@ -349,6 +353,8 @@ function AddMovement() {
         }
       } catch {
         console.log("something went wrong");
+        setAlert(true);
+        setMessage("Something went wrong! Please try again later.");
       }
     }
   };
