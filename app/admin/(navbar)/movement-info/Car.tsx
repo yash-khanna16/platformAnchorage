@@ -13,11 +13,12 @@ type PropsType = {
   distance: string;
   time: string;
   number: string;
+  status: number;
   reload: boolean;
   setReload: React.Dispatch<SetStateAction<boolean>>;
 };
 
-const Car: React.FC<PropsType> = ({ name, distance, time, number, reload, setReload }) => {
+const Car: React.FC<PropsType> = ({ name, distance, status, time, number, reload, setReload }) => {
   const [token, setToken] = useState<string | null>(null);
   const [del, setDel] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -31,7 +32,7 @@ const Car: React.FC<PropsType> = ({ name, distance, time, number, reload, setRel
       setLoading(true);
       try {
         await deleteCar(token, number);
-        setReload(!reload)
+        setReload(!reload);
         setLoading(false);
         setDel(false);
       } catch (error) {
@@ -52,7 +53,16 @@ const Car: React.FC<PropsType> = ({ name, distance, time, number, reload, setRel
         <Cancel />
       </div>
       <div className="flex items-center justify-between">
-        <div className="font-bold">{name}</div>
+        <div className=" flex flex-col justify-evenly gap-5 font-bold">
+          <div >
+            {status === 1 ? (
+              <span className="text-[#079c34] text-sm">Available</span>
+            ) : (
+              <span className="text-[#f01717] text-sm">Booked</span>
+            )}
+          </div>
+          <div>{name}</div>
+        </div>
         <Image width={140} height={140} src={car.src} alt="car" />
       </div>
       <div className="flex gap-x-5 mt-3">

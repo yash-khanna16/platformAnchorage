@@ -18,6 +18,7 @@ import { useRouter } from "next/navigation";
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
 import { CheckCircle, Close, Info, Warning } from "@mui/icons-material";
 import { getAuthAdmin } from "@/app/actions/cookie";
+import zIndex from "@mui/material/styles/zIndex";
 
 interface FormData {
   name: string;
@@ -499,7 +500,7 @@ function NewBooking(): JSX.Element {
           }}
         >
           <ModalDialog size="lg">
-            <ModalClose />
+            <ModalClose style={{zIndex:"10"}}/>
             <DialogTitle className="">Booking Confirmation</DialogTitle>
             <DialogContent className="h-fit">
               <div className="flex flex-col h-56 items-center overflow-hidden ">

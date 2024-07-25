@@ -455,7 +455,7 @@ function NewBooking({ reload, setReload }: { reload: boolean; setReload: React.D
         }}
       >
         <ModalDialog size="lg">
-          <ModalClose />
+          <ModalClose style={{zIndex:"10"}}/>
           <DialogTitle className="">Booking Confirmation</DialogTitle>
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">

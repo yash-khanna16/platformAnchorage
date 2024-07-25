@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Reservations from "./MovementReservation";
 import { fetchMovement } from "@/app/actions/api";
 import { getAuthAdmin } from "@/app/actions/cookie";
-import {Typography} from "@mui/material";
+import { Typography } from "@mui/material";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import Edit from "./Edit";
 
@@ -17,8 +17,8 @@ type MovementType = {
   driver: string;
   car_name: string;
   passengers: {
-    booking_id:string;
-    passenger_id:string;
+    booking_id: string;
+    passenger_id: string;
     name: string;
     phone: string;
     remark: string;
@@ -30,6 +30,7 @@ type MovementType = {
 function Movements() {
   const columns = [
     "status",
+    "names",
     "driver",
     "car_number",
     "pickup_location",
@@ -40,6 +41,7 @@ function Movements() {
   ];
   const headers = [
     "Status",
+    "Names",
     "Driver",
     "Car Number",
     "Pick Up Location",
@@ -72,16 +74,13 @@ function Movements() {
     const minutes = ("0" + date.getMinutes()).slice(-2);
     return `${day}-${month}-${year} ${hours}:${minutes}`;
   };
-  
 
   async function getGuests() {
     try {
       setLoading(true);
       let fetchedRows = await fetchMovement(token);
       console.log(fetchedRows);
-
       const currentTime = new Date();
-
       fetchedRows = fetchedRows.map((row: MovementType) => {
         const pickUpTime = new Date(row.pickup_time);
         const returnTime = new Date(row.return_time);
@@ -93,12 +92,13 @@ function Movements() {
         } else {
           status = "Active";
         }
-
+      
         return {
           ...row,
           pickup_time: formatDate(row.pickup_time),
           return_time: formatDate(row.return_time),
           status: status,
+          names: row.passengers.map(passenger => passenger.name).join(", ")
         };
       });
       setRows(fetchedRows);
@@ -120,7 +120,7 @@ function Movements() {
     const newSelectedMovement = seletedMovement?.toString();
     const seletedData = rows.find((data) => data.movement_id === newSelectedMovement);
     setSelectedData(seletedData);
-  }, [seletedMovement,rows]);
+  }, [seletedMovement, rows]);
 
   const handleSearch = () => {
     if (search.trim() === "") {
@@ -143,11 +143,10 @@ function Movements() {
   return (
     <div className="mx-5 my-11 max-[1420px]:mx-10 max-lg:mx-5">
       <div className="mb-6">
-          <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
-            Search Movement
-          </Typography>
-        </div>
-        
+        <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
+          Search Movement
+        </Typography>
+      </div>
       <Reservations
         reload={reload}
         setReload={setReload}
@@ -160,8 +159,12 @@ function Movements() {
         headers={headers}
         setSeletedMovement={setSeletedMovement}
       />
-      
-      {selectedData ? <Edit selectedData={selectedData} reload={reload} setReload={setReload} /> : ""}
+
+      {selectedData ? (
+        <Edit selectedData={selectedData} reload={reload} setReload={setReload} />
+      ) : (
+        ""
+      )}
     </div>
   );
 }

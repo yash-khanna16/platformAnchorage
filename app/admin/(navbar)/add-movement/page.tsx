@@ -842,7 +842,7 @@ function AddMovement() {
         }}
       >
         <ModalDialog style={{ width: "75vw" }}>
-          <ModalClose />
+          <ModalClose style={{zIndex:"10"}}/>
           <DialogContent className="h-fit">
             <Reservations
               reload={reload}
@@ -888,7 +888,7 @@ function AddMovement() {
         }}
       >
         <ModalDialog style={{ width: "50vw" }}>
-          <ModalClose />
+          <ModalClose style={{zIndex:"10"}}/>
           <DialogContent className="h-fit">
             <Typography className="text-4xl mb-5" component="div" fontWeight="bold">
               Add Details
@@ -1032,7 +1032,7 @@ function AddMovement() {
         }}
       >
         <ModalDialog size="lg">
-          <ModalClose />
+          <ModalClose style={{zIndex:"10"}}/>
           <DialogTitle className="">Movement Confirmation</DialogTitle>
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">

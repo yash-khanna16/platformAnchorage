@@ -27,6 +27,7 @@ import { Modal } from "@mui/joy";
 type CarType = {
   name: string;
   number: string;
+  status: number;
 };
 type DriverType = {
   name: string;
@@ -153,6 +154,7 @@ function Movement() {
           // console.log("cars: ", cars);
           setLoading(false);
           setCars(cars);
+          console.log('car',cars);
         })
         .catch((error) => {
           setLoading(false);
@@ -168,6 +170,7 @@ function Movement() {
           setLoading(false);
           console.log("Error fetching drivers", error);
         });
+      
     }
   }, [reload]);
 
@@ -185,6 +188,7 @@ function Movement() {
           // console.log("cars: ", cars);
           setLoading(false);
           setCars(cars);
+          console.log("car",cars);
         })
         .catch((error) => {
           setLoading(false);
@@ -200,6 +204,7 @@ function Movement() {
           setLoading(false);
           console.log("Error fetching drivers", error);
         });
+        
     }
   }, [token]);
   return (
@@ -285,6 +290,7 @@ function Movement() {
                 reload={reload}
                 setReload={setReload}
                 name={`${car.name}`}
+                status={car.status }
                 number={car.number}
                 distance=""
                 time=""
