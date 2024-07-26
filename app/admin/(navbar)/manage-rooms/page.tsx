@@ -97,7 +97,7 @@ function CheckAvailableRooms() {
   }
 
   // Generate the data
-  const [dummyData,setDummyData] = useState(generatePredefinedData());
+  const [dummyData, setDummyData] = useState(generatePredefinedData());
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -278,9 +278,9 @@ function CheckAvailableRooms() {
           <div className={`text-2xl font-semibold mb-6 ${loading && "animate-pulse"}`}>Choose room</div>
           {admin === "superadmin" && !loading && (
             <div>
-                <Button variant="outlined" onClick={() => setOpen(true)} color="neutral" startDecorator={<Add />}>
-                  Add Room
-                </Button>
+              <Button variant="outlined" onClick={() => setOpen(true)} color="neutral" startDecorator={<Add />}>
+                Add Room
+              </Button>
             </div>
           )}
           {loading && <div className="h-9 animate-pulse bg-gray-200 w-32 rounded-md"></div>}
@@ -337,9 +337,11 @@ function CheckAvailableRooms() {
                   </div>
                   <div className="flex items-center">
                     {room.upcoming === "Upcoming" ? (
-                      <Chip size="sm" variant="outlined" color="warning">
-                        {room.upcoming}
-                      </Chip>
+                      <div className="animate-bounce" >
+                        <Chip size="sm" variant="outlined" color="warning">
+                          {room.upcoming}
+                        </Chip>
+                      </div>
                     ) : (
                       " "
                     )}
