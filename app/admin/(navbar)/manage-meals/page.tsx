@@ -605,9 +605,12 @@ function Meals() {
                     {rows.map((row, index) => (
                       <tr key={index}>
                         <th scope="row" style={{ padding: "0px" }}>
-                          <div className="px-1 flex ">
+                          <div className="px-1 flex flex-col ">
                             <div>
                               {row.room} {row.name}
+                            </div>
+                            <div className="text-slate-500">
+                              {row.company}
                             </div>
                           </div>
                         </th>
