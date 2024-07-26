@@ -11,17 +11,31 @@ import {
 } from "@mui/x-data-grid";
 import { Box, Typography, IconButton, DialogContent, DialogActions } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit"; // Import the EditIcon
-import { Button, Chip, DialogTitle, Divider, Modal, ModalClose, ModalDialog, Snackbar } from "@mui/joy";
+import {
+  Button,
+  Chip,
+  DialogTitle,
+  Divider,
+  Modal,
+  ModalClose,
+  ModalDialog,
+  Snackbar,
+} from "@mui/joy";
 import EditBooking from "./EditBooking";
 import { Close, DeleteForever, FileDownload, Info } from "@mui/icons-material";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
-import { deleteBooking, fetchMealsByBookingId, fetchMovementByBookingId, fetchOccupancyByBookingId } from "@/app/actions/api";
+import {
+  deleteBooking,
+  fetchMealsByBookingId,
+  fetchMovementByBookingId,
+  fetchOccupancyByBookingId,
+} from "@/app/actions/api";
 import { useRouter } from "next/navigation";
 import { getAuthAdmin } from "@/app/actions/cookie";
 import CheckInForm from "@/app/admin/(navbar)/manage-rooms/[room]/CheckInForm";
 import { data } from "autoprefixer";
-import CheckInFormPDF from "./CheckInFormPDF"
-import {saveAs} from "file-saver"
+import CheckInFormPDF from "./CheckInFormPDF";
+import { saveAs } from "file-saver";
 import { pdf } from "@react-pdf/renderer";
 
 interface RowData {
@@ -80,6 +94,10 @@ const Reservations: React.FC<ReservationsProps> = ({
   // const [filteredRows, setFilteredRows] = useState<RowData[]>(rowsData);
   const [edit, setEdit] = useState(false);
   const [del, setDel] = useState(false);
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({
+    pageSize: 100,
+    page: 0,
+  });
   const [editId, setEditId] = useState<FormDataReservation | null>(null);
   const [deleteId, setDeleteId] = useState("");
   const apiRef = useGridApiRef();
@@ -100,28 +118,28 @@ const Reservations: React.FC<ReservationsProps> = ({
 
   async function fetchMeals(bookingId: string) {
     try {
-      const res = await fetchMealsByBookingId(token,bookingId);
+      const res = await fetchMealsByBookingId(token, bookingId);
       return res;
-    } catch(error) {
-      console.log("error fetching meals for bookingID ", bookingId)
+    } catch (error) {
+      console.log("error fetching meals for bookingID ", bookingId);
       return null;
     }
   }
   async function fetchMovement(bookingId: string) {
     try {
-      const res = await fetchMovementByBookingId(token,bookingId);
+      const res = await fetchMovementByBookingId(token, bookingId);
       return res;
-    } catch(error) {
-      console.log("error fetching movement for bookingID ", bookingId)
+    } catch (error) {
+      console.log("error fetching movement for bookingID ", bookingId);
       return null;
     }
   }
   async function fetchOccupancy(bookingId: string) {
     try {
-      const res = await fetchOccupancyByBookingId(token,bookingId);
+      const res = await fetchOccupancyByBookingId(token, bookingId);
       return res;
-    } catch(error) {
-      console.log("error fetching occupancy for bookingID ", bookingId)
+    } catch (error) {
+      console.log("error fetching occupancy for bookingID ", bookingId);
       return null;
     }
   }
@@ -183,19 +201,20 @@ const Reservations: React.FC<ReservationsProps> = ({
   // },[rowsData])
 
   const downloadPdf = async (data: RowData) => {
-    let guestName=data.name.split(" ");
-    let filePrefix="";
-    guestName.map((word:string)=>{
-      filePrefix=filePrefix+word+"_";
-    })
+    let guestName = data.name.split(" ");
+    let filePrefix = "";
+    guestName.map((word: string) => {
+      filePrefix = filePrefix + word + "_";
+    });
     const fileName = `${filePrefix}CheckInForm.pdf`;
-    console.log("data: ", data)
+    console.log("data: ", data);
     const blob = await pdf(<CheckInFormPDF data={data} />).toBlob();
     saveAs(blob, fileName);
   };
 
-
-  const BoldHeaderCell = (props: any) => <div style={{ fontWeight: "bold" }}>{props.colDef.headerName}</div>;
+  const BoldHeaderCell = (props: any) => (
+    <div style={{ fontWeight: "bold" }}>{props.colDef.headerName}</div>
+  );
   let gridColumns: GridColDef[];
   if (location === "movement") {
     gridColumns = [
@@ -244,12 +263,11 @@ const Reservations: React.FC<ReservationsProps> = ({
         },
       })),
     ];
-  }
-  else if(location === "masterList" ||location === "masterMovement" ){
+  } else if (location === "masterList" || location === "masterMovement") {
     gridColumns = [
       ...columns.map((columnName, index) => ({
         field: columnName,
-        headerName: headers[index],        
+        headerName: headers[index],
         hide: columnName === "email",
         // width: 100,
         flex:
@@ -261,7 +279,10 @@ const Reservations: React.FC<ReservationsProps> = ({
           index === 12 ||
           index === 13 ||
           columnName === "room" ||
-          columnName === "status"||columnName === "phone"||columnName === "driver"||columnName === "car_name"
+          columnName === "status" ||
+          columnName === "phone" ||
+          columnName === "driver" ||
+          columnName === "car_name"
             ? 100
             : 160,
         renderHeader: (params: GridColumnHeaderParams) => (
@@ -275,7 +296,11 @@ const Reservations: React.FC<ReservationsProps> = ({
                   size="sm"
                   variant="outlined"
                   color={
-                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
+                    params.row[columnName] === "Expired"
+                      ? "danger"
+                      : params.row[columnName] === "Active"
+                      ? "success"
+                      : "warning"
                   }
                 >
                   {params.row[columnName]}
@@ -293,7 +318,7 @@ const Reservations: React.FC<ReservationsProps> = ({
       ...columns.map((columnName, index) => ({
         field: columnName,
         headerName: headers[index],
-        hide: index===7,
+        hide: index === 7,
         flex:
           index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
             ? 0
@@ -303,7 +328,8 @@ const Reservations: React.FC<ReservationsProps> = ({
           index === 12 ||
           index === 13 ||
           columnName === "room" ||
-          columnName === "status"|| columnName==="rank"
+          columnName === "status" ||
+          columnName === "rank"
             ? 100
             : 160,
         renderHeader: (params: GridColumnHeaderParams) => (
@@ -317,7 +343,11 @@ const Reservations: React.FC<ReservationsProps> = ({
                   size="sm"
                   variant="outlined"
                   color={
-                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
+                    params.row[columnName] === "Expired"
+                      ? "danger"
+                      : params.row[columnName] === "Active"
+                      ? "success"
+                      : "warning"
                   }
                 >
                   {params.row[columnName]}
@@ -338,7 +368,10 @@ const Reservations: React.FC<ReservationsProps> = ({
         // flex: 1,
         width: 180, // Set width to accommodate both icons
         renderHeader: (params: GridColumnHeaderParams) => (
-          <span className="text-[#0D141C] font-semibold pl-3 text-center" style={{ display: "block", width: "100%" }}>
+          <span
+            className="text-[#0D141C] font-semibold pl-3 text-center"
+            style={{ display: "block", width: "100%" }}
+          >
             Actions
           </span>
         ),
@@ -346,24 +379,23 @@ const Reservations: React.FC<ReservationsProps> = ({
           <div>
             <IconButton
               style={{ marginRight: 5 }}
-              onClick={async()=>{
+              onClick={async () => {
                 const meals = await fetchMeals(params.row.booking_id);
                 const movements = await fetchMovement(params.row.booking_id);
                 const occupancy = await fetchOccupancy(params.row.booking_id);
-                
+
                 console.log(movements);
                 if (meals && movements && occupancy) {
-                  console.log("meals ", meals)
-                  console.log("movements ", movements)
+                  console.log("meals ", meals);
+                  console.log("movements ", movements);
                   const data = {
                     ...params.row,
                     meals: meals,
                     movements: movements,
                     occupancy: occupancy,
-                  }
+                  };
                   downloadPdf(data);
                 }
-
               }}
               // onClick={() => {
               //   setGeneratePDF(params.row);
@@ -436,7 +468,6 @@ const Reservations: React.FC<ReservationsProps> = ({
   return (
     <>
       <div>
-
         {/* <CheckInForm data={rowsData[0]||null} /> */}
         <div className="mb-6">
           {location === "movement" && (
@@ -493,81 +524,76 @@ const Reservations: React.FC<ReservationsProps> = ({
               />
             </div>
           </>
-        ) : (<>{location==="masterMovement"?(<div className="my-2 w-full h-screen"  id="datagrid-container">
-          <DataGrid
-            apiRef={apiRef}
-            rows={rowsData}
-            loading={loading}
-            columns={gridColumns}
-            paginationModel={{ pageSize: rowsData.length, page: 0 }} // Show all rows on one page
-            rowHeight={70}
-            hideFooterPagination
-            getRowId={(row) => row.passenger_id} // Specify the custom row ID
-            initialState={{
-              sorting: {
-                sortModel: [{ field: "pickup_time", sort: "asc" }], // Adjust 'asc' to 'desc' if needed
-              },
-            }}
-            sx={{
-              borderRadius: 3, // Adjust the value to achieve the desired rounding
-              "& .MuiDataGrid-root": {
-                borderRadius: "inherit",
-              },
-              "& .MuiDataGrid-columnHeaders": {
-                position: "sticky",
-                top: 0,
-                zIndex: 1, // Adjust zIndex to make sure header is above other elements
-                backgroundColor: "white", // Ensure the header has a background color
-              },
-              // "& .MuiDataGrid-cell": {
-              //   border: "1px solid gray", // Add border to each cell
-              // },
-              // "& .MuiDataGrid-columnHeaders": {
-              //   borderBottom: "1px solid gray", // Add border to column headers
-              // },
-            }}
-          />
-        </div>):(<div className="my-2 w-full h-[72vh]"  id="datagrid-container">
-          <DataGrid
-            apiRef={apiRef}
-            rows={rowsData}
-            loading={loading}
-            columns={gridColumns}
-            paginationModel={{ pageSize: rowsData.length, page: 0 }} // Show all rows on one page
-            rowHeight={70}
-            hideFooterPagination
-            getRowId={(row) => row.booking_id} // Specify the custom row ID
-            initialState={{
-              sorting: {
-                sortModel: [{ field: "status", sort: "asc" }], // Adjust 'asc' to 'desc' if needed
-              },
-              columns: {
-                columnVisibilityModel: {
-                  email: false
-                }
-              }
-            }}
-            sx={{
-              borderRadius: 3, // Adjust the value to achieve the desired rounding
-              "& .MuiDataGrid-root": {
-                borderRadius: "inherit",
-              },
-              "& .MuiDataGrid-columnHeaders": {
-                position: "sticky",
-                top: 0,
-                zIndex: 1, // Adjust zIndex to make sure header is above other elements
-                backgroundColor: "white", // Ensure the header has a background color
-              },
-              // "& .MuiDataGrid-cell": {
-              //   border: "1px solid gray", // Add border to each cell
-              // },
-              // "& .MuiDataGrid-columnHeaders": {
-              //   borderBottom: "1px solid gray", // Add border to column headers
-              // },
-            }}
-          />
-        </div>)}</>
-          
+        ) : (
+          <>
+            {location === "masterMovement" ? (
+              <div className="my-2 w-full h-screen" id="datagrid-container">
+                <DataGrid
+                  apiRef={apiRef}
+                  rows={rowsData}
+                  loading={loading}
+                  columns={gridColumns}
+                  paginationModel={{ pageSize: rowsData.length, page: 0 }}
+                  rowHeight={70}
+                  hideFooterPagination
+                  getRowId={(row) => row.passenger_id}
+                  initialState={{
+                    sorting: {
+                      sortModel: [{ field: "pickup_time", sort: "asc" }],
+                    },
+                  }}
+                  sx={{
+                    borderRadius: 3,
+                    "& .MuiDataGrid-root": {
+                      borderRadius: "inherit",
+                    },
+                    "& .MuiDataGrid-columnHeaders": {
+                      position: "sticky",
+                      top: 0,
+                      zIndex: 1,
+                      backgroundColor: "white",
+                    },
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="my-2 w-full h-[72vh]" id="datagrid-container">
+                <DataGrid
+                  apiRef={apiRef}
+                  rows={rowsData}
+                  loading={loading}
+                  columns={gridColumns}
+                  pagination
+                  rowHeight={70}
+                  getRowId={(row) => row.booking_id}
+                  paginationModel={paginationModel}
+                  onPaginationModelChange={setPaginationModel}
+                  initialState={{
+                    sorting: {
+                      sortModel: [{ field: "status", sort: "asc" }],
+                    },
+                    columns: {
+                      columnVisibilityModel: {
+                        email: false,
+                      },
+                    },
+                  }}
+                  sx={{
+                    borderRadius: 3,
+                    "& .MuiDataGrid-root": {
+                      borderRadius: "inherit",
+                    },
+                    "& .MuiDataGrid-columnHeaders": {
+                      position: "sticky",
+                      top: 0,
+                      zIndex: 1,
+                      backgroundColor: "white",
+                    },
+                  }}
+                />
+              </div>
+            )}
+          </>
         )}
       </div>
       <Modal
@@ -577,12 +603,19 @@ const Reservations: React.FC<ReservationsProps> = ({
         }}
       >
         <ModalDialog className="w-6/12 max-xl:w-8/12 max-lg:w-9/12 max-md:w-10/12 max-sm:w-full">
-          <ModalClose style={{zIndex:"10"}}/>
+          <ModalClose style={{ zIndex: "10" }} />
           <DialogTitle>
             <span className="text-2xl">Edit Booking</span>
           </DialogTitle>
           <DialogContent className="">
-            {editId && <EditBooking setReload={setReload} reload={reload} setOpenModal={setEdit} initialData={editId} />}
+            {editId && (
+              <EditBooking
+                setReload={setReload}
+                reload={reload}
+                setOpenModal={setEdit}
+                initialData={editId}
+              />
+            )}
           </DialogContent>
         </ModalDialog>
       </Modal>

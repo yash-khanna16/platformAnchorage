@@ -1034,3 +1034,23 @@ export async function fetchOccupancyByBookingId(token: string,bookingId: string)
     throw error;
   }
 }
+
+export async function fetchBookingLogs(token: string) {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/fetchBookingLogs`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      cache: "no-cache",
+    });
+
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}

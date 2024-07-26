@@ -51,6 +51,7 @@ function Navbar() {
     { icon: tableIcon, route: "master-table", value: "Master Table" },
     { icon: addPersonIcon, route: "add-guest", value: "Add Guest" },
     { icon: mailIcon, route: "emails", value: "Emails" },
+    { icon: searchIcon, route: "check-logs", value: "Check Logs" },
   ];
   const [open, setOpen] = React.useState(false);
 
