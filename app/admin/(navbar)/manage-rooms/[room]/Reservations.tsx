@@ -577,7 +577,7 @@ const Reservations: React.FC<ReservationsProps> = ({
         }}
       >
         <ModalDialog className="w-6/12 max-xl:w-8/12 max-lg:w-9/12 max-md:w-10/12 max-sm:w-full">
-          <ModalClose />
+          <ModalClose style={{zIndex:"10"}}/>
           <DialogTitle>
             <span className="text-2xl">Edit Booking</span>
           </DialogTitle>

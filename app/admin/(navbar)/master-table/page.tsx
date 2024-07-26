@@ -302,14 +302,14 @@ function MasterTable() {
   return (
     <>
       <div className="flex mt-10 mx-10 justify-end">
-        <Button variant="contained" color="primary" onClick={exportReservationsToExcel}>
-          Export Reservations as Excel
+        <Button variant="contained" color="primary" className="text-sm" onClick={exportReservationsToExcel}>
+          Export Reservations
         </Button>
-        <Button variant="contained" color="primary" onClick={exportMovementsToExcel} className="ml-4">
-          Export Movements as Excel
+        <Button variant="contained" color="primary"  onClick={exportMovementsToExcel} className="ml-4 text-sm">
+          Export Movements
         </Button>
-        <Button variant="contained" color="primary" onClick={exportExternalMovementsToExcel} className="ml-4">
-          Export External Movements as Excel
+        <Button variant="contained" color="primary" onClick={exportExternalMovementsToExcel} className="ml-4 text-sm">
+          Export External Movements
         </Button>
       </div>
       <div className="mx-5 mt-4 max-[1420px]:mx-10 max-lg:mx-5">

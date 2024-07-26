@@ -531,7 +531,7 @@ function isValidPhoneNumber(phoneNumber: string) {
         }}
       >
         <ModalDialog size="lg">
-          <ModalClose />
+          <ModalClose style={{zIndex:"10"}}/>
           <DialogTitle className="">Edit Confirmation</DialogTitle>
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
