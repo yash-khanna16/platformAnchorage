@@ -22,6 +22,7 @@ type ReservationType = {
   lunch_nonveg: number;
   dinner_veg: number;
   date: string;
+  company: string;
   dinner_nonveg: number;
   checkin: string;
   checkout: string;
@@ -61,15 +62,7 @@ function Meals() {
   }, []);
 
   function generatePredefinedData() {
-    const predefinedNames = [
-      "101",
-      "102",
-      "103",
-      "104",
-      "105",
-      "106",
-      "107",
-    ];
+    const predefinedNames = ["101", "102", "103", "104", "105", "106", "107"];
 
     // Create an array of objects with predefined names and empty values
     const data = predefinedNames.map((name) => ({
@@ -84,7 +77,7 @@ function Meals() {
     return data;
   }
 
-  const [dummy,setDummy] = useState(generatePredefinedData());
+  const [dummy, setDummy] = useState(generatePredefinedData());
 
   useEffect(() => {
     if (values.length === 0 || isFirstRender.current) {
@@ -158,7 +151,7 @@ function Meals() {
         console.log("fetching for date: ", date);
         let fetchedRows = await fetchMealsByDate(token, date);
         const currentTime = new Date();
-
+        console.log("fetched rows: ", fetchedRows);
         fetchedRows = fetchedRows.map((row: ReservationType) => {
           const checkinTime = new Date(row.checkin);
           const checkoutTime = new Date(row.checkout);
@@ -339,29 +332,29 @@ function Meals() {
           <div className={`text-3xl font-semibold ${loading && "animate-pulse"}`}>Manage Meals</div>
           {/* {loading && <div className="w-52 h-10 animate-pulse bg-gray-200 rounded-md"></div>} */}
           {/* {!loading && ( */}
-            <Input
-              type="date"
-              required
-              value={date}
-              size="lg"
-              onChange={(e) => {
-                setDate(e.target.value);
-              }}
-            />
+          <Input
+            type="date"
+            required
+            value={date}
+            size="lg"
+            onChange={(e) => {
+              setDate(e.target.value);
+            }}
+          />
           {/* )} */}
         </div>
         <div>
           <div className="flex justify-between my-5">
             {/* {!loading && ( */}
-              <Button onClick={handlePrevDate} startDecorator={<KeyboardArrowLeft fontSize="small" />} size="sm">
-                Prev&nbsp;&nbsp;
-              </Button>
+            <Button onClick={handlePrevDate} startDecorator={<KeyboardArrowLeft fontSize="small" />} size="sm">
+              Prev&nbsp;&nbsp;
+            </Button>
             {/* )} */}
             {/* {loading && <div className="w-20 h-8 bg-gray-200 animate-pulse rounded-md"></div>} */}
             {/* {!loading && ( */}
-              <Button onClick={handleNextDate} endDecorator={<KeyboardArrowRight fontSize="small" />} size="sm">
-                &nbsp;&nbsp;Next
-              </Button>
+            <Button onClick={handleNextDate} endDecorator={<KeyboardArrowRight fontSize="small" />} size="sm">
+              &nbsp;&nbsp;Next
+            </Button>
             {/* )} */}
             {/* {loading && <div className="w-20 h-8 bg-gray-200 animate-pulse rounded-md"></div>} */}
           </div>
@@ -437,10 +430,11 @@ function Meals() {
                     {rows.map((row, index) => (
                       <tr key={index}>
                         <th scope="row" className="">
-                          <div className="px-4 flex space-x-3">
+                          <div className="px-4 flex flex-col my-3">
                             <div>
                               {row.room} {row.name}
                             </div>
+                            <div className="text-slate-500">{row.company}</div>
                           </div>
                         </th>
                         <th scope="row" className="">
