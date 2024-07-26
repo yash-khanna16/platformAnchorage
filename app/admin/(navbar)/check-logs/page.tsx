@@ -235,7 +235,7 @@ function Guests() {
         <CheckInFormPDF data={data} />
       </PDFViewer> */}
       <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
-        Search Reservations
+        Search Logs
       </Typography>
         <Reservations
           reload={reload}
