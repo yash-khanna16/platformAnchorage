@@ -160,7 +160,7 @@ const MyDocument = ({ data }: { data: any }) => {
               <View style={styles.bottomSection}>
                 <View style={styles.row}>
                   <View style={styles.rowItemLeft}>
-                    <Text>Guest Name: {data.name}</Text>
+                    <Text>Guest Name: {data.rank} {data.name}</Text>
                   </View>
                   <View style={styles.rowItemRight}>
                     <Text>Vessel: {data.vessel}</Text>
