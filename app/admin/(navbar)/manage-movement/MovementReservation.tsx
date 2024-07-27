@@ -1,13 +1,7 @@
 import React, { SetStateAction, useEffect, useState } from "react";
 import SearchInput from "@/app/components/Search";
 import { searchIconSecondary } from "@/assets/icons";
-import {
-  DataGrid,
-  GridColDef,
-  GridColumnHeaderParams,
-  GridPaginationModel,
-  useGridApiRef,
-} from "@mui/x-data-grid";
+import { DataGrid, GridColDef, GridColumnHeaderParams, GridPaginationModel, useGridApiRef } from "@mui/x-data-grid";
 import { Chip } from "@mui/joy";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 
@@ -95,37 +89,33 @@ const MovementReservations: React.FC<ReservationsProps> = ({
     ...columns.map((columnName, index) => ({
       field: columnName,
       headerName: headers[index],
-      flex:
-        index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
-          ? 0
-          : undefined,
-      width:
-        index === 0 ||
-        columnName === "car_name" ||
-        columnName === "driver" ||
-        columnName === "status"
-          ? 150
-          : 240,
+      flex: index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 0 : undefined,
+      width: index === 0 || columnName === "car_name" || columnName === "driver" || columnName === "status" ? 150 : 240,
       renderHeader: (params: GridColumnHeaderParams) => (
         <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
       ),
       renderCell: (params: any) => {
+        const currentTime = new Date().getTime();
+        let dateString = params.row["pickup_time"];
+        let isWithinTwoHours;
+        const [day, month, year, hours, minutes] = dateString.split(/[- :]/);
+        const pickupDateTime = new Date(year, month - 1, day, hours, minutes);
+        isWithinTwoHours = Math.abs(currentTime - pickupDateTime.getTime()) <= 2 * 60 * 60 * 1000;
+
         return (
           <div>
             {columnName === "status" ? (
-              <Chip
-                size="sm"
-                variant="outlined"
-                color={
-                  params.row[columnName] === "Expired"
-                    ? "danger"
-                    : params.row[columnName] === "Active"
-                    ? "success"
-                    : "warning"
-                }
-              >
-                {params.row[columnName]}
-              </Chip>
+              <div className={`${isWithinTwoHours && "animate-bounce"}`}>
+                <Chip
+                  size="sm"
+                  variant="outlined"
+                  color={
+                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
+                  }
+                >
+                  {params.row[columnName]}
+                </Chip>
+              </div>
             ) : (
               <>{params.row[columnName]}</>
             )}
@@ -133,7 +123,6 @@ const MovementReservations: React.FC<ReservationsProps> = ({
         );
       },
     })),
-    
   ];
 
   return (
@@ -146,7 +135,7 @@ const MovementReservations: React.FC<ReservationsProps> = ({
           placeholder="Search by guest name, email, company..."
         />
         <br />
-        <div className="my-5 w-full " style={{ height: "400px" }} id="datagrid-container">
+        <div className="my-5 w-full h-[75vh]" id="datagrid-container">
           <DataGrid
             apiRef={apiRef}
             rows={rowsData}
@@ -159,7 +148,7 @@ const MovementReservations: React.FC<ReservationsProps> = ({
             getRowId={(row) => row.movement_id}
             initialState={{
               sorting: {
-                sortModel: [{ field: "pickup_time", sort: "asc" }], // Adjust 'asc' to 'desc' if needed
+                sortModel: [{ field: "pickup_time", sort: "desc" }], // Adjust 'asc' to 'desc' if needed
               },
             }}
             sx={{
