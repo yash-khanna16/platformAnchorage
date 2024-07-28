@@ -199,7 +199,7 @@ export async function editBooking(
     throw error;
   }
 }
-export async function deleteBooking(token: string, bookingId: string) {
+export async function deleteBooking(token: string, bookingId: string,password:string) {
   try {
     const response = await fetch(`${process.env.BACKEND_URL}/api/admin/deleteBooking`, {
       method: "GET",
@@ -208,6 +208,7 @@ export async function deleteBooking(token: string, bookingId: string) {
         "Content-Type": "application/json",
         bookingid: bookingId,
         token: token,
+        password:password,
       },
       cache: "no-cache",
     });
@@ -867,7 +868,7 @@ export async function editMovement(
     throw error;
   }
 }
-export async function deletePassenger(token: string,movement_id:string,passenger_id:string) {
+export async function deletePassenger(token: string,movement_id:string,passenger_id:string,password:string) {
   try {
     const response = await fetch(`${process.env.BACKEND_URL}/api/movement/deletePassengerFromMovement`, {
       method: "get",
@@ -877,6 +878,7 @@ export async function deletePassenger(token: string,movement_id:string,passenger
         token: token,
         movementid:movement_id,
         passengerid:passenger_id,
+        password:password,
       },
       cache: "no-cache",
     });
@@ -888,7 +890,7 @@ export async function deletePassenger(token: string,movement_id:string,passenger
     throw error;
   }
 }
-export async function deleteMovementByMovementId(token: string,movement_id:string) {
+export async function deleteMovementByMovementId(token: string,movement_id:string,password:string) {
   try {
     const response = await fetch(`${process.env.BACKEND_URL}/api/movement/deleteMovementFromMovementId`, {
       method: "get",
@@ -897,6 +899,7 @@ export async function deleteMovementByMovementId(token: string,movement_id:strin
         "Content-Type": "application/json",
         token: token,
         movementid:movement_id,
+        password:password,
       },
       cache: "no-cache",
     });
@@ -1038,6 +1041,25 @@ export async function fetchOccupancyByBookingId(token: string,bookingId: string)
 export async function fetchBookingLogs(token: string) {
   try {
     const response = await fetch(`${process.env.BACKEND_URL}/api/admin/fetchBookingLogs`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      cache: "no-cache",
+    });
+
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function fetchAuditLogs(token: string) {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/fetchAuditLog`, {
       method: "GET",
       mode: "cors",
       headers: {
