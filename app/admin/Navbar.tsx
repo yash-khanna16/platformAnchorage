@@ -52,7 +52,7 @@ function Navbar() {
     { icon: addPersonIcon, route: "add-guest", value: "Add Guest" },
     { icon: mailIcon, route: "emails", value: "Emails" },
     { icon: searchIcon, route: "check-logs", value: "Check Logs" },
-    // { icon: auditLogs, route: "audit-logs", value: "Audit Logs" },
+    { icon: auditLogs, route: "audit-logs", value: "Audit Logs" },
   ];
   const [open, setOpen] = React.useState(false);
 

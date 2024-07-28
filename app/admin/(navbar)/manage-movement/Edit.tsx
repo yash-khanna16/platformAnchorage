@@ -226,6 +226,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [password,setPassword]=useState("")
   const [alert, setAlert] = useState(false);
   const [passengerModal, setPassengerModal] = useState(false);
   const [message, setMessage] = useState("");
@@ -306,6 +307,10 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
     }
   };
 
+  const changePassword = (e:React.ChangeEvent<HTMLInputElement>)=>{
+    setPassword(e.target.value);
+  }
+
   const handleChangeCar = (event: React.SyntheticEvent | null, newValue: string | null) => {
     if (newValue) {
       setNewCar(newValue);
@@ -356,7 +361,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
   const handlePassengerDelete = async () => {
     try {
       setLoadingDelete(true);
-      const res = await deletePassenger(token, formData.movement_id, deleteId);
+      const res = await deletePassenger(token, formData.movement_id, deleteId,password);
       setMessage(res.message);
       if (res.message === "Passenger and related records deleted successfully.") {
         const newPassengersList = formData.passengers.filter(
@@ -369,12 +374,14 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
       setDeleteId("");
       setAlert(true);
       setMessage(res.message);
+      setPassword("")
     } catch (error) {
       setLoadingDelete(false);
       setDel(false);
       setDeleteId("");
       setAlert(true);
       setMessage("Something went wrong, Please try again!");
+      setPassword("")
     }
   };
   const handleDelete = () => {
@@ -680,7 +687,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
   const deleteMovement = async () => {
     setDelMovement(false);
     try {
-      const res = await deleteMovementByMovementId(token, formData.movement_id);
+      const res = await deleteMovementByMovementId(token, formData.movement_id,password);
       if (res.message === "Movement and related data deleted successfully!") {
         setDeleteConfirm(true);
       }
@@ -689,10 +696,12 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
       setReload(!reload);
       console.log("res: ", res);
       setSubmitLoading(false);
+      setPassword("")
     } catch (error) {
       setSubmitLoading(false);
       setMessage("Something went wrong, Please try again later!");
       setAlert(true);
+      setPassword("")
       console.log("error: ", error);
     }
   };
@@ -1318,6 +1327,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
         open={del}
         onClose={() => {
           setDel(false);
+          setPassword("");
         }}
       >
         <ModalDialog variant="outlined" size="md">
@@ -1326,7 +1336,20 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
             Confirmation
           </DialogTitle>
           <Divider />
-          <DialogContent>Are you sure you want to delete this Passenger?</DialogContent>
+          <DialogContent>
+            <div className="text-2xl my-4">Enter your secret password to delete</div>
+            <FormControl size="lg" className="space-y-1">
+              <FormLabel>Password</FormLabel>
+              <Input
+                value={password}
+                name="password"
+                onChange={changePassword}
+                fullWidth
+                size="lg"
+                placeholder="Enter Password"
+              />
+            </FormControl>
+            </DialogContent>
           <DialogActions>
             <Button
               variant="solid"
@@ -1336,7 +1359,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
             >
               Confirm
             </Button>
-            <Button variant="plain" color="neutral" onClick={() => setDel(false)}>
+            <Button variant="plain" color="neutral" onClick={() => {setDel(false);setPassword("");}}>
               Cancel
             </Button>
           </DialogActions>
@@ -1455,7 +1478,6 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
         open={deleteConfirm}
         onClose={() => {
           setDeleteConfirm(false);
-          window.location.reload();
         }}
       >
         <ModalDialog size="lg">
@@ -1475,6 +1497,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
         open={delMovement}
         onClose={() => {
           setDelMovement(false);
+          setPassword("")
         }}
       >
         <ModalDialog variant="outlined" size="md">
@@ -1483,12 +1506,25 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
             Confirmation
           </DialogTitle>
           <Divider />
-          <div>Are you sure you want to delete this Movement ?</div>
+          <DialogContent>
+            <div className="text-2xl my-4">Enter your secret password to delete</div>
+            <FormControl size="lg" className="space-y-1">
+              <FormLabel>Password</FormLabel>
+              <Input
+                value={password}
+                name="password"
+                onChange={changePassword}
+                fullWidth
+                size="lg"
+                placeholder="Enter Password"
+              />
+            </FormControl>
+            </DialogContent>
           <DialogActions>
             <Button variant="solid" color="danger" onClick={deleteMovement}>
               Confirm
             </Button>
-            <Button variant="plain" color="neutral" onClick={() => setDelMovement(false)}>
+            <Button variant="plain" color="neutral" onClick={() => {setDelMovement(false);setPassword("")}}>
               Cancel
             </Button>
           </DialogActions>
