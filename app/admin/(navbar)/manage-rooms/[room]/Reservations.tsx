@@ -11,32 +11,18 @@ import {
 } from "@mui/x-data-grid";
 import { Box, Typography, IconButton, DialogContent, DialogActions } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit"; // Import the EditIcon
-import {
-  Button,
-  Chip,
-  DialogTitle,
-  Divider,
-  Modal,
-  ModalClose,
-  ModalDialog,
-  Snackbar,
-} from "@mui/joy";
+import { Button, Chip, DialogTitle, Divider, Modal, ModalClose, ModalDialog, Snackbar } from "@mui/joy";
 import EditBooking from "./EditBooking";
-import { Close, DeleteForever, FileDownload, Info } from "@mui/icons-material";
+import { Close, DeleteForever, FileDownload, Info, OpenInNew } from "@mui/icons-material";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
-import {
-  deleteBooking,
-  fetchMealsByBookingId,
-  fetchMovementByBookingId,
-  fetchOccupancyByBookingId,
-} from "@/app/actions/api";
+import { deleteBooking, fetchMealsByBookingId, fetchMovementByBookingId, fetchOccupancyByBookingId } from "@/app/actions/api";
 import { useRouter } from "next/navigation";
 import { getAuthAdmin } from "@/app/actions/cookie";
 import CheckInForm from "@/app/admin/(navbar)/manage-rooms/[room]/CheckInForm";
 import { data } from "autoprefixer";
 import CheckInFormPDF from "./CheckInFormPDF";
 import { saveAs } from "file-saver";
-import { pdf } from "@react-pdf/renderer";
+import { pdf, PDFViewer } from "@react-pdf/renderer";
 
 interface RowData {
   [key: string]: any;
@@ -106,7 +92,8 @@ const Reservations: React.FC<ReservationsProps> = ({
   const [message, setMessage] = useState("");
   const [generatePDF, setGeneratePDF] = useState<RowData | null>(null);
   const pdfDownloadRef = useRef<any>(null);
-
+  const [preview, setPreview] = useState(false);
+  const [previewData, setPreviewData] = useState();
   const [token, setToken] = useState("");
   const [rowSelectionModel, setRowSelectionModel] = useState<GridRowSelectionModel>([]);
 
@@ -212,9 +199,7 @@ const Reservations: React.FC<ReservationsProps> = ({
     saveAs(blob, fileName);
   };
 
-  const BoldHeaderCell = (props: any) => (
-    <div style={{ fontWeight: "bold" }}>{props.colDef.headerName}</div>
-  );
+  const BoldHeaderCell = (props: any) => <div style={{ fontWeight: "bold" }}>{props.colDef.headerName}</div>;
   let gridColumns: GridColDef[];
   if (location === "movement") {
     gridColumns = [
@@ -223,18 +208,8 @@ const Reservations: React.FC<ReservationsProps> = ({
         headerName: headers[index],
         hide: columnName === "email",
         // width: 100,
-        flex:
-          index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
-            ? 0
-            : undefined,
-        width:
-          index === 11 ||
-          index === 12 ||
-          index === 13 ||
-          columnName === "room" ||
-          columnName === "status"
-            ? 100
-            : 160,
+        flex: index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 0 : undefined,
+        width: index === 11 || index === 12 || index === 13 || columnName === "room" || columnName === "status" ? 100 : 160,
         renderHeader: (params: GridColumnHeaderParams) => (
           <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
         ),
@@ -246,11 +221,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                   size="sm"
                   variant="outlined"
                   color={
-                    params.row[columnName] === "Expired"
-                      ? "danger"
-                      : params.row[columnName] === "Active"
-                      ? "success"
-                      : "warning"
+                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
                   }
                 >
                   {params.row[columnName]}
@@ -270,10 +241,7 @@ const Reservations: React.FC<ReservationsProps> = ({
         headerName: headers[index],
         hide: columnName === "email",
         // width: 100,
-        flex:
-          index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
-            ? 0
-            : undefined,
+        flex: index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 0 : undefined,
         width:
           index === 11 ||
           index === 12 ||
@@ -296,11 +264,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                   size="sm"
                   variant="outlined"
                   color={
-                    params.row[columnName] === "Expired"
-                      ? "danger"
-                      : params.row[columnName] === "Active"
-                      ? "success"
-                      : "warning"
+                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
                   }
                 >
                   {params.row[columnName]}
@@ -319,10 +283,7 @@ const Reservations: React.FC<ReservationsProps> = ({
         field: columnName,
         headerName: headers[index],
         hide: index === 7,
-        flex:
-          index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
-            ? 0
-            : undefined,
+        flex: index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 0 : undefined,
         width:
           index === 11 ||
           index === 12 ||
@@ -343,11 +304,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                   size="sm"
                   variant="outlined"
                   color={
-                    params.row[columnName] === "Expired"
-                      ? "danger"
-                      : params.row[columnName] === "Active"
-                      ? "success"
-                      : "warning"
+                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
                   }
                 >
                   {params.row[columnName]}
@@ -365,18 +322,37 @@ const Reservations: React.FC<ReservationsProps> = ({
         sortable: false,
         align: "center",
         headerAlign: "center",
-        // flex: 1,
-        width: 180, // Set width to accommodate both icons
+        width: 180,
         renderHeader: (params: GridColumnHeaderParams) => (
-          <span
-            className="text-[#0D141C] font-semibold pl-3 text-center"
-            style={{ display: "block", width: "100%" }}
-          >
+          <span className="text-[#0D141C] font-semibold pl-3 text-center" style={{ display: "block", width: "100%" }}>
             Actions
           </span>
         ),
         renderCell: (params) => (
           <div>
+            <IconButton
+              onClick={async () => {
+                const meals = await fetchMeals(params.row.booking_id);
+                const movements = await fetchMovement(params.row.booking_id);
+                const occupancy = await fetchOccupancy(params.row.booking_id);
+
+                console.log(movements);
+                if (meals && movements && occupancy) {
+                  console.log("meals ", meals);
+                  console.log("movements ", movements);
+                  const data = {
+                    ...params.row,
+                    meals: meals,
+                    movements: movements,
+                    occupancy: occupancy,
+                  };
+                  setPreview(true);
+                  setPreviewData(data);
+                }
+              }}
+            >
+              <OpenInNew className="scale-75" />
+            </IconButton>
             <IconButton
               style={{ marginRight: 5 }}
               onClick={async () => {
@@ -608,14 +584,7 @@ const Reservations: React.FC<ReservationsProps> = ({
             <span className="text-2xl">Edit Booking</span>
           </DialogTitle>
           <DialogContent className="">
-            {editId && (
-              <EditBooking
-                setReload={setReload}
-                reload={reload}
-                setOpenModal={setEdit}
-                initialData={editId}
-              />
-            )}
+            {editId && <EditBooking setReload={setReload} reload={reload} setOpenModal={setEdit} initialData={editId} />}
           </DialogContent>
         </ModalDialog>
       </Modal>
@@ -664,6 +633,17 @@ const Reservations: React.FC<ReservationsProps> = ({
           <Close />
         </span>
       </Snackbar>
+      <Modal open={preview} onClose={() => setPreview(false)}>
+        <ModalDialog size="lg">
+          <ModalClose />
+          <DialogTitle>Preview PDF</DialogTitle>
+          <DialogContent>
+            <PDFViewer width={800} height={800}>
+              <CheckInFormPDF data={previewData} />
+            </PDFViewer>
+          </DialogContent>
+        </ModalDialog>
+      </Modal>
     </>
   );
 };
