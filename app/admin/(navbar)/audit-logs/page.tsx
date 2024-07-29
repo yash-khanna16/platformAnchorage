@@ -19,11 +19,15 @@ function Audit() {
     "time",
     "author",
     "api_call",
+    "name",
+    "phone"
   ];
   const headers = [
     "Time",
     "Admin Id",
     "Target Api",
+    "Guests",
+    "Phone No."
   ];
   const [search, setSearch] = useState<string>("");
   const [loading, setLoading] = useState(false);

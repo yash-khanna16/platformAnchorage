@@ -328,8 +328,11 @@ const Reservations: React.FC<ReservationsProps> = ({
         field: columnName,
         headerName: headers[index],
         hide: columnName === "email",
-        // width: 100,
-        flex: 1,
+        width:
+          columnName === "time"
+          
+            ? 150
+            : 300,
         
         renderHeader: (params: GridColumnHeaderParams) => (
           <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
@@ -358,6 +361,148 @@ const Reservations: React.FC<ReservationsProps> = ({
           );
         },
       })),
+    ];
+  }
+  else if(location === "logs"){
+    gridColumns = [
+      ...columns.map((columnName, index) => ({
+        field: columnName,
+        headerName: headers[index],
+        hide: index === 7,
+        flex:
+          index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
+            ? 0
+            : undefined,
+        width:
+          index === 11 ||
+          index === 12 ||
+          index === 13 ||
+          columnName === "room" ||
+          columnName === "status" ||
+          columnName === "rank"
+            ? 100
+            : 160,
+        renderHeader: (params: GridColumnHeaderParams) => (
+          <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
+        ),
+        renderCell: (params: any) => {
+          return (
+            <div>
+              {columnName === "status" ? (
+                <Chip
+                  size="sm"
+                  variant="outlined"
+                  color={
+                    params.row[columnName] === "Expired"
+                      ? "danger"
+                      : params.row[columnName] === "Active"
+                      ? "success"
+                      : "warning"
+                  }
+                >
+                  {params.row[columnName]}
+                </Chip>
+              ) : (
+                <>{params.row[columnName]}</>
+              )}
+            </div>
+          );
+        },
+      })),
+      {
+        field: "edit",
+        headerName: "Actions",
+        sortable: false,
+        align: "center",
+        headerAlign: "center",
+        width: 180,
+        renderHeader: (params: GridColumnHeaderParams) => (
+          <span
+            className="text-[#0D141C] font-semibold pl-3 text-center"
+            style={{ display: "block", width: "100%" }}
+          >
+            Actions
+          </span>
+        ),
+        renderCell: (params) => (
+          <div>
+            <IconButton
+              onClick={async () => {
+                const meals = await fetchMeals(params.row.booking_id);
+                const movements = await fetchMovement(params.row.booking_id);
+                const occupancy = await fetchOccupancy(params.row.booking_id);
+
+                console.log(movements);
+                if (meals && movements && occupancy) {
+                  console.log("meals ", meals);
+                  console.log("movements ", movements);
+                  const data = {
+                    ...params.row,
+                    meals: meals,
+                    movements: movements,
+                    occupancy: occupancy,
+                  };
+                  setPreview(true);
+                  setPreviewData(data);
+                }
+              }}
+            >
+              <OpenInNew className="scale-75" />
+            </IconButton>
+            <IconButton
+              style={{ marginRight: 5 }}
+              onClick={async () => {
+                const meals = await fetchMeals(params.row.booking_id);
+                const movements = await fetchMovement(params.row.booking_id);
+                const occupancy = await fetchOccupancy(params.row.booking_id);
+
+                console.log(movements);
+                if (meals && movements && occupancy) {
+                  console.log("meals ", meals);
+                  console.log("movements ", movements);
+                  const data = {
+                    ...params.row,
+                    meals: meals,
+                    movements: movements,
+                    occupancy: occupancy,
+                  };
+                  downloadPdf(data);
+                }
+              }}
+              // onClick={() => {
+              //   setGeneratePDF(params.row);
+              //   pdfDownloadRef.current = (
+              //     <>
+              //       <CheckInForm data={params.row} />
+              //     </>
+              //   );
+              //   if (pdfDownloadRef.current) {
+              //     pdfDownloadRef.current.click();
+              //   }
+              //   console.log("row: ", params.row);
+              // }} // Implement your edit logic here
+            >
+              {/* <CheckInForm data={params.row} /> */}
+              <FileDownload className="scale-75" />
+            </IconButton>
+            {/* <IconButton
+              onClick={() => handleEdit(params.row)} // Implement your edit logic here
+              style={{ marginRight: 10 }}
+            >
+              <EditIcon className="scale-75" />
+            </IconButton>
+            <IconButton
+              onClick={() => {
+                setDel(true);
+                setDeleteId(params.row.booking_id);
+              }}
+            >
+              
+              <DeleteForever className="scale-75 text-red-700" />
+            </IconButton> */}
+          </div>
+        ),
+      },
     ];
   }
   else {

@@ -86,6 +86,7 @@ type ErrorType = {
   returnTime: string;
   passengerNumber: string;
 };
+
 function AddMovement() {
   const router = useRouter();
   const columns = [
@@ -149,6 +150,10 @@ function AddMovement() {
     returnDate: "",
     returnTime: "",
     passengerNumber: "",
+  });
+  const [manualErrors, setManualErrors] = useState<Partial<{ name: string; phone: string }>>({
+    name: "",
+    phone: "",
   });
   const [passengerDetails, setPassengerDetails] = useState({
     name: "",
@@ -268,7 +273,7 @@ function AddMovement() {
         car_number: formData.carName,
         passengers: newManualPassenger,
       };
-      console.log(dataSend)
+      console.log(dataSend);
       try {
         const result = await addMovement(token, dataSend);
         setMessage(result.message);
@@ -276,7 +281,6 @@ function AddMovement() {
         if (result.message === "Movement added successfully!") {
           setOpenConfirm(true);
         }
-        
       } catch {
         console.log("something went wrong");
         setAlert(true);
@@ -301,7 +305,7 @@ function AddMovement() {
         car_number: formData.carName,
         passengers: newSelectedPassenger,
       };
-      console.log(dataSend)
+      console.log(dataSend);
       try {
         const result = await addMovement(token, dataSend);
         setMessage(result.message);
@@ -343,7 +347,7 @@ function AddMovement() {
         car_number: formData.carName,
         passengers: allPassenger,
       };
-      console.log(dataSend)
+      console.log(dataSend);
       try {
         const result = await addMovement(token, dataSend);
         setMessage(result.message);
@@ -405,7 +409,10 @@ function AddMovement() {
       newPassengers = newPassengers.filter((passenger) => passenger !== null);
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
-      setSelectedPassenger((prevSelectedPassenger) => [...prevSelectedPassenger,...(newPassengers as GuestType[])]);
+      setSelectedPassenger((prevSelectedPassenger) => [
+        ...prevSelectedPassenger,
+        ...(newPassengers as GuestType[]),
+      ]);
       setSelectedGuest([]);
       setOpen(false);
     }
@@ -494,6 +501,20 @@ function AddMovement() {
     }
   };
   const handleManually = () => {
+    const manualError: Partial<{ name: string; phone: string }> = {};
+    if (passengerDetails.name === "" && passengerDetails.phoneNumber === "") {
+      manualError.name = "Enter name to continue";
+      manualError.phone = "Enter phone number to continue";
+    } else if (passengerDetails.name === "") {
+      manualError.name = "Enter name to continue";
+    } else if (passengerDetails.phoneNumber === "") {
+      manualError.phone = "Enter phone number to continue";
+    }
+    if (Object.keys(manualError).length > 0) {
+      setManualErrors(manualError);
+      return;
+    }
+    setManualErrors({ name: "", phone: "" });
     setManualPassenger([...manualPassenger, passengerDetails]);
     console.log(manualPassenger);
     setManually(false);
@@ -848,7 +869,7 @@ function AddMovement() {
         }}
       >
         <ModalDialog style={{ width: "75vw" }}>
-          <ModalClose style={{zIndex:"10"}}/>
+          <ModalClose style={{ zIndex: "10" }} />
           <DialogContent className="h-fit">
             <Reservations
               reload={reload}
@@ -894,7 +915,7 @@ function AddMovement() {
         }}
       >
         <ModalDialog style={{ width: "50vw" }}>
-          <ModalClose style={{zIndex:"10"}}/>
+          <ModalClose style={{ zIndex: "10" }} />
           <DialogContent className="h-fit">
             <Typography className="text-4xl mb-5" component="div" fontWeight="bold">
               Add Details
@@ -911,6 +932,12 @@ function AddMovement() {
                   size="lg"
                   placeholder="Enter Passenger Name"
                 />
+                {manualErrors.name && (
+                  <FormControl error>
+                    {" "}
+                    <FormHelperText>{manualErrors.name}</FormHelperText>
+                  </FormControl>
+                )}
               </FormControl>
 
               <FormControl size="lg" className="my-1">
@@ -932,6 +959,12 @@ function AddMovement() {
                     },
                   }}
                 />
+                {manualErrors.phone && (
+                  <FormControl error>
+                    {" "}
+                    <FormHelperText>{manualErrors.phone}</FormHelperText>
+                  </FormControl>
+                )}
               </FormControl>
               <FormControl size="lg" className="my-1">
                 <FormLabel className="text-[#0D141C] font-medium">Company</FormLabel>
@@ -1038,7 +1071,7 @@ function AddMovement() {
         }}
       >
         <ModalDialog size="lg">
-          <ModalClose style={{zIndex:"10"}}/>
+          <ModalClose style={{ zIndex: "10" }} />
           <DialogTitle className="">Movement Confirmation</DialogTitle>
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">

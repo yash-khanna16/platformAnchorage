@@ -243,6 +243,10 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);
   const [manualDelId, setManualDelId] = useState<PassengerType>();
+  const [manualErrors, setManualErrors] = useState<Partial<{ name: string; phone: string }>>({
+    name: "",
+    phone: "",
+  });
   const [passengerDetails, setPassengerDetails] = useState({
     name: "",
     phoneNumber: "",
@@ -565,6 +569,20 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
   };
 
   const handleManually = () => {
+    const manualError: Partial<{ name: string; phone: string }> = {};
+    if (passengerDetails.name === "" && passengerDetails.phoneNumber === "") {
+      manualError.name = "Enter name to continue";
+      manualError.phone = "Enter phone number to continue";
+    } else if (passengerDetails.name === "") {
+      manualError.name = "Enter name to continue";
+    } else if (passengerDetails.phoneNumber === "") {
+      manualError.phone = "Enter phone number to continue";
+    }
+    if (Object.keys(manualError).length > 0) {
+      setManualErrors(manualError);
+      return;
+    }
+    setManualErrors({ name: "", phone: "" });
     setManualPassenger([...manualPassenger, passengerDetails]);
     console.log(manualPassenger);
     setManually(false);
@@ -1210,6 +1228,12 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
                   size="lg"
                   placeholder="Enter Passenger Name"
                 />
+                {manualErrors.name && (
+                  <FormControl error>
+                    {" "}
+                    <FormHelperText>{manualErrors.name}</FormHelperText>
+                  </FormControl>
+                )}
               </FormControl>
 
               <FormControl size="lg" className="my-1">
@@ -1231,6 +1255,12 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
                     },
                   }}
                 />
+                {manualErrors.name && (
+                  <FormControl error>
+                    {" "}
+                    <FormHelperText>{manualErrors.name}</FormHelperText>
+                  </FormControl>
+                )}
               </FormControl>
               <FormControl size="lg" className="my-1">
                 <FormLabel className="text-[#0D141C] font-medium">Company</FormLabel>
