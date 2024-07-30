@@ -16,18 +16,22 @@ function SendEmails() {
     });
   }, []);
   useEffect(() => {
-    setLoading(true);
-    getEmailTemplate(token, "welcome")
-      .then((result) => {
-        setSubject(result.subject);
-        setContent(result.content);
-        setLoading(false);
-      })
-      .catch(() => {
-        setLoading(false);
-        console.log("error getting template");
-      });
-  }, []);
+    if (token !== "") {
+      setLoading(true);
+      getEmailTemplate(token, "welcome")
+        .then((result) => {
+          console.log(result);
+          setSubject(result.subject);
+          setContent(result.content);
+          setLoading(false);
+        })
+        .catch(() => {
+          setLoading(false);
+          console.log("error getting template");
+        });
+      console.log(subject, content);
+    }
+  }, [token]);
 
   function handleEdit() {
     setLoading(true);
