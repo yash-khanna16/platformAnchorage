@@ -1076,3 +1076,25 @@ export async function fetchAuditLogs(token: string) {
     throw error;
   }
 }
+
+export async function fetchAllOrders(token: string) {
+  try {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/admin/cos/fetchAllOrders`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      cache: "no-cache",
+    });
+
+    console.log("response: ", await response.json())
+
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
