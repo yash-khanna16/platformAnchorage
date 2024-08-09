@@ -1,19 +1,108 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Button, Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
-import { Check, CheckCircle } from "@mui/icons-material";
+import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
+import { Check, CheckCircle, Close, Info, WarningRounded } from "@mui/icons-material";
 import veg from "@/app/assets/veg.svg";
 import nonveg from "@/app/assets/nonveg.svg";
 import Image from "next/image";
 import { getAuthAdmin } from "@/app/actions/cookie";
-import { fetchAllOrders } from "@/app/actions/api";
+import { deleteOrder, fetchAllOrders } from "@/app/actions/api";
+import { convertUTCToIST } from "@/app/actions/utils";
+import { getSocket } from "@/app/actions/websocket";
+import { Socket, io } from "socket.io-client";
+import { DialogActions, Modal } from "@mui/material";
+import {
+  Button,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Input,
+  ModalClose,
+  ModalDialog,
+  Sheet,
+  Snackbar,
+  Typography,
+} from "@mui/joy";
+
+export type ItemType = {
+  item_id: string;
+  name: string;
+  description: string;
+  price: number;
+  qty: number;
+  type: "veg" | "nonveg";
+  category: string;
+  available: boolean;
+  time_to_prepare: number;
+};
+
+export type OrderType = {
+  order_id: string;
+  booking_id: string;
+  room: string;
+  remarks: string;
+  created_at: Date;
+  total_time_to_prepare: number;
+  status: string;
+  guest_name: string;
+  items: ItemType[];
+};
+
+export function useSocket() {
+  const [socket, setSocket] = useState<Socket | null>(null);
+
+  useEffect(() => {
+    const socketIo = io("http://localhost:8000/");
+    socketIo.emit("join_room", process.env.NEXT_PUBLIC_ROOM_CODE);
+
+    setSocket(socketIo);
+
+    function cleanup() {
+      socketIo.disconnect();
+    }
+    return cleanup;
+  }, []);
+
+  return socket;
+}
 
 function Orders() {
   const [selectedTab, setSelectedTab] = useState(0);
   const tabs = ["Preparing", "Ready", "Delivered"];
   const [token, setToken] = useState("");
-  const initialCount = 10;
-  const [counter, setCounter] = useState(initialCount);
+  const [orderData, setOrderData] = useState<OrderType[]>([]);
+  const [deliveredData, setDeliveredData] = useState<OrderType[]>([]);
+  const [timers, setTimers] = useState<{ [key: string]: number }>({});
+  const [neworderData, setNewOrderData] = useState<OrderType>();
+  const [newOrder, setNewOrder] = useState(false);
+  const socket = useSocket();
+  const [del, setDel] = useState(false);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState(false);
+  const [message, setMessage] = useState("");
+  const [reason, setReason] = useState("");
+
+  let dummy = [1, 1, 1, 1, 1, 1];
+
+  const handleRejectOrder = async () => {
+    try {
+      if (neworderData) {
+        setLoadingDelete(true);
+        const res = await deleteOrder(token, neworderData?.order_id, reason);
+        console.log("Current orderData:", orderData);
+        convertAndSetOrderDetails(res.details);
+        setLoadingDelete(false);
+        setDel(false);
+        setNewOrder(false);
+        setAlert(true);
+        setMessage("Order rejected");
+      }
+    } catch (error) {
+      setAlert(true);
+      setMessage("Something went wrong!");
+    }
+  };
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -21,278 +110,483 @@ function Orders() {
     });
   }, []);
 
-  useEffect(()=>{
+  useEffect(() => {
     if (token !== "") {
-      fetchAllOrders(token).then((orders) => {
-        console.log("orders: ", orders)
-      }).catch((error)=>{
-        console.log("error fetching orders: ", error)
-      })
+      setLoading(true);
+      fetchAllOrders(token)
+        .then((orders: OrderType[]) => {
+          setLoading(false);
+          convertAndSetOrderDetails(orders);
+        })
+        .catch((error) => {
+          setLoading(false);
+          console.log("error fetching orders: ", error);
+        });
     }
-  },[token])
+  }, [token]);
+
+  const convertAndSetOrderDetails = (orders: OrderType[]) => {
+    const initialTimers: { [key: string]: number } = {};
+    const deliveredOrders: OrderType[] = [];
+
+    orders.forEach((order) => {
+      order.total_time_to_prepare = Math.max(...order.items.map((item) => item.time_to_prepare));
+      const currentTime = new Date();
+      const timeElapsed = (currentTime.getTime() - Number(order.created_at)) / 1000; // elapsed time in seconds
+      let remainingTime = 0;
+      if (timeElapsed > 0) {
+        remainingTime = Math.max(order.total_time_to_prepare * 60 - timeElapsed, 0); // remaining time in seconds
+      }
+      if (remainingTime > 0) {
+        initialTimers[order.order_id] = remainingTime;
+      }
+
+      if (remainingTime === 0) {
+        deliveredOrders.push(order);
+      }
+    });
+
+    setOrderData(orders.filter((order) => !deliveredOrders.includes(order)));
+    setDeliveredData((prevDeliveredData) => [...prevDeliveredData, ...deliveredOrders]);
+    setTimers(initialTimers);
+  };
+
+  // useEffect(() => {
+  //   console.log("orderData: ", orderData);
+  // }, [orderData]);
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCounter((prevCounter) => (prevCounter > 0 ? prevCounter - 0.01 : 0));
-    }, 10);
+    const intervalId = setInterval(() => {
+      setTimers((prevTimers) => {
+        const newTimers = { ...prevTimers };
+        const newDeliveredData: OrderType[] = [];
+        Object.keys(newTimers).forEach((orderId) => {
+          if (Math.floor(newTimers[orderId]) > 0) {
+            newTimers[orderId] -= 1;
+            newTimers[orderId] = Math.floor(newTimers[orderId]);
+          } else {
+            const deliveredOrder = orderData.find((order) => order.order_id === orderId);
+            if (deliveredOrder) {
+              newDeliveredData.push(deliveredOrder);
+            }
+          }
+        });
+        if (newDeliveredData.length > 0) {
+          setOrderData((prevOrderData) =>
+            prevOrderData.filter(
+              (order) => !newDeliveredData.some((deliveredOrder) => deliveredOrder.order_id === order.order_id)
+            )
+          );
+          setDeliveredData((prevDeliveredData) => [...prevDeliveredData, ...newDeliveredData]);
+        }
+        return newTimers;
+      });
+    }, 1000);
 
-    return () => clearInterval(timer);
-  }, []);
+    return () => clearInterval(intervalId);
+  }, [orderData]);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds) % 60;
-    return `${minutes}.${secs < 10 ? "0" : ""}${secs}`;
+    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
   return (
     <div className="my-10 mx-10">
       <TabGroup selectedIndex={selectedTab} onChange={setSelectedTab} className="">
-        <TabList className="flex  gap-x-5">
-          {tabs.map((tab, index) => (
-            <Tab className="border outline-none data-[selected]:text-[#ef4f5f]  px-4 font-medium cursor-pointer flex gap-x-2 shadow-md py-2 w-fit text-[#b9b9b9]  rounded-xl">
-              <div> {tab} </div>
-              <div className={`${selectedTab === index ? "border-[#ff7e8b]" : "border-[#c2c2c2]"} border  px-1 rounded-md`}>
-                2
-              </div>
-            </Tab>
-          ))}
+        <TabList className="flex gap-x-5">
+          <Tab className="border outline-none data-[selected]:text-[#ef4f5f] px-4 font-medium cursor-pointer flex gap-x-2 shadow-md py-2 w-fit text-[#b9b9b9] rounded-xl">
+            <div>Preparing</div>
+            <div className={`${selectedTab === 0 ? "border-[#ff7e8b]" : "border-[#c2c2c2]"} border px-1 rounded-md`}>
+              {orderData.length}
+            </div>
+          </Tab>
+          <Tab className="border outline-none data-[selected]:text-[#ef4f5f] px-4 font-medium cursor-pointer flex gap-x-2 shadow-md py-2 w-fit text-[#b9b9b9] rounded-xl">
+            <div>Delivered</div>
+            <div className={`${selectedTab === 1 ? "border-[#ff7e8b]" : "border-[#c2c2c2]"} border px-1 rounded-md`}>
+              {deliveredData.length}
+            </div>
+          </Tab>
         </TabList>
         <TabPanels className="my-5">
           <TabPanel className="space-y-3">
-            <div className="w-full max-md:flex-col text-[#636363] flex shadow-md px-6  py-8 font-medium rounded-3xl">
-              <div className="w-2/5 max-md:w-full  pr-3 md:border-r border-dashed ">
-                <div className="space-y-2 border-b  pb-5 ">
-                  <div className="text-green-600 bg-green-[#fdfffe] text-2xl border w-fit px-2 py-1 rounded-lg">604</div>
-                  <div className=" text-lg text-[#636363]">ORDER NO: 3433 </div>
-                  <div className="text-[#7c7c7c] my-2 font-semibold"> Yash's Order</div>
-                </div>
-                <div className="">
-                  <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm ">
-                    <div>
-                      <CheckCircle className="scale-[80%] z-10 text-green-600" />
+            {loading &&
+              dummy.map((index) => {
+                return (
+                  <div
+                    key={index}
+                    className="animate-pulse h-[340px] border max-md:flex-col text-[#636363] flex shadow-md px-6 py-8 font-medium rounded-3xl "
+                  >
+                    <div className="space-y-4 w-2/5">
+                      <div className="space-y-2">
+                        <div className="h-10 w-16 bg-gray-200 rounded-2xl"></div>
+                        <div className="h-8 w-28 bg-gray-200 rounded-2xl"></div>
+                        <div className="h-6 w-28 bg-gray-200 rounded-2xl"></div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <div className="h-6 w-6 bg-gray-200 rounded-2xl"></div>{" "}
+                          <div className="h-6 my-4 w-28 bg-gray-200 rounded-2xl"></div>
+                        </div>
+                        <div className="h-8 my-4 w-48 bg-gray-200 rounded-2xl"></div>
+                      </div>
                     </div>
-                    <div> Delivered </div>
-                  </div>
-                  <div className="w-[2px] ml-[10px] h-3 bg-green-600 -z-10 scale-y-[300%]"></div>
-                  <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm ">
-                    <div>
-                      <CheckCircle className="scale-[80%] z-10 text-green-600" />
+                    <div className="w-3/5 mx-6 flex flex-col gap-y-3">
+                      <div className="flex justify-between w-full">
+                        <div className="flex gap-x-3">
+                          <div className="w-8 h-8 bg-gray-200 rounded-2xl"></div>
+                          <div className="w-36 h-8 bg-gray-200 rounded-2xl"></div>
+                        </div>
+                        <div className="w-16 h-8 bg-gray-200 rounded-2xl"></div>
+                      </div>
+                      <div className="flex justify-between w-full">
+                        <div className="flex gap-x-3">
+                          <div className="w-8 h-8 bg-gray-200 rounded-2xl"></div>
+                          <div className="w-36 h-8 bg-gray-200 rounded-2xl"></div>
+                        </div>
+                        <div className="w-16 h-8 bg-gray-200 rounded-2xl"></div>
+                      </div>
+                      <div className="flex justify-between w-full">
+                        <div className="flex gap-x-3">
+                          <div className="w-8 h-8 bg-gray-200 rounded-2xl"></div>
+                          <div className="w-36 h-8 bg-gray-200 rounded-2xl"></div>
+                        </div>
+                        <div className="w-16 h-8 bg-gray-200 rounded-2xl"></div>
+                      </div>
+                      <div className="flex my-5 justify-between w-full">
+                        <div className="w-24 h-8 bg-gray-200 rounded-2xl"></div>
+                        <div className="w-16 h-8 bg-gray-200 rounded-2xl"></div>
+                      </div>
+                      <div className="w-full h-14  bg-gray-200 rounded-2xl"></div>
                     </div>
-                    <div> Prepared </div>
                   </div>
-                </div>
-              </div>
-              <div className="w-3/5 md:mx-6 max-md:w-full ">
-                <div className="">
-                  <div className="flex justify-between items-center w-full">
-                    <div className=" md:px-6 py-2 flex gap-x-3">
-                      <Image width={16} height={16} alt="veg" src={veg.src} /> <div> 1 x Paneer Kabaab </div>
+                );
+              })}
+            {!loading &&
+              orderData.length > 0 &&
+              orderData.map((order) => (
+                <div
+                  key={order.order_id}
+                  className="w-full border max-md:flex-col text-[#636363] flex shadow-md px-6 py-8 font-medium rounded-3xl"
+                >
+                  <div className="w-2/5 max-md:w-full pr-3 md:border-r border-dashed">
+                    <div className="space-y-2 border-b pb-5">
+                      <div className="text-green-600 bg-green-[#fdfffe] text-2xl border w-fit px-2 py-1 rounded-lg">
+                        {order.room}
+                      </div>
+                      <div className="text-lg text-[#636363]">ORDER NO: {order.order_id}</div>
+                      <div className="text-[#7c7c7c] my-2 font-semibold">{order.guest_name}'s Order</div>
                     </div>
-                    <div className="">₹400</div>
-                  </div>
-                  <div className="flex justify-between items-center w-full">
-                    <div className=" md:px-6 py-2 flex gap-x-3">
-                      <Image width={16} height={16} alt="veg" src={nonveg.src} /> <div> 1 x Chicken Tikka Kabaab </div>
+                    <div className="">
+                      <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm">
+                        <div>
+                          <CheckCircle className="scale-[80%] z-10 text-green-600" />
+                        </div>
+                        <div>Accepted</div>
+                      </div>
+                      <div className="my-5  border w-fit  text-[#7a7a7a] text-sm px-2 py-1 bg-slate-100 rounded-md ">
+                        Instructions: {order.remarks}
+                      </div>
+                      {/* <div className="w-[2px] ml-[10px] h-3 bg-green-600 -z-10 scale-y-[300%]"></div>
+                    <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm">
+                      <div>
+                        <CheckCircle className="scale-[80%] z-10 text-green-600" />
+                      </div>
+                      <div>Prepared</div>
+                    </div> */}
                     </div>
-                    <div className="">₹450</div>
                   </div>
-                </div>
-                <div className="my-4 py-4 md:pl-6  border-t flex w-full justify-between">
-                  <div>Total Bill:</div> <div> ₹850</div>
-                </div>
-                <div className="md:ml-6 overflow-hidden h-[56px] my-2 font-medium relative">
-                  <div className="absolute left-0 bg-[#538cee] rounded-2xl h-[56px] w-full"></div>
-                  <div className="absolute z-10 left-0 text-white w-full py-4 text-center">
-                    Order Ready {"("}
-                    {formatTime(counter)}
-                    {")"}
-                  </div>
-                  <div className="w-full overflow-clip absolute rounded-2xl">
-                    <div
-                      className={`bg-[#256fef] py-4 rounded-2xl text-white h-[56px]  `}
-                      style={{ width: `${(counter / initialCount) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="w-full max-md:flex-col text-[#636363] flex shadow-md px-6  py-8 font-medium rounded-3xl">
-              <div className="w-2/5 max-md:w-full  pr-3 md:border-r border-dashed ">
-                <div className="space-y-2 border-b  pb-5 ">
-                  <div className="text-green-600 bg-green-[#fdfffe] text-2xl border w-fit px-2 py-1 rounded-lg">604</div>
-                  <div className=" text-lg text-[#636363]">ORDER NO: 3433 </div>
-                  <div className="text-[#7c7c7c] my-2 font-semibold"> Yash's Order</div>
-                </div>
-                <div className="">
-                  <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm ">
-                    <div>
-                      <CheckCircle className="scale-[80%] z-10 text-green-600" />
+                  <div className="w-3/5 md:mx-6 max-md:w-full">
+                    <div className="">
+                      {order.items.map((item) => (
+                        <div key={item.item_id} className="flex justify-between items-center w-full">
+                          <div className="md:px-6 py-2 flex gap-x-3">
+                            <Image width={16} height={16} alt="veg" src={item.type === "veg" ? veg.src : nonveg.src} />
+                            <div>
+                              {item.qty} x {item.name}
+                            </div>
+                          </div>
+                          <div>₹{item.price * item.qty}</div>
+                        </div>
+                      ))}
                     </div>
-                    <div> Delivered </div>
-                  </div>
-                  <div className="w-[2px] ml-[10px] h-3 bg-green-600 -z-10 scale-y-[300%]"></div>
-                  <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm ">
-                    <div>
-                      <CheckCircle className="scale-[80%] z-10 text-green-600" />
+                    <div className="my-4 py-4 md:pl-6 border-t flex w-full justify-between">
+                      <div>Total Bill:</div>
+                      <div>₹{order.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
                     </div>
-                    <div> Prepared </div>
-                  </div>
-                </div>
-              </div>
-              <div className="w-3/5 md:mx-6 max-md:w-full ">
-                <div className="">
-                  <div className="flex justify-between items-center w-full">
-                    <div className=" md:px-6 py-2 flex gap-x-3">
-                      <Image width={16} height={16} alt="veg" src={veg.src} /> <div> 1 x Paneer Kabaab </div>
+                    <div className="md:ml-6 overflow-hidden h-[56px] my-2 font-medium relative">
+                      <div className="absolute left-0 bg-[#538cee] rounded-2xl h-[56px] w-full"></div>
+                      <div className="absolute z-10 left-0 text-white w-full py-4 text-center">
+                        Order Ready ({formatTime(timers[order.order_id] || 0)})
+                      </div>
+                      <div className="w-full overflow-clip absolute rounded-2xl">
+                        <div
+                          className={`bg-[#256fef] py-4 rounded-2xl text-white h-[56px]`}
+                          style={{ width: `${((timers[order.order_id] || 0) / (order.total_time_to_prepare * 60)) * 100}%` }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="">₹400</div>
-                  </div>
-                  <div className="flex justify-between items-center w-full">
-                    <div className=" md:px-6 py-2 flex gap-x-3">
-                      <Image width={16} height={16} alt="veg" src={nonveg.src} /> <div> 1 x Chicken Tikka Kabaab </div>
-                    </div>
-                    <div className="">₹450</div>
                   </div>
                 </div>
-                <div className="my-4 py-4 md:pl-6  border-t flex w-full justify-between">
-                  <div>Total Bill:</div> <div> ₹850</div>
-                </div>
-                <div className="md:ml-6 overflow-hidden h-[56px] my-2 font-medium relative">
-                  <div className="absolute left-0 bg-[#538cee] rounded-2xl h-[56px] w-full"></div>
-                  <div className="absolute z-10 left-0 text-white w-full py-4 text-center">
-                    Order Ready {"("}
-                    {formatTime(counter)}
-                    {")"}
-                  </div>
-                  <div className="w-full overflow-clip absolute rounded-2xl">
-                    <div
-                      className={`bg-[#256fef] py-4 rounded-2xl text-white h-[56px]  `}
-                      style={{ width: `${(counter / initialCount) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="w-full max-md:flex-col text-[#636363] flex shadow-md px-6  py-8 font-medium rounded-3xl">
-              <div className="w-2/5 max-md:w-full  pr-3 md:border-r border-dashed ">
-                <div className="space-y-2 border-b  pb-5 ">
-                  <div className="text-green-600 bg-green-[#fdfffe] text-2xl border w-fit px-2 py-1 rounded-lg">604</div>
-                  <div className=" text-lg text-[#636363]">ORDER NO: 3433 </div>
-                  <div className="text-[#7c7c7c] my-2 font-semibold"> Yash's Order</div>
-                </div>
-                <div className="">
-                  <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm ">
-                    <div>
-                      <CheckCircle className="scale-[80%] z-10 text-green-600" />
-                    </div>
-                    <div> Delivered </div>
-                  </div>
-                  <div className="w-[2px] ml-[10px] h-3 bg-green-600 -z-10 scale-y-[300%]"></div>
-                  <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm ">
-                    <div>
-                      <CheckCircle className="scale-[80%] z-10 text-green-600" />
-                    </div>
-                    <div> Prepared </div>
-                  </div>
-                </div>
-              </div>
-              <div className="w-3/5 md:mx-6 max-md:w-full ">
-                <div className="">
-                  <div className="flex justify-between items-center w-full">
-                    <div className=" md:px-6 py-2 flex gap-x-3">
-                      <Image width={16} height={16} alt="veg" src={veg.src} /> <div> 1 x Paneer Kabaab </div>
-                    </div>
-                    <div className="">₹400</div>
-                  </div>
-                  <div className="flex justify-between items-center w-full">
-                    <div className=" md:px-6 py-2 flex gap-x-3">
-                      <Image width={16} height={16} alt="veg" src={nonveg.src} /> <div> 1 x Chicken Tikka Kabaab </div>
-                    </div>
-                    <div className="">₹450</div>
-                  </div>
-                </div>
-                <div className="my-4 py-4 md:pl-6  border-t flex w-full justify-between">
-                  <div>Total Bill:</div> <div> ₹850</div>
-                </div>
-                <div className="md:ml-6 overflow-hidden h-[56px] my-2 font-medium relative">
-                  <div className="absolute left-0 bg-[#538cee] rounded-2xl h-[56px] w-full"></div>
-                  <div className="absolute z-10 left-0 text-white w-full py-4 text-center">
-                    Order Ready {"("}
-                    {formatTime(counter)}
-                    {")"}
-                  </div>
-                  <div className="w-full overflow-clip absolute rounded-2xl">
-                    <div
-                      className={`bg-[#256fef] py-4 rounded-2xl text-white h-[56px]  `}
-                      style={{ width: `${(counter / initialCount) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="w-full max-md:flex-col text-[#636363] flex shadow-md px-6  py-8 font-medium rounded-3xl">
-              <div className="w-2/5 max-md:w-full  pr-3 md:border-r border-dashed ">
-                <div className="space-y-2 border-b  pb-5 ">
-                  <div className="text-green-600 bg-green-[#fdfffe] text-2xl border w-fit px-2 py-1 rounded-lg">604</div>
-                  <div className=" text-lg text-[#636363]">ORDER NO: 3433 </div>
-                  <div className="text-[#7c7c7c] my-2 font-semibold"> Yash's Order</div>
-                </div>
-                <div className="">
-                  <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm ">
-                    <div>
-                      <CheckCircle className="scale-[80%] z-10 text-green-600" />
-                    </div>
-                    <div> Delivered </div>
-                  </div>
-                  <div className="w-[2px] ml-[10px] h-3 bg-green-600 -z-10 scale-y-[300%]"></div>
-                  <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm ">
-                    <div>
-                      <CheckCircle className="scale-[80%] z-10 text-green-600" />
-                    </div>
-                    <div> Prepared </div>
-                  </div>
-                </div>
-              </div>
-              <div className="w-3/5 md:mx-6 max-md:w-full ">
-                <div className="">
-                  <div className="flex justify-between items-center w-full">
-                    <div className=" md:px-6 py-2 flex gap-x-3">
-                      <Image width={16} height={16} alt="veg" src={veg.src} /> <div> 1 x Paneer Kabaab </div>
-                    </div>
-                    <div className="">₹400</div>
-                  </div>
-                  <div className="flex justify-between items-center w-full">
-                    <div className=" md:px-6 py-2 flex gap-x-3">
-                      <Image width={16} height={16} alt="veg" src={nonveg.src} /> <div> 1 x Chicken Tikka Kabaab </div>
-                    </div>
-                    <div className="">₹450</div>
-                  </div>
-                </div>
-                <div className="my-4 py-4 md:pl-6  border-t flex w-full justify-between">
-                  <div>Total Bill:</div> <div> ₹850</div>
-                </div>
-                <div className="md:ml-6 overflow-hidden h-[56px] my-2 font-medium relative">
-                  <div className="absolute left-0 bg-[#538cee] rounded-2xl h-[56px] w-full"></div>
-                  <div className="absolute z-10 left-0 text-white w-full py-4 text-center">
-                    Order Ready {"("}
-                    {formatTime(counter)}
-                    {")"}
-                  </div>
-                  <div className="w-full overflow-clip absolute rounded-2xl">
-                    <div
-                      className={`bg-[#256fef] py-4 rounded-2xl text-white h-[56px]  `}
-                      style={{ width: `${(counter / initialCount) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </div>
-            </div>
+              ))}
+            {!loading && orderData.length === 0 && (
+              <div className="text-[#7c7c7c]  my-5 font-medium text-xl text-center">No orders yet</div>
+            )}
           </TabPanel>
-          <TabPanel>Ready</TabPanel>
-          <TabPanel>Delivered</TabPanel>
+          <TabPanel>
+            {loading &&
+              dummy.map((index) => {
+                return (
+                  <div
+                    key={index}
+                    className="animate-pulse h-[340px] border max-md:flex-col text-[#636363] flex shadow-md px-6 py-8 font-medium rounded-3xl "
+                  >
+                    <div className="space-y-4 w-2/5">
+                      <div className="space-y-2">
+                        <div className="h-10 w-16 bg-gray-200 rounded-2xl"></div>
+                        <div className="h-8 w-28 bg-gray-200 rounded-2xl"></div>
+                        <div className="h-6 w-28 bg-gray-200 rounded-2xl"></div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <div className="h-6 w-6 bg-gray-200 rounded-2xl"></div>{" "}
+                          <div className="h-6 my-4 w-28 bg-gray-200 rounded-2xl"></div>
+                        </div>
+                        <div className="h-8 my-4 w-48 bg-gray-200 rounded-2xl"></div>
+                      </div>
+                    </div>
+                    <div className="w-3/5 mx-6 flex flex-col gap-y-3">
+                      <div className="flex justify-between w-full">
+                        <div className="flex gap-x-3">
+                          <div className="w-8 h-8 bg-gray-200 rounded-2xl"></div>
+                          <div className="w-36 h-8 bg-gray-200 rounded-2xl"></div>
+                        </div>
+                        <div className="w-16 h-8 bg-gray-200 rounded-2xl"></div>
+                      </div>
+                      <div className="flex justify-between w-full">
+                        <div className="flex gap-x-3">
+                          <div className="w-8 h-8 bg-gray-200 rounded-2xl"></div>
+                          <div className="w-36 h-8 bg-gray-200 rounded-2xl"></div>
+                        </div>
+                        <div className="w-16 h-8 bg-gray-200 rounded-2xl"></div>
+                      </div>
+                      <div className="flex justify-between w-full">
+                        <div className="flex gap-x-3">
+                          <div className="w-8 h-8 bg-gray-200 rounded-2xl"></div>
+                          <div className="w-36 h-8 bg-gray-200 rounded-2xl"></div>
+                        </div>
+                        <div className="w-16 h-8 bg-gray-200 rounded-2xl"></div>
+                      </div>
+                      <div className="flex my-5 justify-between w-full">
+                        <div className="w-24 h-8 bg-gray-200 rounded-2xl"></div>
+                        <div className="w-16 h-8 bg-gray-200 rounded-2xl"></div>
+                      </div>
+                      <div className="w-full h-14  bg-gray-200 rounded-2xl"></div>
+                    </div>
+                  </div>
+                );
+              })}
+            {!loading &&
+              deliveredData.length > 0 &&
+              deliveredData.map((order) => (
+                <div
+                  key={order.order_id}
+                  className="w-full max-md:flex-col text-[#636363] grayscale-[90%] flex shadow-md px-6 py-8 font-medium rounded-3xl"
+                >
+                  <div className="w-2/5 max-md:w-full pr-3 md:border-r border-dashed">
+                    <div className="space-y-2 border-b pb-5">
+                      <div className="text-green-600 bg-green-[#fdfffe] text-2xl border w-fit px-2 py-1 rounded-lg">
+                        {order.room}
+                      </div>
+                      <div className="text-lg text-[#636363]">ORDER NO: {order.order_id}</div>
+                      <div className="text-[#7c7c7c] my-2 font-semibold">{order.guest_name}'s Order</div>
+                    </div>
+                    <div className="">
+                      <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm">
+                        <div>
+                          <CheckCircle className="scale-[80%] z-10 text-green-600" />
+                        </div>
+                        <div>Accepted</div>
+                      </div>
+                      <div className="my-5  border w-fit  text-[#7a7a7a] text-sm px-2 py-1 bg-slate-100 rounded-md ">
+                        Instructions: {order.remarks}
+                      </div>
+                      {/* <div className="w-[2px] ml-[10px] h-3 bg-green-600 -z-10 scale-y-[300%]"></div>
+                    <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm">
+                      <div>
+                        <CheckCircle className="scale-[80%] z-10 text-green-600" />
+                      </div>
+                      <div>Prepared</div>
+                    </div> */}
+                    </div>
+                  </div>
+                  <div className="w-3/5 md:mx-6 max-md:w-full">
+                    <div className="">
+                      {order.items.map((item) => (
+                        <div key={item.item_id} className="flex justify-between items-center w-full">
+                          <div className="md:px-6 py-2 flex gap-x-3">
+                            <Image width={16} height={16} alt="veg" src={item.type === "veg" ? veg.src : nonveg.src} />
+                            <div>
+                              {item.qty} x {item.name}
+                            </div>
+                          </div>
+                          <div>₹{item.price * item.qty}</div>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="my-4 py-4 md:pl-6 border-t flex w-full justify-between">
+                      <div>Total Bill:</div>
+                      <div>₹{order.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
+                    </div>
+                    <div className="md:ml-6 overflow-hidden h-[56px] my-2 font-medium relative">
+                      <div className="absolute left-0 bg-[#538cee] rounded-2xl h-[56px] w-full"></div>
+                      <div className="absolute z-10 left-0 text-white w-full py-4 text-center">
+                        Order Ready ({formatTime(timers[order.order_id] || 0)})
+                      </div>
+                      <div className="w-full overflow-clip absolute rounded-2xl">
+                        <div
+                          className={`bg-[#256fef] py-4 rounded-2xl text-white h-[56px]`}
+                          style={{ width: `${((timers[order.order_id] || 0) / (order.total_time_to_prepare * 60)) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+            {!loading && deliveredData.length === 0 && (
+              <div className="text-[#7c7c7c] my-5 font-medium text-xl text-center">No orders yet</div>
+            )}
+          </TabPanel>
         </TabPanels>
       </TabGroup>
+
+      <Modal open={newOrder} onClose={() => setNewOrder(false)}>
+        <ModalDialog size="lg" sx={{ width: 650 }}>
+          <ModalClose
+            onClick={() => {
+              setNewOrder(false);
+            }}
+          />
+          <DialogTitle>1 New Order</DialogTitle>
+          <DialogContent>
+            <div className="p-2 px-6 border rounded-md text-[#7a7a7a]">
+              <div className="w-full items-center my-2 font-medium justify-between text-md  flex">
+                <div className="flex items-center gap-x-2">
+                  <div>Order No: {neworderData?.order_id}</div>
+                  <div className="text-green-600 bg-green-[#fdfffe]  border w-fit px-2 py-1 rounded-xl">{neworderData?.room}</div>
+                </div>
+                <div>Order by {neworderData?.guest_name}</div>
+              </div>
+              <div className="w-full text-[#636363]  border-t border-b py-2 my-2">
+                {neworderData?.items.map((item) => (
+                  <div className="flex justify-between items-center w-full">
+                    <div className="p-2 flex gap-x-3">
+                      <Image width={16} height={16} alt="veg" src={item.type === "veg" ? veg.src : nonveg.src} />
+                      <div>
+                        {item.qty} x {item.name}
+                      </div>
+                    </div>
+                    <div>₹{item.price * item.qty}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="my-4 pl-2 text-[#636363] flex w-full justify-between">
+                <div>Total Bill:</div>
+                <div>₹{neworderData?.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
+              </div>
+            </div>
+            <DialogActions className="space-x-3">
+              <Button
+                onClick={() => {
+                  setDel(true);
+                  setNewOrder(false);
+                }}
+                size="lg"
+                variant="plain"
+                color="danger"
+              >
+                Reject
+              </Button>
+              <Button
+                onClick={() => {
+                  setNewOrder(false);
+                }}
+                variant="solid"
+                size="lg"
+                color="success"
+              >
+                Accept
+              </Button>
+            </DialogActions>
+          </DialogContent>
+        </ModalDialog>
+      </Modal>
+      <Modal
+        open={del}
+        onClose={() => {
+          setDel(false);
+        }}
+      >
+        <ModalDialog variant="outlined" size="md">
+          <DialogTitle>
+            <WarningRounded />
+            Confirmation
+          </DialogTitle>
+          <Divider />
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              await handleRejectOrder();
+            }}
+          >
+            <div>Are you sure you want to reject this order?</div>
+            <Input
+              required
+              className="my-5"
+              placeholder="Reason"
+              value={reason}
+              onChange={(e) => {
+                setReason(e.target.value);
+              }}
+            />
+            <div className="flex gap-x-3 justify-end ml-5">
+              <Button
+                variant="plain"
+                color="neutral"
+                onClick={() => {
+                  setDel(false);
+                  setNewOrder(true);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" variant="solid" color="danger" loading={loadingDelete}>
+                Confirm
+              </Button>
+            </div>
+          </form>
+        </ModalDialog>
+      </Modal>
+      <Snackbar
+        open={alert}
+        autoHideDuration={5000}
+        // color="danger"
+        onClose={() => {
+          setAlert(false);
+        }}
+      >
+        <div className="flex justify-between w-full">
+          <div>
+            <Info />
+            {message}
+          </div>
+          <div onClick={() => setAlert(false)} className="cursor-pointer hover:bg-[#f3eded]">
+            <Close />
+          </div>
+        </div>
+      </Snackbar>
     </div>
   );
 }

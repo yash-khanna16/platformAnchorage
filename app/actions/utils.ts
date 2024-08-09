@@ -21,5 +21,18 @@ export async function validate(token: string | undefined) {
     }
 }
 
+export function convertUTCToIST(date: Date): Date {
+    // Calculate the IST offset in milliseconds (5 hours 30 minutes)
+    const istOffset: number = 5 * 60 * 60 * 1000 + 30 * 60 * 1000;
+  
+    // Get the UTC time in milliseconds
+    const utcTime: number = date.getTime();
+  
+    // Calculate the IST time by adding the offset
+    const istTime: Date = new Date(utcTime + istOffset);
+  
+    return istTime;
+  }
+
 
 

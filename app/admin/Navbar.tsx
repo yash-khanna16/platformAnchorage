@@ -1,25 +1,89 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { use, useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Logout } from "@mui/icons-material";
+import { Close, Info, Logout, WarningRounded } from "@mui/icons-material";
 import Drawer from "@mui/joy/Drawer";
-import { addNewBooking, addPersonIcon, analyticsIcon,cabIcon, calenderIcon, mailIcon, searchIcon ,addMovementIcon, table, mealIcon, tableIcon,auditLogs, foodIcon} from "../../assets/icons";
+import {
+  addNewBooking,
+  addPersonIcon,
+  analyticsIcon,
+  cabIcon,
+  calenderIcon,
+  mailIcon,
+  searchIcon,
+  addMovementIcon,
+  table,
+  mealIcon,
+  tableIcon,
+  auditLogs,
+  foodIcon,
+  manageItems,
+} from "../../assets/icons";
 import { deleteAuthAdmin, getAuthAdmin } from "../actions/cookie";
 import { parseJwt } from "../actions/utils";
 import logo from "../assets/anchorage_logo1.png";
+import { OrderType, useSocket } from "./(navbar)/orders/page";
+import {
+  Badge,
+  Button,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
+  Input,
+  Modal,
+  ModalClose,
+  ModalDialog,
+  Snackbar,
+} from "@mui/joy";
+import Image from "next/image";
+import veg from "@/app/assets/veg.svg";
+import nonveg from "@/app/assets/nonveg.svg";
+import { deleteOrder, fetchAllOrders } from "../actions/api";
 
 function Navbar() {
   const [search, setSearch] = useState("");
   const [token, setToken] = useState("");
   const [admin, setAdmin] = useState(false);
+  const [newOrder, setNewOrder] = useState(false);
+  const [newOrderData, setNewOrderData] = useState<OrderType | null>(null);
+  const [loadingDelete, setLoadingDelete] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [del, setDel] = useState(false);
+  const [orders, setOrders] = useState<OrderType[]>([]);
+  const [alert, setAlert] = useState(false);
+  const [message, setMessage] = useState("");
+  const [reason, setReason] = useState("");
   const router = useRouter();
   const params = usePathname();
+
   const path = (params as string).split("/")[2];
+  const socket = useSocket();
 
   async function handleLogout() {
     await deleteAuthAdmin();
     router.push("/");
   }
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("order_received", (orders: OrderType[]) => {
+        console.log("orders: ", orders);
+        let activeOrders: OrderType[] = [];
+        const currentTime = Date.now();
+        orders.map((order) => {
+          order.total_time_to_prepare = Math.max(...order.items.map((item) => item.time_to_prepare));
+          const expiryTime = Number(order.created_at) + order.total_time_to_prepare * 60 * 1000;
+          if (expiryTime > currentTime) {
+            activeOrders.push(order);
+          }
+        });
+        setOrders(activeOrders);
+        setNewOrderData(orders[0]);
+        setNewOrder(true);
+      });
+    }
+  }, [socket]);
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -39,18 +103,68 @@ function Navbar() {
     }
   }, [token]);
 
+  useEffect(() => {
+    if (token !== "") {
+      fetchOrders();
+    }
+  }, [token]);
+
+  function fetchOrders() {
+    setLoading(true);
+    fetchAllOrders(token)
+      .then((orders: OrderType[]) => {
+        console.log("orders: ", orders);
+        let activeOrders: OrderType[] = [];
+        const currentTime = Date.now();
+
+        orders.map((order) => {
+          order.total_time_to_prepare = Math.max(...order.items.map((item) => item.time_to_prepare));
+          const expiryTime = Number(order.created_at) + order.total_time_to_prepare * 60 * 1000;
+          if (expiryTime > currentTime) {
+            activeOrders.push(order);
+          }
+        });
+        setOrders(activeOrders);
+        setLoading(false);
+      })
+      .catch((error) => {
+        setLoading(false);
+        console.log("error fetching orders: ", error);
+      });
+  }
+
+  useEffect(() => {
+    const timeInterval = setInterval(() => {
+      let tempOrder = orders;
+      let activeOrders: OrderType[] = [];
+      const currentTime = Date.now();
+
+      tempOrder.map((order) => {
+        order.total_time_to_prepare = Math.max(...order.items.map((item) => item.time_to_prepare));
+        const expiryTime = Number(order.created_at) + order.total_time_to_prepare * 60 * 1000;
+        if (expiryTime > currentTime) {
+          activeOrders.push(order);
+        }
+      });
+      setOrders(activeOrders);
+    }, 1000);
+
+    return () => clearInterval(timeInterval);
+  }, [orders]);
+
   const options = [
     { icon: searchIcon, route: "search-guests", value: "Search Reservations" },
     { icon: addNewBooking, route: "add-booking", value: "Add Booking" },
     { icon: calenderIcon, route: "manage-rooms", value: "Manage Rooms" },
     { icon: mealIcon, route: "manage-meals", value: "Manage Meals" },
     { icon: addMovementIcon, route: "add-movement", value: "Add Movement" },
-    { icon: table, route: "manage-movement", value: "Manage Movement"},
+    { icon: table, route: "manage-movement", value: "Manage Movement" },
     { icon: cabIcon, route: "movement-info", value: "Movement Info" },
     { icon: analyticsIcon, route: "analytics", value: "Analytics" },
     { icon: tableIcon, route: "master-table", value: "Master Table" },
     { icon: addPersonIcon, route: "add-guest", value: "Add Guest" },
     { icon: foodIcon, route: "orders", value: "Orders" },
+    { icon: manageItems, route: "manage-items", value: "Manage Items" },
     { icon: mailIcon, route: "emails", value: "Emails" },
     { icon: searchIcon, route: "check-logs", value: "Check Logs" },
     { icon: auditLogs, route: "audit-logs", value: "Audit Logs" },
@@ -68,6 +182,24 @@ function Navbar() {
     setOpen(inOpen);
   };
 
+  const handleRejectOrder = async () => {
+    try {
+      if (newOrderData) {
+        setLoadingDelete(true);
+        const res = await deleteOrder(token, newOrderData?.order_id, reason);
+        setLoadingDelete(false);
+        setDel(false);
+        setNewOrder(false);
+        fetchOrders();
+        setAlert(true);
+        setMessage("Order rejected");
+      }
+    } catch (error) {
+      setAlert(true);
+      setMessage("Something went wrong!");
+    }
+  };
+
   return (
     <div className="fixed bg-white z-50 flex flex-col items-center space-y-5 top-0 left-0 h-screen w-80 max-xl:w-60 border px-10 py-5 max-lg:px-3 max-xl:px-3 max-lg:h-20 max-lg:w-screen max-lg:flex-row max-lg:py-3 max-lg:space-y-1 max-lg:justify-between">
       <div className="flex items-center font-medium text-xl max-lg:w-full">
@@ -81,7 +213,6 @@ function Navbar() {
           }
           return (
             <div
-              key={index}
               onClick={() => {
                 router.push(`/admin/${option.route}`);
               }}
@@ -90,7 +221,12 @@ function Navbar() {
               } cursor-pointer items-center px-3  py-2 max-lg:hidden`}
             >
               {option.icon}
-              <div>{option.value}</div>
+              <div className="flex space-x-3  items-center">
+                <div>{option.value}</div>{" "}
+                {option.value === "Orders" && orders.length > 0 && (
+                  <div className="bg-blue-600 text-white px-2 rounded-full">{orders.length}</div>
+                )}
+              </div>
             </div>
           );
         })}
@@ -158,6 +294,135 @@ function Navbar() {
           </div>
         </div>
       </Drawer>
+      <Modal open={newOrder} onClose={() => setNewOrder(false)}>
+        <ModalDialog size="lg" sx={{ width: 650 }}>
+          <ModalClose
+            onClick={() => {
+              setNewOrder(false);
+            }}
+          />
+          <DialogTitle>1 New Order</DialogTitle>
+          <DialogContent>
+            <div className="p-2 px-6 border rounded-md text-[#7a7a7a]">
+              <div className="w-full items-center my-2 font-medium justify-between text-md  flex">
+                <div className="flex items-center gap-x-2">
+                  <div>Order No: {newOrderData?.order_id}</div>
+                  <div className="text-green-600 bg-green-[#fdfffe]  border w-fit px-2 py-1 rounded-xl">{newOrderData?.room}</div>
+                </div>
+                <div>Order by {newOrderData?.guest_name}</div>
+              </div>
+              <div className="w-full text-[#636363]  border-t border-b py-2 my-2">
+                {newOrderData?.items.map((item) => (
+                  <div className="flex justify-between items-center w-full">
+                    <div className="p-2 flex gap-x-3">
+                      <Image width={16} height={16} alt="veg" src={item.type === "veg" ? veg.src : nonveg.src} />
+                      <div>
+                        {item.qty} x {item.name}
+                      </div>
+                    </div>
+                    <div>₹{item.price * item.qty}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="my-4 pl-2 text-[#636363] flex w-full justify-between">
+                <div>Total Bill:</div>
+                <div>₹{newOrderData?.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
+              </div>
+            </div>
+            <DialogActions className="flex  space-x-3">
+              <Button
+                onClick={() => {
+                  setNewOrder(false);
+                  if (params === "/admin/orders") {
+                    window.location.reload();
+                  } else {
+                    router.push("/admin/orders");
+                  }
+                }}
+                variant="solid"
+                size="lg"
+                color="success"
+              >
+                Accept
+              </Button>
+              <Button
+                onClick={() => {
+                  setDel(true);
+                  setNewOrder(false);
+                }}
+                size="lg"
+                variant="plain"
+                color="danger"
+              >
+                Reject
+              </Button>
+            </DialogActions>
+          </DialogContent>
+        </ModalDialog>
+      </Modal>
+      <Modal
+        open={del}
+        onClose={() => {
+          setDel(false);
+        }}
+      >
+        <ModalDialog variant="outlined" size="md">
+          <DialogTitle>
+            <WarningRounded />
+            Confirmation
+          </DialogTitle>
+          <Divider />
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              await handleRejectOrder();
+            }}
+          >
+            <div>Are you sure you want to reject this order?</div>
+            <Input
+              required
+              className="my-5"
+              placeholder="Reason"
+              value={reason}
+              onChange={(e) => {
+                setReason(e.target.value);
+              }}
+            />
+            <div className="flex gap-x-3 justify-end ml-5">
+              <Button
+                variant="plain"
+                color="neutral"
+                onClick={() => {
+                  setDel(false);
+                  setNewOrder(true);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" variant="solid" color="danger" loading={loadingDelete}>
+                Confirm
+              </Button>
+            </div>
+          </form>
+        </ModalDialog>
+      </Modal>
+      <Snackbar
+        open={alert}
+        autoHideDuration={5000}
+        onClose={() => {
+          setAlert(false);
+        }}
+      >
+        <div className="flex justify-between w-full">
+          <div>
+            <Info />
+            {message}
+          </div>
+          <div onClick={() => setAlert(false)} className="cursor-pointer hover:bg-[#f3eded]">
+            <Close />
+          </div>
+        </div>
+      </Snackbar>
     </div>
   );
 }
