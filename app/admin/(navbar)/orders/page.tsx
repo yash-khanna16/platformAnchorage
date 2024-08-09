@@ -48,23 +48,7 @@ export type OrderType = {
   items: ItemType[];
 };
 
-export function useSocket() {
-  const [socket, setSocket] = useState<Socket | null>(null);
 
-  useEffect(() => {
-    const socketIo = io("http://localhost:8000/");
-    socketIo.emit("join_room", process.env.NEXT_PUBLIC_ROOM_CODE);
-
-    setSocket(socketIo);
-
-    function cleanup() {
-      socketIo.disconnect();
-    }
-    return cleanup;
-  }, []);
-
-  return socket;
-}
 
 function Orders() {
   const [selectedTab, setSelectedTab] = useState(0);
@@ -75,7 +59,6 @@ function Orders() {
   const [timers, setTimers] = useState<{ [key: string]: number }>({});
   const [neworderData, setNewOrderData] = useState<OrderType>();
   const [newOrder, setNewOrder] = useState(false);
-  const socket = useSocket();
   const [del, setDel] = useState(false);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -276,7 +259,7 @@ function Orders() {
                         {order.room}
                       </div>
                       <div className="text-lg text-[#636363]">ORDER NO: {order.order_id}</div>
-                      <div className="text-[#7c7c7c] my-2 font-semibold">{order.guest_name}'s Order</div>
+                      <div className="text-[#7c7c7c] my-2 font-semibold">{order.guest_name}{"'s"} Order</div>
                     </div>
                     <div className="">
                       <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm">
@@ -288,13 +271,6 @@ function Orders() {
                       <div className="my-5  border w-fit  text-[#7a7a7a] text-sm px-2 py-1 bg-slate-100 rounded-md ">
                         Instructions: {order.remarks}
                       </div>
-                      {/* <div className="w-[2px] ml-[10px] h-3 bg-green-600 -z-10 scale-y-[300%]"></div>
-                    <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm">
-                      <div>
-                        <CheckCircle className="scale-[80%] z-10 text-green-600" />
-                      </div>
-                      <div>Prepared</div>
-                    </div> */}
                     </div>
                   </div>
                   <div className="w-3/5 md:mx-6 max-md:w-full">
@@ -400,7 +376,7 @@ function Orders() {
                         {order.room}
                       </div>
                       <div className="text-lg text-[#636363]">ORDER NO: {order.order_id}</div>
-                      <div className="text-[#7c7c7c] my-2 font-semibold">{order.guest_name}'s Order</div>
+                      <div className="text-[#7c7c7c] my-2 font-semibold">{order.guest_name}{"'s"} Order</div>
                     </div>
                     <div className="">
                       <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm">
@@ -412,13 +388,6 @@ function Orders() {
                       <div className="my-5  border w-fit  text-[#7a7a7a] text-sm px-2 py-1 bg-slate-100 rounded-md ">
                         Instructions: {order.remarks}
                       </div>
-                      {/* <div className="w-[2px] ml-[10px] h-3 bg-green-600 -z-10 scale-y-[300%]"></div>
-                    <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm">
-                      <div>
-                        <CheckCircle className="scale-[80%] z-10 text-green-600" />
-                      </div>
-                      <div>Prepared</div>
-                    </div> */}
                     </div>
                   </div>
                   <div className="w-3/5 md:mx-6 max-md:w-full">
@@ -480,8 +449,8 @@ function Orders() {
                 <div>Order by {neworderData?.guest_name}</div>
               </div>
               <div className="w-full text-[#636363]  border-t border-b py-2 my-2">
-                {neworderData?.items.map((item) => (
-                  <div className="flex justify-between items-center w-full">
+                {neworderData?.items.map((item, index) => (
+                  <div key={index} className="flex justify-between items-center w-full">
                     <div className="p-2 flex gap-x-3">
                       <Image width={16} height={16} alt="veg" src={item.type === "veg" ? veg.src : nonveg.src} />
                       <div>

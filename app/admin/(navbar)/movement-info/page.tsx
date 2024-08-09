@@ -272,7 +272,7 @@ function Movement() {
         {loading && (
           <div className="flex gap-x-8 gap-y-5 animate-pulse flex-wrap my-10">
             {dummyData.map((element, index) => (
-              <div className="h-40 w-[300px] flex border rounded-2xl ">
+              <div key={index} className="h-40 w-[300px] flex border rounded-2xl ">
                 <div className="w-1/2">
                   <div className="w-28 h-6 mt-10 mx-5 bg-gray-200 rounded-2xl"></div>
                   <div className="w-16 h-6 mt-10 mx-5 bg-gray-200 rounded-2xl"></div>

@@ -188,8 +188,8 @@ function Items() {
                     </Button> */}
         </div>
         {/* <AccordionGroup disableDivider transition="0.2s ease"> */}
-        {Object.keys(items).map((key) => (
-          <div className="my-5 border p-4 rounded-2xl shadow-md">
+        {Object.keys(items).map((key, index:number) => (
+          <div key={index} className="my-5 border p-4 rounded-2xl shadow-md">
             <div>
               <div className="text-2xl px-4 text-black font-medium my-3"> {key}</div>
             </div>

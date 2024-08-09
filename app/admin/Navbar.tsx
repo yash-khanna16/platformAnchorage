@@ -22,7 +22,7 @@ import {
 import { deleteAuthAdmin, getAuthAdmin } from "../actions/cookie";
 import { parseJwt } from "../actions/utils";
 import logo from "../assets/anchorage_logo1.png";
-import { OrderType, useSocket } from "./(navbar)/orders/page";
+import { OrderType } from "./(navbar)/orders/page";
 import {
   Badge,
   Button,
@@ -40,6 +40,7 @@ import Image from "next/image";
 import veg from "@/app/assets/veg.svg";
 import nonveg from "@/app/assets/nonveg.svg";
 import { deleteOrder, fetchAllOrders } from "../actions/api";
+import {getSocket} from "@/app/actions/websocket"
 
 function Navbar() {
   const [search, setSearch] = useState("");
@@ -56,9 +57,10 @@ function Navbar() {
   const [reason, setReason] = useState("");
   const router = useRouter();
   const params = usePathname();
+  const socket = getSocket();
 
   const path = (params as string).split("/")[2];
-  const socket = useSocket();
+  
 
   async function handleLogout() {
     await deleteAuthAdmin();
@@ -213,6 +215,7 @@ function Navbar() {
           }
           return (
             <div
+            key={index}
               onClick={() => {
                 router.push(`/admin/${option.route}`);
               }}
@@ -312,8 +315,8 @@ function Navbar() {
                 <div>Order by {newOrderData?.guest_name}</div>
               </div>
               <div className="w-full text-[#636363]  border-t border-b py-2 my-2">
-                {newOrderData?.items.map((item) => (
-                  <div className="flex justify-between items-center w-full">
+                {newOrderData?.items.map((item, index: number) => (
+                  <div key={index} className="flex justify-between items-center w-full">
                     <div className="p-2 flex gap-x-3">
                       <Image width={16} height={16} alt="veg" src={item.type === "veg" ? veg.src : nonveg.src} />
                       <div>

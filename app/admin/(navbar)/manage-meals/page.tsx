@@ -392,7 +392,7 @@ function Meals() {
               </div>
               <div>
                 {dummy.map((item, index) => (
-                  <div className="flex ">
+                  <div key={index} className="flex ">
                     <div className="border-b border-r h-[105px] flex items-center px-5 max-lg:px-2 w-full">
                       <div className="w-full h-6 my-auto bg-gray-200  rounded-2xl"> </div>
                     </div>

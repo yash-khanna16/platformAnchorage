@@ -407,8 +407,6 @@ function AddMovement() {
         .filter((passenger): passenger is GuestType => passenger !== null) as GuestType[];
 
       newPassengers = newPassengers.filter((passenger) => passenger !== null);
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       setSelectedPassenger((prevSelectedPassenger) => [
         ...prevSelectedPassenger,
         ...(newPassengers as GuestType[]),
