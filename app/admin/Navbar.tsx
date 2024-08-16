@@ -40,14 +40,13 @@ import Image from "next/image";
 import veg from "@/app/assets/veg.svg";
 import nonveg from "@/app/assets/nonveg.svg";
 import { deleteOrder, fetchAllOrders } from "../actions/api";
-import {getSocket} from "@/app/actions/websocket"
+import { getSocket } from "@/app/actions/websocket";
 
 function Navbar() {
   const [search, setSearch] = useState("");
   const [token, setToken] = useState("");
   const [admin, setAdmin] = useState(false);
   const [newOrder, setNewOrder] = useState(false);
-  const [newOrderData, setNewOrderData] = useState<OrderType | null>(null);
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [loading, setLoading] = useState(false);
   const [del, setDel] = useState(false);
@@ -55,12 +54,14 @@ function Navbar() {
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
   const [reason, setReason] = useState("");
+  const [ordersQueue, setOrdersQueue] = useState<OrderType[]>([]);
+  const [currentOrder, setCurrentOrder] = useState<OrderType | null>(null);
+
   const router = useRouter();
   const params = usePathname();
   const socket = getSocket();
 
   const path = (params as string).split("/")[2];
-  
 
   async function handleLogout() {
     await deleteAuthAdmin();
@@ -70,22 +71,30 @@ function Navbar() {
   useEffect(() => {
     if (socket) {
       socket.on("order_received", (orders: OrderType[]) => {
-        console.log("orders: ", orders);
         let activeOrders: OrderType[] = [];
         const currentTime = Date.now();
-        orders.map((order) => {
+        orders.forEach((order) => {
           order.total_time_to_prepare = Math.max(...order.items.map((item) => item.time_to_prepare));
           const expiryTime = Number(order.created_at) + order.total_time_to_prepare * 60 * 1000;
           if (expiryTime > currentTime) {
             activeOrders.push(order);
           }
         });
-        setOrders(activeOrders);
-        setNewOrderData(orders[0]);
-        setNewOrder(true);
+        if (activeOrders.length > 0) {
+          setOrdersQueue((prevQueue) => [...prevQueue, activeOrders[0]]);
+        }
       });
     }
   }, [socket]);
+
+  useEffect(() => {
+    if (!currentOrder && ordersQueue.length > 0) {
+      const nextOrder = ordersQueue[0];
+      setCurrentOrder(nextOrder);
+      setOrdersQueue((prevQueue) => prevQueue.slice(1));
+      setNewOrder(true);
+    }
+  }, [ordersQueue, currentOrder]);
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -115,14 +124,15 @@ function Navbar() {
     setLoading(true);
     fetchAllOrders(token)
       .then((orders: OrderType[]) => {
-        console.log("orders: ", orders);
         let activeOrders: OrderType[] = [];
         const currentTime = Date.now();
 
         orders.map((order) => {
-          order.total_time_to_prepare = Math.max(...order.items.map((item) => item.time_to_prepare));
+          order.delay = Number(order.delay);
+          const maxTimeToPrepare = Math.max(...order.items.map((item) => item.time_to_prepare));
+          order.total_time_to_prepare = maxTimeToPrepare + order.delay;
           const expiryTime = Number(order.created_at) + order.total_time_to_prepare * 60 * 1000;
-          if (expiryTime > currentTime) {
+          if (expiryTime > currentTime && order.status !== "Delivered") {
             activeOrders.push(order);
           }
         });
@@ -142,9 +152,11 @@ function Navbar() {
       const currentTime = Date.now();
 
       tempOrder.map((order) => {
-        order.total_time_to_prepare = Math.max(...order.items.map((item) => item.time_to_prepare));
+        order.delay = Number(order.delay);
+        const maxTimeToPrepare = Math.max(...order.items.map((item) => item.time_to_prepare));
+        order.total_time_to_prepare = maxTimeToPrepare + order.delay;
         const expiryTime = Number(order.created_at) + order.total_time_to_prepare * 60 * 1000;
-        if (expiryTime > currentTime) {
+        if (expiryTime > currentTime && order.status !== "Delivered") {
           activeOrders.push(order);
         }
       });
@@ -186,12 +198,13 @@ function Navbar() {
 
   const handleRejectOrder = async () => {
     try {
-      if (newOrderData) {
+      if (currentOrder) {
         setLoadingDelete(true);
-        const res = await deleteOrder(token, newOrderData?.order_id, reason);
+        const res = await deleteOrder(token, currentOrder?.order_id, reason, true);
         setLoadingDelete(false);
         setDel(false);
         setNewOrder(false);
+        setCurrentOrder(null);
         fetchOrders();
         setAlert(true);
         setMessage("Order rejected");
@@ -215,7 +228,7 @@ function Navbar() {
           }
           return (
             <div
-            key={index}
+              key={index}
               onClick={() => {
                 router.push(`/admin/${option.route}`);
               }}
@@ -297,25 +310,27 @@ function Navbar() {
           </div>
         </div>
       </Drawer>
-      <Modal open={newOrder} onClose={() => setNewOrder(false)}>
+      <Modal
+        open={newOrder}
+        onClose={(event, reason) => {
+          if (reason !== "backdropClick") {
+            setNewOrder(false);
+          }
+        }}
+      >
         <ModalDialog size="lg" sx={{ width: 650 }}>
-          <ModalClose
-            onClick={() => {
-              setNewOrder(false);
-            }}
-          />
           <DialogTitle>1 New Order</DialogTitle>
           <DialogContent>
             <div className="p-2 px-6 border rounded-md text-[#7a7a7a]">
               <div className="w-full items-center my-2 font-medium justify-between text-md  flex">
                 <div className="flex items-center gap-x-2">
-                  <div>Order No: {newOrderData?.order_id}</div>
-                  <div className="text-green-600 bg-green-[#fdfffe]  border w-fit px-2 py-1 rounded-xl">{newOrderData?.room}</div>
+                  <div>Order No: {currentOrder?.order_id}</div>
+                  <div className="text-green-600 bg-green-[#fdfffe]  border w-fit px-2 py-1 rounded-xl">{currentOrder?.room}</div>
                 </div>
-                <div>Order by {newOrderData?.guest_name}</div>
+                <div>Order by {currentOrder?.guest_name}</div>
               </div>
               <div className="w-full text-[#636363]  border-t border-b py-2 my-2">
-                {newOrderData?.items.map((item, index: number) => (
+                {currentOrder?.items.map((item, index: number) => (
                   <div key={index} className="flex justify-between items-center w-full">
                     <div className="p-2 flex gap-x-3">
                       <Image width={16} height={16} alt="veg" src={item.type === "veg" ? veg.src : nonveg.src} />
@@ -329,17 +344,18 @@ function Navbar() {
               </div>
               <div className="my-4 pl-2 text-[#636363] flex w-full justify-between">
                 <div>Total Bill:</div>
-                <div>₹{newOrderData?.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
+                <div>₹{currentOrder?.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
               </div>
             </div>
             <DialogActions className="flex  space-x-3">
               <Button
                 onClick={() => {
                   setNewOrder(false);
-                  if (params === "/admin/orders") {
-                    window.location.reload();
-                  } else {
-                    router.push("/admin/orders");
+                  setCurrentOrder(null);
+                  setNewOrder(false);
+                  if (ordersQueue.length === 0) {
+                    if (params === '/admin/orders') window.location.reload();
+                    else router.push("/admin/orders")
                   }
                 }}
                 variant="solid"

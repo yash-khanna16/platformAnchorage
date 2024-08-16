@@ -1,16 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
-import { Check, CheckCircle, Close, Info, WarningRounded } from "@mui/icons-material";
+import { Cancel, Check, CheckCircle, Close, Info, Warning, WarningRounded } from "@mui/icons-material";
 import veg from "@/app/assets/veg.svg";
 import nonveg from "@/app/assets/nonveg.svg";
 import Image from "next/image";
 import { getAuthAdmin } from "@/app/actions/cookie";
-import { deleteOrder, fetchAllOrders } from "@/app/actions/api";
+import { deleteOrder, fetchAllOrders, updateDelay, updateOrderStatus } from "@/app/actions/api";
 import { convertUTCToIST } from "@/app/actions/utils";
 import { getSocket } from "@/app/actions/websocket";
 import { Socket, io } from "socket.io-client";
-import { DialogActions, Modal } from "@mui/material";
+import { DialogActions, IconButton, Modal } from "@mui/material";
 import {
   Button,
   DialogContent,
@@ -19,9 +19,11 @@ import {
   Input,
   ModalClose,
   ModalDialog,
+  ButtonGroup,
   Sheet,
   Snackbar,
   Typography,
+  Alert,
 } from "@mui/joy";
 
 export type ItemType = {
@@ -43,12 +45,11 @@ export type OrderType = {
   remarks: string;
   created_at: Date;
   total_time_to_prepare: number;
+  delay: number;
   status: string;
   guest_name: string;
   items: ItemType[];
 };
-
-
 
 function Orders() {
   const [selectedTab, setSelectedTab] = useState(0);
@@ -65,6 +66,11 @@ function Orders() {
   const [alert, setAlert] = useState(false);
   const [message, setMessage] = useState("");
   const [reason, setReason] = useState("");
+  const [delay, setDelay] = useState(0);
+  const [delOrder, setDelOrder] = useState(false);
+  const [deleteId, setDeleteId] = useState("");
+  const [delayModal, setDelayModal] = useState(false);
+  const [delayId, setDelayId] = useState("");
 
   let dummy = [1, 1, 1, 1, 1, 1];
 
@@ -72,15 +78,33 @@ function Orders() {
     try {
       if (neworderData) {
         setLoadingDelete(true);
-        const res = await deleteOrder(token, neworderData?.order_id, reason);
+        const res = await deleteOrder(token, neworderData?.order_id, reason, true);
         console.log("Current orderData:", orderData);
         convertAndSetOrderDetails(res.details);
         setLoadingDelete(false);
         setDel(false);
+        setReason("");
         setNewOrder(false);
         setAlert(true);
         setMessage("Order rejected");
       }
+    } catch (error) {
+      setAlert(true);
+      setMessage("Something went wrong!");
+    }
+  };
+
+  const handleDeleteOrder = async (orderId: string) => {
+    try {
+      setLoadingDelete(true);
+      const res = await deleteOrder(token, orderId, reason, false);
+      convertAndSetOrderDetails(res.details);
+      setLoadingDelete(false);
+      setDelOrder(false);
+      setNewOrder(false);
+      setReason("");
+      setAlert(true);
+      setMessage("Order deleted");
     } catch (error) {
       setAlert(true);
       setMessage("Something went wrong!");
@@ -98,7 +122,8 @@ function Orders() {
       setLoading(true);
       fetchAllOrders(token)
         .then((orders: OrderType[]) => {
-          setLoading(false);
+          console.log("orders: ", orders)
+          setLoading(false);    
           convertAndSetOrderDetails(orders);
         })
         .catch((error) => {
@@ -113,22 +138,27 @@ function Orders() {
     const deliveredOrders: OrderType[] = [];
 
     orders.forEach((order) => {
-      order.total_time_to_prepare = Math.max(...order.items.map((item) => item.time_to_prepare));
+      order.delay = Number(order.delay);
+      const maxTimeToPrepare =  Math.max(...order.items.map((item) => item.time_to_prepare))
+      order.total_time_to_prepare = maxTimeToPrepare + order.delay;
       const currentTime = new Date();
       const timeElapsed = (currentTime.getTime() - Number(order.created_at)) / 1000; // elapsed time in seconds
       let remainingTime = 0;
       if (timeElapsed > 0) {
-        remainingTime = Math.max(order.total_time_to_prepare * 60 - timeElapsed, 0); // remaining time in seconds
+        remainingTime = Math.max(order.total_time_to_prepare * 60 - timeElapsed, 0) ; // remaining time in seconds
       }
       if (remainingTime > 0) {
         initialTimers[order.order_id] = remainingTime;
       }
 
-      if (remainingTime === 0) {
+      if (remainingTime === 0 || order.status === "Delivered") {
         deliveredOrders.push(order);
       }
     });
-
+    console.log(
+      "all orders: ",
+      orders.filter((order) => !deliveredOrders.includes(order))
+    );
     setOrderData(orders.filter((order) => !deliveredOrders.includes(order)));
     setDeliveredData((prevDeliveredData) => [...prevDeliveredData, ...deliveredOrders]);
     setTimers(initialTimers);
@@ -170,9 +200,30 @@ function Orders() {
   }, [orderData]);
 
   const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds) % 60;
-    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+  
+    if (hours > 0) {
+      return `${hours}:${minutes < 10 ? "0" : ""}${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+    } else {
+      return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+    }
+  };
+  
+  
+  const handleUpdateOrderStatus = async (orderId: string, status: string) => {
+    try {
+      await updateOrderStatus(token, orderId, status);
+      const tempTimers = timers;
+      tempTimers[orderId] = 0;
+      setTimers(tempTimers);
+      setAlert(true);
+      setMessage("Order Status updated successfully!");
+    } catch (error) {
+      setAlert(true);
+      setMessage("Something went wrong!");
+    }
   };
 
   return (
@@ -209,7 +260,7 @@ function Orders() {
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center space-x-2">
-                          <div className="h-6 w-6 bg-gray-200 rounded-2xl"></div>{" "}
+                          <div className="h-6 w-6 bg-gray-200 rounded-2xl"></div>
                           <div className="h-6 my-4 w-28 bg-gray-200 rounded-2xl"></div>
                         </div>
                         <div className="h-8 my-4 w-48 bg-gray-200 rounded-2xl"></div>
@@ -248,18 +299,40 @@ function Orders() {
               })}
             {!loading &&
               orderData.length > 0 &&
-              orderData.map((order) => (
+              orderData.map((order, index) => (
                 <div
-                  key={order.order_id}
-                  className="w-full border max-md:flex-col text-[#636363] flex shadow-md px-6 py-8 font-medium rounded-3xl"
+                  key={index}
+                  className="w-full border relative max-md:flex-col text-[#636363] flex shadow-md px-6 py-8 font-medium rounded-3xl"
                 >
+                  <IconButton
+                    onClick={() => {
+                      setDelOrder(true);
+                      setDeleteId(order.order_id);
+                    }}
+                    className="absolute  -top-2 -right-3"
+                  >
+                    <Cancel className="text-red-700 text-lg" />
+                  </IconButton>
                   <div className="w-2/5 max-md:w-full pr-3 md:border-r border-dashed">
                     <div className="space-y-2 border-b pb-5">
-                      <div className="text-green-600 bg-green-[#fdfffe] text-2xl border w-fit px-2 py-1 rounded-lg">
-                        {order.room}
+                      <div className="flex gap-x-3">
+                        <div className="text-green-600 bg-green-[#fdfffe] text-2xl border w-fit px-2 py-1 rounded-lg">
+                          {order.room}
+                        </div>
+                        {order.delay > 0 && (
+                          <div>
+                            <Alert color="warning">
+                              <Warning className="text-yellow-600" />
+                              Order Delayed for {order.delay} mins
+                            </Alert>
+                          </div>
+                        )}
                       </div>
                       <div className="text-lg text-[#636363]">ORDER NO: {order.order_id}</div>
-                      <div className="text-[#7c7c7c] my-2 font-semibold">{order.guest_name}{"'s"} Order</div>
+                      <div className="text-[#7c7c7c] my-2 font-semibold">
+                        {order.guest_name}
+                        {"'s"} Order
+                      </div>
                     </div>
                     <div className="">
                       <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm">
@@ -291,17 +364,39 @@ function Orders() {
                       <div>Total Bill:</div>
                       <div>₹{order.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
                     </div>
-                    <div className="md:ml-6 overflow-hidden h-[56px] my-2 font-medium relative">
-                      <div className="absolute left-0 bg-[#538cee] rounded-2xl h-[56px] w-full"></div>
-                      <div className="absolute z-10 left-0 text-white w-full py-4 text-center">
-                        Order Ready ({formatTime(timers[order.order_id] || 0)})
+                    <div className="flex items-center gap-x-2">
+                      <div className="md:ml-6 overflow-hidden h-[56px] my-2 w-[100%] font-medium relative">
+                        <div className="absolute left-0 bg-[#538cee] rounded-2xl h-[56px] w-full"></div>
+                        <div className="absolute z-10 left-0 text-white w-full py-4 text-center">
+                          Order Ready ({formatTime(timers[order.order_id] || 0)})
+                        </div>
+                        <div className="w-full overflow-clip absolute rounded-2xl">
+                          <div
+                            className={`bg-[#256fef] py-4 rounded-2xl text-white h-[56px]`}
+                            style={{ width: `${((timers[order.order_id] || 0) / (order.total_time_to_prepare * 60)) * 100}%` }}
+                          ></div>
+                        </div>
                       </div>
-                      <div className="w-full overflow-clip absolute rounded-2xl">
-                        <div
-                          className={`bg-[#256fef] py-4 rounded-2xl text-white h-[56px]`}
-                          style={{ width: `${((timers[order.order_id] || 0) / (order.total_time_to_prepare * 60)) * 100}%` }}
-                        ></div>
-                      </div>
+                    </div>
+                    <div className="flex space-x-3 lg:ml-6 my-3">
+                      <button
+                        onClick={() => {
+                          handleUpdateOrderStatus(order.order_id, "Delivered");
+                        }}
+                        className="w-full py-3 border hover:bg-green-50 border-green-500 text-green-500 rounded-2xl"
+                      >
+                        Set as Delivered
+                      </button>
+                      <button
+                        onClick={() => {
+                          setDelayModal(true);
+                          setDelayId(order.order_id);
+                          setDelay(order.delay);
+                        }}
+                        className="w-full py-3 border text-white hover:bg-red-600 border-red-500 bg-red-500 rounded-2xl"
+                      >
+                        Delay Order
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -326,7 +421,7 @@ function Orders() {
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center space-x-2">
-                          <div className="h-6 w-6 bg-gray-200 rounded-2xl"></div>{" "}
+                          <div className="h-6 w-6 bg-gray-200 rounded-2xl"></div>
                           <div className="h-6 my-4 w-28 bg-gray-200 rounded-2xl"></div>
                         </div>
                         <div className="h-8 my-4 w-48 bg-gray-200 rounded-2xl"></div>
@@ -376,7 +471,10 @@ function Orders() {
                         {order.room}
                       </div>
                       <div className="text-lg text-[#636363]">ORDER NO: {order.order_id}</div>
-                      <div className="text-[#7c7c7c] my-2 font-semibold">{order.guest_name}{"'s"} Order</div>
+                      <div className="text-[#7c7c7c] my-2 font-semibold">
+                        {order.guest_name}
+                        {"'s"} Order
+                      </div>
                     </div>
                     <div className="">
                       <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm">
@@ -409,15 +507,8 @@ function Orders() {
                       <div>₹{order.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
                     </div>
                     <div className="md:ml-6 overflow-hidden h-[56px] my-2 font-medium relative">
-                      <div className="absolute left-0 bg-[#538cee] rounded-2xl h-[56px] w-full"></div>
-                      <div className="absolute z-10 left-0 text-white w-full py-4 text-center">
-                        Order Ready ({formatTime(timers[order.order_id] || 0)})
-                      </div>
-                      <div className="w-full overflow-clip absolute rounded-2xl">
-                        <div
-                          className={`bg-[#256fef] py-4 rounded-2xl text-white h-[56px]`}
-                          style={{ width: `${((timers[order.order_id] || 0) / (order.total_time_to_prepare * 60)) * 100}%` }}
-                        ></div>
+                      <div className="absolute z-10 left-0 text-white bg-[#538cee]  rounded-2xl w-full py-4 text-center">
+                        Delivered
                       </div>
                     </div>
                   </div>
@@ -527,6 +618,125 @@ function Orders() {
                 onClick={() => {
                   setDel(false);
                   setNewOrder(true);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" variant="solid" color="danger" loading={loadingDelete}>
+                Confirm
+              </Button>
+            </div>
+          </form>
+        </ModalDialog>
+      </Modal>
+      <Modal
+        open={delOrder}
+        onClose={() => {
+          setDelOrder(false);
+        }}
+      >
+        <ModalDialog variant="outlined" size="md">
+          <DialogTitle>
+            <WarningRounded />
+            Confirmation
+          </DialogTitle>
+          <Divider />
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              await handleDeleteOrder(deleteId);
+            }}
+          >
+            <div>Are you sure you want to delete Order No: {deleteId}</div>
+            <Input
+              required
+              className="my-5"
+              placeholder="Reason"
+              value={reason}
+              onChange={(e) => {
+                setReason(e.target.value);
+              }}
+            />
+            <div className="flex gap-x-3 justify-end ml-5">
+              <Button
+                variant="plain"
+                color="neutral"
+                onClick={() => {
+                  setDelOrder(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" variant="solid" color="danger" loading={loadingDelete}>
+                Confirm
+              </Button>
+            </div>
+          </form>
+        </ModalDialog>
+      </Modal>
+      <Modal
+        open={delayModal}
+        onClose={() => {
+          setDelayModal(false);
+        }}
+      >
+        <ModalDialog variant="outlined" size="md">
+          <DialogTitle>
+            <WarningRounded />
+            Set Delay
+          </DialogTitle>
+          <Divider />
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              try {
+                await updateDelay(token, delayId, Number(delay).toString());
+                const orders = orderData;
+                orders.map((order) => {
+                  if (order.order_id === delayId) {
+                    order.delay = delay;
+                  }
+                });
+                convertAndSetOrderDetails(orders);
+                setAlert(true);
+                setMessage(`Order delayed for ${delay} mins`);
+                setDelay(0);
+                setDelayModal(false);
+              } catch (error) {
+                console.log("Error updating delay ", error);
+                setAlert(true);
+                setMessage("Something went wrong!");
+              }
+            }}
+          >
+            <div>Enter the time to delay (in mins)</div>
+            <Input
+              required
+              className="my-5"
+              placeholder="Delay (in mins)"
+              value={delay}
+              type="number"
+              slotProps={{
+                input: {
+                  min: 0,
+                  step: 1,
+                  onKeyDown: (e) => {
+                    if (e.key === "-" || e.key === "." || e.key === "e") {
+                      e.preventDefault();
+                    }
+                  },
+                },
+              }}
+              onChange={(e) => {
+                setDelay(Number(e.target.value));
+              }}
+            />
+            <div className="flex gap-x-3 justify-end ml-5">
+              <Button
+                variant="plain"
+                color="neutral"
+                onClick={() => {
+                  setDelayModal(false);
                 }}
               >
                 Cancel

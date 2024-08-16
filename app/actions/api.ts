@@ -1091,7 +1091,7 @@ export async function fetchAllOrders(token: string) {
         throw error;
     }
 }
-export async function deleteOrder(token: string, orderId: string, reason: string) {
+export async function deleteOrder(token: string, orderId: string, reason: string, reject: boolean) {
     try {
         const response = await fetch(`${process.env.BACKEND_URL}/api/admin/cos/deleteOrder`, {
             method: "GET",
@@ -1101,6 +1101,7 @@ export async function deleteOrder(token: string, orderId: string, reason: string
                 token: token,
                 orderId: orderId,
                 reason: reason,
+                reject: reject.toString()
             },
             cache: "no-cache",
         });
@@ -1225,6 +1226,54 @@ export async function updateItem(
         const data = await response.json(); // Parse the JSON response
         if (!response.ok) {
             throw new Error("Error updating item " + data);
+        }
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+export async function updateOrderStatus(token: string, orderId: string, status: string) {
+    try {
+        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/cos/updateOrderStatus`, {
+            method: "GET",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+                token: token,
+                orderid: orderId,
+                status: status,
+            },
+            cache: "no-cache",
+        });
+
+        const data = await response.json(); // Parse the JSON response
+        if (!response.ok) {
+            throw new Error("Error updating status" + data);
+        }
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+export async function updateDelay(token: string, orderId: string, delay: string) {
+    try {
+        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/cos/updateDelay`, {
+            method: "GET",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+                token: token,
+                orderid: orderId,
+                delay: delay,
+            },
+            cache: "no-cache",
+        });
+
+        const data = await response.json(); // Parse the JSON response
+        if (!response.ok) {
+            throw new Error("Error updating delay" + data);
         }
         return data;
     } catch (error) {
