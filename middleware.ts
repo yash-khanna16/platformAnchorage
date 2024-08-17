@@ -5,6 +5,9 @@ import { cookies } from "next/headers";
 
 
 export default async function middleware(req: NextRequest) {
+  console.log(process.env.NEXT_PUBLIC_ROOM_CODE)
+  console.log(process.env.NEXT_PUBLIC_BACKEND_URL)
+  console.log(process.env)
   const path = req.nextUrl.pathname;
   const adminRoutes = ["/admin/search-guests","/admin/manage-rooms","/admin/send-email","/admin/add-guest","/admin/analytics", "/admin/add-booking", "/admin/manage-meals", "/admin/add-movement", "/admin/manage-movement", "/admin/movement-info", "/admin/master-table"] ;
   const isAdminRoute = adminRoutes.includes(path);
