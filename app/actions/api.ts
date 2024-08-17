@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import { parseJwt } from "@/app/actions/utils";
+import loadConfig from "@/config/config";
 
 export async function getRole() {
     const parsedData = await parseJwt(cookies().get("admin")?.value);
@@ -10,7 +11,8 @@ export async function getRole() {
 
 export async function loginAdmin(email: string, password: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/loginAdmin`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/loginAdmin`, {
             method: "GET",
             mode: "cors",
             headers: {
@@ -30,10 +32,8 @@ export async function loginAdmin(email: string, password: string) {
 }
 export async function searchAllGuests(token: string) {
     try {
-        console.log(process.env);
-        console.log(process.env.NEXT_PUBLIC_ROOM_CODE)
-  console.log(process.env.NEXT_PUBLIC_BACKEND_URL)
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/searchAllGuest`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/searchAllGuest`, {
             method: "GET",
             mode: "cors",
             headers: {
@@ -52,7 +52,8 @@ export async function searchAllGuests(token: string) {
 }
 export async function getAvailableRooms(token: string, checkin: Date, checkout: Date) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/getAvailableRooms`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/getAvailableRooms`, {
             method: "POST",
             mode: "cors",
             headers: {
@@ -93,7 +94,8 @@ export async function addNewBooking(
 ) {
     console.log(bookingData);
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/addBooking`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/addBooking`, {
             method: "POST",
             mode: "cors",
             headers: {
@@ -113,7 +115,8 @@ export async function addNewBooking(
 
 export async function getBookingsByRoom(token: string, room: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/getReserv`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/getReserv`, {
             method: "GET",
             mode: "cors",
             headers: {
@@ -143,7 +146,8 @@ export async function addGuest(
     }
 ) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/addGuests`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/addGuests`, {
             method: "POST",
             mode: "cors",
             headers: {
@@ -185,7 +189,8 @@ export async function editBooking(
 ) {
     console.log(bookingData);
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/editBooking`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/editBooking`, {
             method: "POST",
             mode: "cors",
             headers: {
@@ -204,7 +209,8 @@ export async function editBooking(
 }
 export async function deleteBooking(token: string, bookingId: string, password: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/deleteBooking`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/deleteBooking`, {
             method: "GET",
             mode: "cors",
             headers: {
@@ -224,7 +230,8 @@ export async function deleteBooking(token: string, bookingId: string, password: 
 }
 export async function getInstantRooms(token: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/instantAvailableRooms`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/instantAvailableRooms`, {
             method: "GET",
             mode: "cors",
             headers: {
@@ -242,7 +249,8 @@ export async function getInstantRooms(token: string) {
 }
 export async function addNewRoom(token: string, room: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/addRoom`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/addRoom`, {
             method: "POST",
             mode: "cors",
             headers: {
@@ -261,7 +269,8 @@ export async function addNewRoom(token: string, room: string) {
 }
 export async function deleteRoom(token: string, room: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/deleteRoom`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/deleteRoom`, {
             method: "POST",
             mode: "cors",
             headers: {
@@ -280,7 +289,8 @@ export async function deleteRoom(token: string, room: string) {
 }
 export async function editEmailTemplate(token: string, template: string, content: string, subject: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/editEmailTempalate`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/editEmailTempalate`, {
             method: "POST",
             mode: "cors",
             headers: {
@@ -303,7 +313,8 @@ export async function editEmailTemplate(token: string, template: string, content
 }
 export async function getEmailTemplate(token: string, template: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/getEmailTemplate`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/getEmailTemplate`, {
             method: "GET",
             mode: "cors",
             headers: {
@@ -323,7 +334,8 @@ export async function getEmailTemplate(token: string, template: string) {
 }
 export async function fetchRoomData(token: string, currentMonth: string, currentYear: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getRoomsBookedPerDay`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getRoomsBookedPerDay`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -343,7 +355,8 @@ export async function fetchRoomData(token: string, currentMonth: string, current
 }
 export async function fetchMeals(token: string, currentMonth: string, currentYear: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDay`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDay`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -363,7 +376,8 @@ export async function fetchMeals(token: string, currentMonth: string, currentYea
 }
 export async function fetchCompanies(token: string, currentMonth: string, currentYear: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForMonthandYear`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getAverageCompanyBookingForMonthandYear`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -384,7 +398,8 @@ export async function fetchCompanies(token: string, currentMonth: string, curren
 
 export async function fetchBreakfast(token: string, currentMonth: string, currentYear: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDay`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDay`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -405,7 +420,8 @@ export async function fetchBreakfast(token: string, currentMonth: string, curren
 }
 export async function fetchRoomDataQuarter(token: string, currentQuarter: string, currentYear: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getRoomsBookedPerDayQuarter`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getRoomsBookedPerDayQuarter`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -425,7 +441,8 @@ export async function fetchRoomDataQuarter(token: string, currentQuarter: string
 }
 export async function fetchMealsQuarter(token: string, currentQuarter: string, currentYear: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDayQuarter`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDayQuarter`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -445,7 +462,8 @@ export async function fetchMealsQuarter(token: string, currentQuarter: string, c
 }
 export async function fetchCompaniesQuarter(token: string, currentQuarter: string, currentYear: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForQuarterandYear`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getAverageCompanyBookingForQuarterandYear`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -466,7 +484,8 @@ export async function fetchCompaniesQuarter(token: string, currentQuarter: strin
 
 export async function fetchBreakfastQuarter(token: string, currentQuarter: string, currentYear: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDayQuarter`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDayQuarter`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -487,7 +506,8 @@ export async function fetchBreakfastQuarter(token: string, currentQuarter: strin
 }
 export async function fetchRoomDataYear(token: string, currentYear: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getRoomsBookedPerDayYear`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getRoomsBookedPerDayYear`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -506,7 +526,8 @@ export async function fetchRoomDataYear(token: string, currentYear: string) {
 }
 export async function fetchMealsYear(token: string, currentYear: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDayYear`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getAverageMealsBoughtPerDayYear`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -525,7 +546,8 @@ export async function fetchMealsYear(token: string, currentYear: string) {
 }
 export async function fetchCompaniesYear(token: string, currentYear: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageCompanyBookingForYear`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getAverageCompanyBookingForYear`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -545,7 +567,8 @@ export async function fetchCompaniesYear(token: string, currentYear: string) {
 
 export async function fetchBreakfastYear(token: string, currentYear: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDayYear`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getAverageBreakfastBoughtPerDayYear`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -566,7 +589,8 @@ export async function fetchBreakfastYear(token: string, currentYear: string) {
 
 export async function fetchAllCars(token: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/movement/fetchAllCars`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/movement/fetchAllCars`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -585,7 +609,8 @@ export async function fetchAllCars(token: string) {
 }
 export async function fetchAllDrivers(token: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/movement/fetchAllDrivers`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/movement/fetchAllDrivers`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -605,7 +630,8 @@ export async function fetchAllDrivers(token: string) {
 
 export async function addCar(token: string, name: string, number: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/movement/addCar`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/movement/addCar`, {
             method: "post",
             mode: "cors",
             headers: {
@@ -625,7 +651,8 @@ export async function addCar(token: string, name: string, number: string) {
 }
 export async function addDriver(token: string, name: string, phone: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/movement/addDriver`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/movement/addDriver`, {
             method: "post",
             mode: "cors",
             headers: {
@@ -645,7 +672,8 @@ export async function addDriver(token: string, name: string, phone: string) {
 }
 export async function deleteCar(token: string, number: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/movement/deleteCar`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/movement/deleteCar`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -665,7 +693,8 @@ export async function deleteCar(token: string, number: string) {
 }
 export async function deleteDriver(token: string, name: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/movement/deleteDriver`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/movement/deleteDriver`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -703,8 +732,9 @@ export async function addMovement(
     }
 ) {
     try {
-        console.log(movementData);
-        const response = await fetch(`${process.env.BACKEND_URL}/api/movement/addMovement`, {
+        
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/movement/addMovement`, {
             method: "post",
             mode: "cors",
             headers: {
@@ -733,8 +763,9 @@ export async function addMovement(
 
 export async function fetchAvailableCars(token: string, pickUpDateTime: string, returnDateTime: string) {
     try {
-        console.log(pickUpDateTime, returnDateTime);
-        const response = await fetch(`${process.env.BACKEND_URL}/api/movement/fetchAvailableCars`, {
+        
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/movement/fetchAvailableCars`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -755,7 +786,8 @@ export async function fetchAvailableCars(token: string, pickUpDateTime: string, 
 }
 export async function fetchAvailableDrivers(token: string, pickUpDateTime: string, returnDateTime: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/movement/fetchAvailableDrivers`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/movement/fetchAvailableDrivers`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -776,7 +808,8 @@ export async function fetchAvailableDrivers(token: string, pickUpDateTime: strin
 }
 export async function fetchMovement(token: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/movement/fetchMovement`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/movement/fetchMovement`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -796,7 +829,8 @@ export async function fetchMovement(token: string) {
 
 export async function fetchMasterMovement(token: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/movement/fetchEachPassenger`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/movement/fetchEachPassenger`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -836,7 +870,8 @@ export async function editMovement(
 ) {
     console.log(apiData);
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/movement/editMovement`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/movement/editMovement`, {
             method: "post",
             mode: "cors",
             headers: {
@@ -865,7 +900,8 @@ export async function editMovement(
 }
 export async function deletePassenger(token: string, movement_id: string, passenger_id: string, password: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/movement/deletePassengerFromMovement`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/movement/deletePassengerFromMovement`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -887,7 +923,8 @@ export async function deletePassenger(token: string, movement_id: string, passen
 }
 export async function deleteMovementByMovementId(token: string, movement_id: string, password: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/movement/deleteMovementFromMovementId`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/movement/deleteMovementFromMovementId`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -908,7 +945,8 @@ export async function deleteMovementByMovementId(token: string, movement_id: str
 }
 export async function fetchMealsByDate(token: string, date: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/fetchMealsByDate`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/fetchMealsByDate`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -941,7 +979,8 @@ export async function updateMeals(
     }[]
 ) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/updateMeals`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/updateMeals`, {
             method: "post",
             mode: "cors",
             headers: {
@@ -965,7 +1004,8 @@ export async function updateMeals(
 }
 export async function fetchMealsByBookingId(token: string, bookingId: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/fetchMealsByBookingId`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/fetchMealsByBookingId`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -989,7 +1029,8 @@ export async function fetchMealsByBookingId(token: string, bookingId: string) {
 }
 export async function fetchMovementByBookingId(token: string, bookingId: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/movement/fetchMovementByBookingId`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/movement/fetchMovementByBookingId`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -1013,7 +1054,8 @@ export async function fetchMovementByBookingId(token: string, bookingId: string)
 }
 export async function fetchOccupancyByBookingId(token: string, bookingId: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/fetchOccupancyByBooking`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/fetchOccupancyByBooking`, {
             method: "get",
             mode: "cors",
             headers: {
@@ -1038,7 +1080,8 @@ export async function fetchOccupancyByBookingId(token: string, bookingId: string
 
 export async function fetchBookingLogs(token: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/fetchBookingLogs`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/fetchBookingLogs`, {
             method: "GET",
             mode: "cors",
             headers: {
@@ -1057,7 +1100,8 @@ export async function fetchBookingLogs(token: string) {
 }
 export async function fetchAuditLogs(token: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/fetchAuditLog`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/fetchAuditLog`, {
             method: "GET",
             mode: "cors",
             headers: {
@@ -1077,7 +1121,8 @@ export async function fetchAuditLogs(token: string) {
 
 export async function fetchAllOrders(token: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/cos/fetchAllOrders`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/fetchAllOrders`, {
             method: "GET",
             mode: "cors",
             headers: {
@@ -1096,7 +1141,8 @@ export async function fetchAllOrders(token: string) {
 }
 export async function deleteOrder(token: string, orderId: string, reason: string, reject: boolean) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/cos/deleteOrder`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/deleteOrder`, {
             method: "GET",
             mode: "cors",
             headers: {
@@ -1121,7 +1167,8 @@ export async function deleteOrder(token: string, orderId: string, reason: string
 }
 export async function fetchAllItems(token: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/cos/fetchAllItems`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/fetchAllItems`, {
             method: "GET",
             mode: "cors",
             headers: {
@@ -1156,7 +1203,8 @@ export async function putItem(
     }
 ) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/cos/putItem`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/putItem`, {
             method: "POST",
             mode: "cors",
             headers: {
@@ -1179,7 +1227,8 @@ export async function putItem(
 }
 export async function deleteItem(token: string, itemid: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/cos/deleteItem`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/deleteItem`, {
             method: "GET",
             mode: "cors",
             headers: {
@@ -1215,7 +1264,8 @@ export async function updateItem(
     }
 ) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/cos/updateItem`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/updateItem`, {
             method: "POST",
             mode: "cors",
             headers: {
@@ -1238,7 +1288,8 @@ export async function updateItem(
 }
 export async function updateOrderStatus(token: string, orderId: string, status: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/cos/updateOrderStatus`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/updateOrderStatus`, {
             method: "GET",
             mode: "cors",
             headers: {
@@ -1262,7 +1313,8 @@ export async function updateOrderStatus(token: string, orderId: string, status: 
 }
 export async function updateDelay(token: string, orderId: string, delay: string) {
     try {
-        const response = await fetch(`${process.env.BACKEND_URL}/api/admin/cos/updateDelay`, {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/updateDelay`, {
             method: "GET",
             mode: "cors",
             headers: {

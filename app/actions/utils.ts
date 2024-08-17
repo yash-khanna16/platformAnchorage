@@ -1,4 +1,5 @@
 import { jwtVerify } from 'jose';
+import loadConfig from "@/config/config";
 
 export function parseJwt(token: string | undefined) {
     if (!token || token === undefined || token.split('.').length<2 ) { return; }
@@ -12,8 +13,9 @@ export function parseJwt(token: string | undefined) {
 export async function validate(token: string | undefined) {
     if (!token || token === undefined) { return; }
     try {
-        const secret = new TextEncoder().encode(process.env.Secret_Key);
-        const { payload } = await jwtVerify(token, secret);
+        const secret= await loadConfig();
+        const secretKey = new TextEncoder().encode(secret.Secret_Key);
+        const { payload } = await jwtVerify(token, secretKey);
         return payload;
     } catch (err) {
         console.error('Token verification failed: ', err);

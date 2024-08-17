@@ -69,8 +69,9 @@ function Navbar() {
   }
 
   useEffect(() => {
+    const getSocket=async()=>{
     if (socket) {
-      socket.on("order_received", (orders: OrderType[]) => {
+       await socket.on("order_received", (orders: OrderType[]) => {
         let activeOrders: OrderType[] = [];
         const currentTime = Date.now();
         orders.forEach((order) => {
@@ -85,6 +86,8 @@ function Navbar() {
         }
       });
     }
+  }
+  getSocket();
   }, [socket]);
 
   useEffect(() => {
