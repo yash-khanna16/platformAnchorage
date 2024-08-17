@@ -30,6 +30,9 @@ export async function loginAdmin(email: string, password: string) {
 }
 export async function searchAllGuests(token: string) {
     try {
+        console.log(process.env);
+        console.log(process.env.NEXT_PUBLIC_ROOM_CODE)
+  console.log(process.env.NEXT_PUBLIC_BACKEND_URL)
         const response = await fetch(`${process.env.BACKEND_URL}/api/admin/searchAllGuest`, {
             method: "GET",
             mode: "cors",
