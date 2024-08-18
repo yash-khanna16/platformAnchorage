@@ -17,9 +17,9 @@ const initializeSocket = async (): Promise<void> => {
     try {
       const secret = await loadConfig();
       console.log(secret);
-      //fix this later temp change
+      //fix this later temp change please change this
       socket = io(secret.BACKEND_URL || "https://platformanchoragebackend-4av0.onrender.com");
-      socket.emit("join_room", secret.ROOM_CODE || "test");
+      socket.emit("join_room", secret.ROOM_CODE || "4398vnksd843jf7");
     } catch (error) {
       console.error("Error initializing socket:", error);
     }
