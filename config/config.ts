@@ -14,6 +14,9 @@ async function loadConfig() {
     return cachedConfig;
   } else {
     // Load variables from .env file for development
+    console.log("env backend: ", process.env.NEXT_PUBLIC_BACKEND_URL)
+    console.log("env room code: ", process.env.NEXT_PUBLIC_ROOM_CODE)
+    
     BACKEND_URL = process.env["NEXT_PUBLIC_BACKEND_URL"] || "";
     Secret_Key = process.env["Secret_Key"] || "";
     ROOM_CODE = process.env["NEXT_PUBLIC_ROOM_CODE"] || "";
