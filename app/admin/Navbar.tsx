@@ -39,7 +39,7 @@ import {
 import Image from "next/image";
 import veg from "@/app/assets/veg.svg";
 import nonveg from "@/app/assets/nonveg.svg";
-import { deleteOrder, fetchAllOrders } from "../actions/api";
+import { deleteOrder, fetchAllOrders, updateDelay, updateOrderStatus } from "../actions/api";
 import { getSocket } from "@/app/actions/websocket";
 
 function Navbar() {
@@ -56,6 +56,11 @@ function Navbar() {
   const [reason, setReason] = useState("");
   const [ordersQueue, setOrdersQueue] = useState<OrderType[]>([]);
   const [currentOrder, setCurrentOrder] = useState<OrderType | null>(null);
+  const [currentExpiredOrder, setCurrentExpiredOrder] = useState<OrderType | null>(null);
+  const [expiredOrdersQueue, setExpiredOrdersQueue] = useState<OrderType[]>([]);
+  const [expiredOrder, setExpiredOrder] = useState(false);
+  const [delay, setDelay] = useState(0);
+  const [delayModal, setDelayModal] = useState(false);
 
   const router = useRouter();
   const params = usePathname();
@@ -69,25 +74,25 @@ function Navbar() {
   }
 
   useEffect(() => {
-    const getSocket=async()=>{
-    if (socket) {
-       await socket.on("order_received", (orders: OrderType[]) => {
-        let activeOrders: OrderType[] = [];
-        const currentTime = Date.now();
-        orders.forEach((order) => {
-          order.total_time_to_prepare = Math.max(...order.items.map((item) => item.time_to_prepare));
-          const expiryTime = Number(order.created_at) + order.total_time_to_prepare * 60 * 1000;
-          if (expiryTime > currentTime) {
-            activeOrders.push(order);
+    const getSocket = async () => {
+      if (socket) {
+        await socket.on("order_received", (orders: OrderType[]) => {
+          let activeOrders: OrderType[] = [];
+          const currentTime = Date.now();
+          orders.forEach((order) => {
+            order.total_time_to_prepare = Math.max(...order.items.map((item) => item.time_to_prepare));
+            const expiryTime = Number(order.created_at) + order.total_time_to_prepare * 60 * 1000;
+            if (expiryTime > currentTime) {
+              activeOrders.push(order);
+            }
+          });
+          if (activeOrders.length > 0) {
+            setOrdersQueue((prevQueue) => [...prevQueue, activeOrders[0]]);
           }
         });
-        if (activeOrders.length > 0) {
-          setOrdersQueue((prevQueue) => [...prevQueue, activeOrders[0]]);
-        }
-      });
-    }
-  }
-  getSocket();
+      }
+    };
+    getSocket();
   }, [socket]);
 
   useEffect(() => {
@@ -98,6 +103,15 @@ function Navbar() {
       setNewOrder(true);
     }
   }, [ordersQueue, currentOrder]);
+
+  useEffect(() => {
+    if (!currentExpiredOrder && expiredOrdersQueue.length > 0) {
+      const nextOrder = expiredOrdersQueue[0];
+      setCurrentExpiredOrder(nextOrder);
+      setExpiredOrdersQueue((prevQueue) => prevQueue.slice(1));
+      setExpiredOrder(true);
+    }
+  }, [expiredOrdersQueue, currentExpiredOrder]);
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -128,6 +142,7 @@ function Navbar() {
     fetchAllOrders(token)
       .then((orders: OrderType[]) => {
         let activeOrders: OrderType[] = [];
+        let expiredOrdersQueue: OrderType[] = [];
         const currentTime = Date.now();
 
         orders.map((order) => {
@@ -137,9 +152,19 @@ function Navbar() {
           const expiryTime = Number(order.created_at) + order.total_time_to_prepare * 60 * 1000;
           if (expiryTime > currentTime && order.status !== "Delivered") {
             activeOrders.push(order);
+            if (order.status === "Placed" && !ordersQueue.some((o) => o.order_id === order.order_id)) {
+              setOrdersQueue((prevQueue) => [...prevQueue, order]);
+            }
+          }
+          if (expiryTime <= currentTime && order.status === "Accepted") {
+            expiredOrdersQueue.push(order);
           }
         });
         setOrders(activeOrders);
+        setExpiredOrdersQueue((prevQueue) => {
+          const updatedQueue = [...prevQueue, ...expiredOrdersQueue.filter((order) => !prevQueue.includes(order))];
+          return updatedQueue;
+        });
         setLoading(false);
       })
       .catch((error) => {
@@ -152,6 +177,7 @@ function Navbar() {
     const timeInterval = setInterval(() => {
       let tempOrder = orders;
       let activeOrders: OrderType[] = [];
+      let expiredOrdersQueue: OrderType[] = [];
       const currentTime = Date.now();
 
       tempOrder.map((order) => {
@@ -162,8 +188,15 @@ function Navbar() {
         if (expiryTime > currentTime && order.status !== "Delivered") {
           activeOrders.push(order);
         }
+        if (expiryTime <= currentTime && order.status === "Accepted") {
+          expiredOrdersQueue.push(order);
+        }
       });
       setOrders(activeOrders);
+      setExpiredOrdersQueue((prevQueue) => {
+        const updatedQueue = [...prevQueue, ...expiredOrdersQueue.filter((order) => !prevQueue.includes(order))];
+        return updatedQueue;
+      });
     }, 1000);
 
     return () => clearInterval(timeInterval);
@@ -313,6 +346,96 @@ function Navbar() {
           </div>
         </div>
       </Drawer>
+      {/* Order Expired Modal */}
+      <Modal
+        open={expiredOrder}
+        onClose={(event, reason) => {
+          if (reason !== "backdropClick") {
+            setNewOrder(false);
+          }
+        }}
+      >
+        <ModalDialog size="lg" sx={{ width: 650 }}>
+          <DialogTitle>
+            <div className="">
+              <div>Order Expired</div>
+              <div className="text-lg text-slate-500">
+                This order has passed its preparation time. How would you like to proceed?
+              </div>
+            </div>
+          </DialogTitle>
+          <DialogContent>
+            <div className="p-2 px-6 border rounded-md text-[#7a7a7a]">
+              <div className="w-full items-center my-2 font-medium justify-between text-md  flex">
+                <div className="flex items-center gap-x-2">
+                  <div>Order No: {currentExpiredOrder?.order_id}</div>
+                  <div className="text-green-600 bg-green-[#fdfffe]  border w-fit px-2 py-1 rounded-xl">
+                    {currentExpiredOrder?.room}
+                  </div>
+                </div>
+                <div>Order by {currentExpiredOrder?.guest_name}</div>
+              </div>
+              <div className="w-full text-[#636363]  border-t border-b py-2 my-2">
+                {currentExpiredOrder?.items.map((item, index: number) => (
+                  <div key={index} className="flex justify-between items-center w-full">
+                    <div className="p-2 flex gap-x-3">
+                      <Image width={16} height={16} alt="veg" src={item.type === "veg" ? veg.src : nonveg.src} />
+                      <div>
+                        {item.qty} x {item.name}
+                      </div>
+                    </div>
+                    <div>₹{item.price * item.qty}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="my-4 pl-2 text-[#636363] flex w-full justify-between">
+                <div>Total Bill:</div>
+                <div>₹{currentExpiredOrder?.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
+              </div>
+            </div>
+            <DialogActions className="flex  space-x-3">
+              <Button
+                onClick={async () => {
+                  if (currentExpiredOrder) {
+                    try {
+                      await updateOrderStatus(token, currentExpiredOrder?.order_id, "Delivered");
+                      setCurrentExpiredOrder(null);
+                      setExpiredOrder(false);
+                      setAlert(true);
+                      setMessage("Order Status updated successfully!");
+                      if (expiredOrdersQueue.length === 0) {
+                        if (params === "/admin/orders") window.location.reload();
+                        else router.push("/admin/orders");
+                      }
+                    } catch (error) {
+                      console.log("error updating order status: ", error);
+                      setAlert(true);
+                      setMessage("Something went wrong!");
+                    }
+                  }
+                }}
+                variant="solid"
+                size="lg"
+                color="success"
+              >
+                Set as Delivered
+              </Button>
+              <Button
+                onClick={() => {
+                  // delay order logic
+                  setExpiredOrder(false);
+                  setDelayModal(true)
+                }}
+                size="lg"
+                variant="outlined"
+                color="danger"
+              >
+                Delay
+              </Button>
+            </DialogActions>
+          </DialogContent>
+        </ModalDialog>
+      </Modal>
       <Modal
         open={newOrder}
         onClose={(event, reason) => {
@@ -352,13 +475,16 @@ function Navbar() {
             </div>
             <DialogActions className="flex  space-x-3">
               <Button
-                onClick={() => {
-                  setNewOrder(false);
-                  setCurrentOrder(null);
-                  setNewOrder(false);
-                  if (ordersQueue.length === 0) {
-                    if (params === '/admin/orders') window.location.reload();
-                    else router.push("/admin/orders")
+                onClick={async () => {
+                  if (currentOrder) {
+                    await updateOrderStatus(token, currentOrder?.order_id, "Accepted");
+                    setNewOrder(false);
+                    setCurrentOrder(null);
+                    setNewOrder(false);
+                    if (ordersQueue.length === 0) {
+                      if (params === "/admin/orders") window.location.reload();
+                      else router.push("/admin/orders");
+                    }
                   }
                 }}
                 variant="solid"
@@ -417,6 +543,82 @@ function Navbar() {
                 onClick={() => {
                   setDel(false);
                   setNewOrder(true);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" variant="solid" color="danger" loading={loadingDelete}>
+                Confirm
+              </Button>
+            </div>
+          </form>
+        </ModalDialog>
+      </Modal>
+      <Modal
+        open={delayModal}
+        onClose={() => {
+          setDelayModal(false);
+        }}
+      >
+        <ModalDialog variant="outlined" size="md">
+          <DialogTitle>
+            <WarningRounded />
+            Set Delay
+          </DialogTitle>
+          <Divider />
+          <form
+            onSubmit={async (e) => {
+              e.preventDefault();
+              try {
+                if (currentExpiredOrder) {
+                  await updateDelay(token, currentExpiredOrder?.order_id, Number(delay).toString());
+                  setAlert(true);
+                  setMessage(`Order delayed for ${delay} mins`);
+                  setDelay(0);
+                  setDelayModal(false);
+                  setExpiredOrder(false);
+                  setCurrentExpiredOrder(null)
+                  if (expiredOrdersQueue.length === 0) {
+                    if (params === "/admin/orders") window.location.reload();
+                    else router.push("/admin/orders");
+                  }
+                }
+              } catch (error) {
+                console.log("Error updating delay ", error);
+                setAlert(true);
+                setMessage("Something went wrong!");
+              }
+            }}
+          >
+            <div>Enter the time to delay (in mins)</div>
+            <Input
+              required
+              className="my-5"
+              placeholder="Delay (in mins)"
+              value={delay}
+              type="number"
+              slotProps={{
+                input: {
+                  min: 0,
+                  step: 1,
+                  onKeyDown: (e) => {
+                    if (e.key === "-" || e.key === "." || e.key === "e") {
+                      e.preventDefault();
+                    }
+                  },
+                },
+              }}
+              onChange={(e) => {
+                setDelay(Number(e.target.value));
+              }}
+            />
+            <div className="flex gap-x-3 justify-end ml-5">
+              <Button
+                variant="plain"
+                color="neutral"
+                onClick={() => {
+                  setDelayModal(false);
+                  setExpiredOrder(true)
                 }}
               >
                 Cancel
