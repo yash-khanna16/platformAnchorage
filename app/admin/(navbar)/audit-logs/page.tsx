@@ -98,30 +98,10 @@ function Audit() {
     handleSearch();
   }, [search, rows]);
 
-  // const exportToCsv = () => {
-  //   // Filter rows where status is "Active"
-  //   const activeRows = filteredRows.filter(row => row.status === "Active");
-
-  //   // Prepare CSV content
-  //   const csvContent = "data:text/csv;charset=utf-8,"
-  //     + columns.join(",") + "\n"
-  //     + activeRows.map(row => columns.map(column => row[column as keyof ReservationType]).join(",")).join("\n");
-
-  //   // Create download link and trigger download
-  //   const encodedUri = encodeURI(csvContent);
-  //   const link = document.createElement('a');
-  //   link.setAttribute('href', encodedUri);
-  //   link.setAttribute('download', 'active_reservations.csv');
-  //   document.body.appendChild(link);
-  //   link.click();
-  //   document.body.removeChild(link);
-  // };
+ 
   return (
     <div className="mx-5 mt-11 max-[1420px]:mx-10 max-lg:mx-5">
-      {/* <Button variant="contained" color="primary" onClick={exportToCsv}>Export as CSV</Button> */}
-      {/* <PDFViewer width="100%" height={1000}>
-        <CheckInFormPDF data={data} />
-      </PDFViewer> */}
+      
       <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
         Audit Logs
       </Typography>

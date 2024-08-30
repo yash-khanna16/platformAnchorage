@@ -168,7 +168,7 @@ function Items() {
   }
 
   return (
-    <div className="m-10">
+    <div className="m-10 max-xl:mx-5">
       <div className=" font-semibold text-slate-800 text-3xl">Menu Listing</div>
       <div className="text-[#636363] w-full my-5 ">
         <div className="w-full gap-x-3 flex justify-end">
@@ -191,8 +191,9 @@ function Items() {
         {Object.keys(items).map((key, index:number) => (
           <div key={index} className="my-5 border p-4 rounded-2xl shadow-md">
             <div>
-              <div className="text-2xl px-4 text-black font-medium my-3"> {key}</div>
+              <div className="text-2xl px-4 text-black font-medium my-3 capitalize"> {key}</div>
             </div>
+            <div className="w-full overflow-scroll " style={{scrollbarWidth:"none"}}>
             <table className="w-full border-collapse">
               <thead>
                 <tr className="font-bold border-b">
@@ -201,7 +202,7 @@ function Items() {
                   <th className="w-[10%] px-4 py-2 text-left">Base Price</th>
                   <th className="w-[10%] px-4 py-2 text-left">Time to Prepare</th>
                   <th className="w-[10%] px-4 py-2 text-center">Type</th>
-                  <th className="w-[48%] px-4 py-2 text-left">Description</th>
+                  <th className="w-[48%] min-w-40 px-4 py-2 text-left">Description</th>
                   <th className="w-[12%] px-4 py-2 text-center">Actions</th>
                 </tr>
               </thead>
@@ -221,7 +222,7 @@ function Items() {
                         src={item.type === "veg" ? veg.src : nonveg.src}
                       />
                     </td>
-                    <td className="w-[48%] px-4 py-2">{item.description}</td>
+                    <td className="w-[48%] min-w-40 px-4 py-2">{item.description}</td>
                     <td className="w-[12%] px-4 py-2 ">
                       <div className="flex justify-around gap-x-3">
                         <Switch size="sm" checked={item.available} onChange={handleAvailabilityChange(key, index)} />
@@ -247,6 +248,7 @@ function Items() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         ))}
         {/* </AccordionGroup> */}
@@ -259,7 +261,6 @@ function Items() {
           </DialogTitle>
           <DialogContent>
             <span className="text-lg">Enter details of the new item.</span>{" "}
-          </DialogContent>
           <form
             className=""
             onSubmit={async (event: React.FormEvent<HTMLFormElement>) => {
@@ -291,7 +292,7 @@ function Items() {
             }}
           >
             <Stack spacing={2}>
-              <div className="gap-3 grid grid-cols-2">
+              <div className="gap-3 grid grid-cols-2 max-sm:grid-cols-1 ">
                 <FormControl size="lg">
                   <FormLabel>Item Name</FormLabel>
                   <Input
@@ -377,7 +378,7 @@ function Items() {
                     options={categories}
                   />
                 </FormControl>
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <FormControl size="lg">
                     <FormLabel>Description</FormLabel>
                     <Textarea
@@ -398,6 +399,7 @@ function Items() {
               </Button>
             </Stack>
           </form>
+          </DialogContent>
         </ModalDialog>
       </Modal>
       <Modal open={edit} onClose={() => setEdit(false)}>
@@ -407,7 +409,7 @@ function Items() {
           </DialogTitle>
           <DialogContent>
             <span className="text-lg">Enter details of the item.</span>
-          </DialogContent>
+          
           <form
             onSubmit={async (event: React.FormEvent<HTMLFormElement>) => {
               event.preventDefault();
@@ -439,7 +441,7 @@ function Items() {
             }}
           >
             <Stack spacing={2}>
-              <div className="gap-3 grid grid-cols-2">
+              <div className="gap-3 grid grid-cols-2 max-sm:grid-cols-1">
                 <FormControl size="lg">
                   <FormLabel>Item Name</FormLabel>
                   <Input
@@ -533,7 +535,7 @@ function Items() {
                   />
                 </FormControl>
 
-                <div className="col-span-2">
+                <div className="sm:col-span-2">
                   <FormControl size="lg">
                     <FormLabel>Description</FormLabel>
                     <Textarea
@@ -553,6 +555,7 @@ function Items() {
               </Button>
             </Stack>
           </form>
+          </DialogContent>
         </ModalDialog>
       </Modal>
 

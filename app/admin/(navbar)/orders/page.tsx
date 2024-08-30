@@ -250,9 +250,9 @@ function Orders() {
                 return (
                   <div
                     key={index}
-                    className="animate-pulse h-[340px] border max-md:flex-col text-[#636363] flex shadow-md px-6 py-8 font-medium rounded-3xl "
+                    className="animate-pulse min-h-[340px] border max-sm:flex-col max-sm:gap-5  text-[#636363] flex shadow-md px-6 py-8 font-medium rounded-3xl max-sm:px-3 max-sm:py-5 "
                   >
-                    <div className="space-y-4 w-2/5">
+                    <div className="space-y-4 w-2/5 max-sm:w-full">
                       <div className="space-y-2">
                         <div className="h-10 w-16 bg-gray-200 rounded-2xl"></div>
                         <div className="h-8 w-28 bg-gray-200 rounded-2xl"></div>
@@ -266,7 +266,7 @@ function Orders() {
                         <div className="h-8 my-4 w-48 bg-gray-200 rounded-2xl"></div>
                       </div>
                     </div>
-                    <div className="w-3/5 mx-6 flex flex-col gap-y-3">
+                    <div className="w-3/5 mx-6 flex flex-col gap-y-3 max-sm:mx-auto max-sm:w-full">
                       <div className="flex justify-between w-full">
                         <div className="flex gap-x-3">
                           <div className="w-8 h-8 bg-gray-200 rounded-2xl"></div>

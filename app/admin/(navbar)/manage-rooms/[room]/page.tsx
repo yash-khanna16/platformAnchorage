@@ -22,6 +22,10 @@ type ReservationType = {
   additionalInfo: string;
 };
 
+type ExtendedReservationType = ReservationType & {
+  status: string;
+};
+
 function Room() {
   const params = useParams();
   const room = decodeURIComponent(params.room as string);
@@ -87,6 +91,13 @@ function Room() {
   
       const currentTime = new Date();
   
+      // Define status priority
+      const statusPriority: { [key: string]: number } = {
+        "Active": 1,
+        "Upcoming": 2,
+        "Expired": 3,
+      };
+  
       fetchedRows = fetchedRows.map((row: ReservationType) => {
         const checkinTime = new Date(row.checkin);
         const checkoutTime = new Date(row.checkout);
@@ -108,6 +119,9 @@ function Room() {
         };
       });
   
+      // Sort rows based on status priority
+      fetchedRows.sort((a: ExtendedReservationType, b:ExtendedReservationType) => statusPriority[a.status] - statusPriority[b.status]);
+  
       setRows(fetchedRows);
       setFilteredRows(fetchedRows);
       setLoading(false);
@@ -116,6 +130,7 @@ function Room() {
       console.log(error);
     }
   }
+  
   
 
   useEffect(() => {

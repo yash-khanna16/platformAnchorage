@@ -1336,3 +1336,66 @@ export async function updateDelay(token: string, orderId: string, delay: string)
         throw error;
     }
 }
+export async function fetchProfitData(token: string, currentQuarter: string, currentYear: string) {
+    try {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getTotalProfitePerDay`, {
+            method: "get",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+                token: token,
+                year: currentYear,
+                month: currentQuarter,
+            },
+            cache: "no-cache",
+        });
+        const data = await response.json(); // Parse the JSON response
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+export async function fetchProfitDataQuarter(token: string, currentQuarter: string, currentYear: string) {
+    try {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getTotalProfitePerDay`, {
+            method: "get",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+                token: token,
+                year: currentYear,
+                month: currentQuarter,
+            },
+            cache: "no-cache",
+        });
+        const data = await response.json(); // Parse the JSON response
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+export async function fetchProfitDataYear(token: string, currentQuarter: string, currentYear: string) {
+    try {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getTotalProfitePerDay`, {
+            method: "get",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+                token: token,
+                year: currentYear,
+                month: currentQuarter,
+            },
+            cache: "no-cache",
+        });
+        const data = await response.json(); // Parse the JSON response
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}

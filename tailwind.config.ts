@@ -28,6 +28,7 @@ const config: Config = {
   variants: {
     extend: {},
   },
-  plugins: [],
+  plugins: [
+  ],
 };
 export default config;

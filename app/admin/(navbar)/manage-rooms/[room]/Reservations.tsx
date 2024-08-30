@@ -27,7 +27,12 @@ import {
 import EditBooking from "./EditBooking";
 import { Close, DeleteForever, FileDownload, Info, OpenInNew } from "@mui/icons-material";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
-import { deleteBooking, fetchMealsByBookingId, fetchMovementByBookingId, fetchOccupancyByBookingId } from "@/app/actions/api";
+import {
+  deleteBooking,
+  fetchMealsByBookingId,
+  fetchMovementByBookingId,
+  fetchOccupancyByBookingId,
+} from "@/app/actions/api";
 import { useRouter } from "next/navigation";
 import { getAuthAdmin } from "@/app/actions/cookie";
 import CheckInForm from "@/app/admin/(navbar)/manage-rooms/[room]/CheckInForm";
@@ -216,17 +221,37 @@ const Reservations: React.FC<ReservationsProps> = ({
     saveAs(blob, fileName);
   };
 
-  const BoldHeaderCell = (props: any) => <div style={{ fontWeight: "bold" }}>{props.colDef.headerName}</div>;
+  const BoldHeaderCell = (props: any) => (
+    <div style={{ fontWeight: "bold" }}>{props.colDef.headerName}</div>
+  );
   let gridColumns: GridColDef[];
+  const statusOrder = ["active", "upcoming", "expired"];
+
+    const customSortComparator = (v1: string, v2: string) => {
+      return statusOrder.indexOf(v1.toLowerCase()) - statusOrder.indexOf(v2.toLowerCase());
+    };
   if (location === "movement") {
+
     gridColumns = [
       ...columns.map((columnName, index) => ({
         field: columnName,
         headerName: headers[index],
         hide: columnName === "email",
         // width: 100,
-        flex: index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 0 : undefined,
-        width: index === 11 || index === 12 || index === 13 || columnName === "room" || columnName === "status" ? 100 : 160,
+        flex:
+          index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
+            ? 0
+            : undefined,
+        width:
+          index === 11 ||
+          index === 12 ||
+          index === 13 ||
+          columnName === "room" ||
+          columnName === "status"
+            ? 100
+            : 160,
+            sortable: columnName === "status" ? true : undefined,
+        sortComparator: columnName === "status" ? customSortComparator : undefined,
         renderHeader: (params: GridColumnHeaderParams) => (
           <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
         ),
@@ -238,7 +263,11 @@ const Reservations: React.FC<ReservationsProps> = ({
                   size="sm"
                   variant="outlined"
                   color={
-                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
+                    params.row[columnName] === "Expired"
+                      ? "danger"
+                      : params.row[columnName] === "Active"
+                      ? "success"
+                      : "warning"
                   }
                 >
                   {params.row[columnName]}
@@ -258,7 +287,10 @@ const Reservations: React.FC<ReservationsProps> = ({
         headerName: headers[index],
         hide: columnName === "email",
         // width: 100,
-        flex: index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 0 : undefined,
+        flex:
+          index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
+            ? 0
+            : undefined,
         width:
           index === 11 ||
           index === 12 ||
@@ -270,6 +302,8 @@ const Reservations: React.FC<ReservationsProps> = ({
           columnName === "car_name"
             ? 100
             : 160,
+            sortable: columnName === "status" ? true : undefined,
+        sortComparator: columnName === "status" ? customSortComparator : undefined,
         renderHeader: (params: GridColumnHeaderParams) => (
           <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
         ),
@@ -281,7 +315,11 @@ const Reservations: React.FC<ReservationsProps> = ({
                   size="sm"
                   variant="outlined"
                   color={
-                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
+                    params.row[columnName] === "Expired"
+                      ? "danger"
+                      : params.row[columnName] === "Active"
+                      ? "success"
+                      : "warning"
                   }
                 >
                   {params.row[columnName]}
@@ -313,7 +351,11 @@ const Reservations: React.FC<ReservationsProps> = ({
                   size="sm"
                   variant="outlined"
                   color={
-                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
+                    params.row[columnName] === "Expired"
+                      ? "danger"
+                      : params.row[columnName] === "Active"
+                      ? "success"
+                      : "warning"
                   }
                 >
                   {params.row[columnName]}
@@ -332,7 +374,10 @@ const Reservations: React.FC<ReservationsProps> = ({
         field: columnName,
         headerName: headers[index],
         hide: index === 7,
-        flex: index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 0 : undefined,
+        flex:
+          index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
+            ? 0
+            : undefined,
         width:
           index === 11 ||
           index === 12 ||
@@ -353,7 +398,11 @@ const Reservations: React.FC<ReservationsProps> = ({
                   size="sm"
                   variant="outlined"
                   color={
-                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
+                    params.row[columnName] === "Expired"
+                      ? "danger"
+                      : params.row[columnName] === "Active"
+                      ? "success"
+                      : "warning"
                   }
                 >
                   {params.row[columnName]}
@@ -373,7 +422,10 @@ const Reservations: React.FC<ReservationsProps> = ({
         headerAlign: "center",
         width: 180,
         renderHeader: (params: GridColumnHeaderParams) => (
-          <span className="text-[#0D141C] font-semibold pl-3 text-center" style={{ display: "block", width: "100%" }}>
+          <span
+            className="text-[#0D141C] font-semibold pl-3 text-center"
+            style={{ display: "block", width: "100%" }}
+          >
             Actions
           </span>
         ),
@@ -473,6 +525,8 @@ const Reservations: React.FC<ReservationsProps> = ({
           columnName === "rank"
             ? 100
             : 160,
+        sortable: columnName === "status" ? true : undefined,
+        sortComparator: columnName === "status" ? customSortComparator : undefined,
         renderHeader: (params: GridColumnHeaderParams) => (
           <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
         ),
@@ -515,7 +569,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                 const meals = await fetchMeals(params.row.booking_id);
                 const movements = await fetchMovement(params.row.booking_id);
                 const occupancy = await fetchOccupancy(params.row.booking_id);
-
+    
                 console.log(movements);
                 if (meals && movements && occupancy) {
                   console.log("meals ", meals);
@@ -539,7 +593,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                 const meals = await fetchMeals(params.row.booking_id);
                 const movements = await fetchMovement(params.row.booking_id);
                 const occupancy = await fetchOccupancy(params.row.booking_id);
-
+    
                 console.log(movements);
                 if (meals && movements && occupancy) {
                   console.log("meals ", meals);
@@ -553,20 +607,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                   downloadPdf(data);
                 }
               }}
-              // onClick={() => {
-              //   setGeneratePDF(params.row);
-              //   pdfDownloadRef.current = (
-              //     <>
-              //       <CheckInForm data={params.row} />
-              //     </>
-              //   );
-              //   if (pdfDownloadRef.current) {
-              //     pdfDownloadRef.current.click();
-              //   }
-              //   console.log("row: ", params.row);
-              // }} // Implement your edit logic here
             >
-              {/* <CheckInForm data={params.row} /> */}
               <FileDownload className="scale-75" />
             </IconButton>
             <IconButton
@@ -581,7 +622,6 @@ const Reservations: React.FC<ReservationsProps> = ({
                 setDeleteId(params.row.booking_id);
               }}
             >
-              {/* Add your delete icon component here */}
               <DeleteForever className="scale-75 text-red-700" />
             </IconButton>
           </div>
@@ -655,6 +695,11 @@ const Reservations: React.FC<ReservationsProps> = ({
                 columns={gridColumns}
                 checkboxSelection
                 getRowId={(row) => row.booking_id} // Specify the custom row ID
+                initialState={{
+                  sorting: {
+                    sortModel: [{ field: "status", sort: "asc" }],
+                  },
+                }}
                 sx={{
                   borderRadius: 3, // Adjust the value to achieve the desired rounding
                   "& .MuiDataGrid-root": {
@@ -697,7 +742,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                   getRowId={(row) => row.passenger_id}
                   initialState={{
                     sorting: {
-                      sortModel: [{ field: "pickup_time", sort: "asc" }],
+                      sortModel: [{ field: "status", sort: "asc" }],
                     },
                   }}
                   sx={{
@@ -729,9 +774,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                       paginationModel={paginationModel}
                       onPaginationModelChange={setPaginationModel}
                       initialState={{
-                        sorting: {
-                          sortModel: [{ field: "status", sort: "asc" }],
-                        },
+                        
                         columns: {
                           columnVisibilityModel: {
                             email: false,
@@ -766,7 +809,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                       onPaginationModelChange={setPaginationModel}
                       initialState={{
                         sorting: {
-                          sortModel: [{ field: "status", sort: "asc" }],
+                          sortModel: [{ field: "status", sort: "asc" }], // Will use the custom comparator for 'status'
                         },
                         columns: {
                           columnVisibilityModel: {
@@ -787,6 +830,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                         },
                       }}
                     />
+                    ;
                   </div>
                 )}
               </>
@@ -806,7 +850,14 @@ const Reservations: React.FC<ReservationsProps> = ({
             <span className="text-2xl">Edit Booking</span>
           </DialogTitle>
           <DialogContent className="">
-            {editId && <EditBooking setReload={setReload} reload={reload} setOpenModal={setEdit} initialData={editId} />}
+            {editId && (
+              <EditBooking
+                setReload={setReload}
+                reload={reload}
+                setOpenModal={setEdit}
+                initialData={editId}
+              />
+            )}
           </DialogContent>
         </ModalDialog>
       </Modal>

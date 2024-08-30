@@ -85,12 +85,20 @@ const MovementReservations: React.FC<ReservationsProps> = ({
     handleSearch(value);
   };
 
+  const statusOrder = ["active", "upcoming", "expired"];
+
+    const customSortComparator = (v1: string, v2: string) => {
+      return statusOrder.indexOf(v1.toLowerCase()) - statusOrder.indexOf(v2.toLowerCase());
+    };
+
   const gridColumns: GridColDef[] = [
     ...columns.map((columnName, index) => ({
       field: columnName,
       headerName: headers[index],
       flex: index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 0 : undefined,
       width: index === 0 || columnName === "car_name" || columnName === "driver" || columnName === "status" ? 150 : 240,
+      sortable: columnName === "status" ? true : undefined,
+      sortComparator: columnName === "status" ? customSortComparator : undefined,
       renderHeader: (params: GridColumnHeaderParams) => (
         <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
       ),
@@ -148,7 +156,7 @@ const MovementReservations: React.FC<ReservationsProps> = ({
             getRowId={(row) => row.movement_id}
             initialState={{
               sorting: {
-                sortModel: [{ field: "pickup_time", sort: "desc" }], // Adjust 'asc' to 'desc' if needed
+                sortModel: [{ field: "status", sort: "asc" }], // Adjust 'asc' to 'desc' if needed
               },
             }}
             sx={{
@@ -156,12 +164,7 @@ const MovementReservations: React.FC<ReservationsProps> = ({
               "& .MuiDataGrid-root": {
                 borderRadius: "inherit",
               },
-              // "& .MuiDataGrid-cell": {
-              //   border: "1px solid gray", // Add border to each cell
-              // },
-              // "& .MuiDataGrid-columnHeaders": {
-              //   borderBottom: "1px solid gray", // Add border to column headers
-              // },
+              
             }}
             onRowSelectionModelChange={(newRowSelectionModel) => {
               setSeletedMovement(newRowSelectionModel);
@@ -169,66 +172,7 @@ const MovementReservations: React.FC<ReservationsProps> = ({
           />
         </div>
       </div>
-      {/* <Modal
-        open={edit}
-        onClose={() => {
-          setEdit(false);
-        }}
-      >
-        <ModalDialog className="w-6/12 max-xl:w-8/12 max-lg:w-9/12 max-md:w-10/12 max-sm:w-full">
-          <ModalClose />
-          <DialogTitle>
-            <span className="text-2xl">Edit Booking</span>
-          </DialogTitle>
-          <DialogContent>
-            {editId && (
-              <EditBooking
-                setReload={setReload}
-                reload={reload}
-                setOpenModal={setEdit}
-                initialData={editId}
-              />
-            )}
-          </DialogContent>
-        </ModalDialog>
-      </Modal> */}
-      {/* <Modal
-        open={del}
-        onClose={() => {
-          setDel(false);
-        }}
-      >
-        <ModalDialog variant="outlined" size="md">
-          <DialogTitle>
-            <WarningRoundedIcon />
-            Confirmation
-          </DialogTitle>
-          <Divider />
-          <DialogContent>Are you sure you want to delete this Movement?</DialogContent>
-          <DialogActions>
-            <Button variant="solid" color="danger" loading={loadingDelete} onClick={handleDelete}>
-              Confirm
-            </Button>
-            <Button variant="plain" color="neutral" onClick={() => setDel(false)}>
-              Cancel
-            </Button>
-          </DialogActions>
-        </ModalDialog>
-      </Modal> */}
-      {/* <Snackbar
-        open={alert}
-        autoHideDuration={5000}
-        onClose={() => {
-          setAlert(false);
-        }}
-      >
-        <Box display="flex" alignItems="center">
-          <Info /> {message}
-          <IconButton onClick={() => setAlert(false)}>
-            <Close />
-          </IconButton>
-        </Box>
-      </Snackbar> */}
+       
     </>
   );
 };

@@ -16,7 +16,6 @@ const initializeSocket = async (): Promise<void> => {
   if (!socket) {
     try {
       const secret = await loadConfig();
-      console.log(secret);
       socket = io(secret.BACKEND_URL || "http://localhost:8000");
       socket.emit("join_room", secret.ROOM_CODE || "test");
     } catch (error) {
