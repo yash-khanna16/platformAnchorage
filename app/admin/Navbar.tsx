@@ -18,6 +18,7 @@ import {
   auditLogs,
   foodIcon,
   manageItems,
+  feedbackIcon,
 } from "../../assets/icons";
 import { deleteAuthAdmin, getAuthAdmin } from "../actions/cookie";
 import { parseJwt } from "../actions/utils";
@@ -217,6 +218,7 @@ function Navbar() {
     { icon: manageItems, route: "manage-items", value: "Manage Items" },
     { icon: mailIcon, route: "emails", value: "Emails" },
     { icon: searchIcon, route: "check-logs", value: "Check Logs" },
+    { icon: feedbackIcon, route: "feedbacks", value: "Feedbacks" },
     { icon: auditLogs, route: "audit-logs", value: "Audit Logs" },
   ];
   const [open, setOpen] = React.useState(false);
