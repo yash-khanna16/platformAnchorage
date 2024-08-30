@@ -75,7 +75,7 @@ function Items() {
     getAuthAdmin().then((auth) => {
       if (auth) setToken(auth.value);
     });
-  }, []);
+  }, []); 
 
   useEffect(() => {
     if (token !== "") {
@@ -416,8 +416,11 @@ function Items() {
               try {
                 if (getItem(editId)) {
                   setLoading(true);
+                  console.log(1)
                   const res = await updateItem(token, getItem(editId) as MenuItem);
-                  const items: MenuItem[] = await fetchAllItems(res);
+                  console.log(2)
+                  const items: MenuItem[] = await fetchAllItems(token);
+                  console.log(3)
                   const itemsByCategory = items.reduce<Record<string, MenuItem[]>>((acc, item) => {
                     if (!acc[item.category]) {
                       acc[item.category] = [];
@@ -425,6 +428,7 @@ function Items() {
                     acc[item.category].push(item);
                     return acc;
                   }, {});
+                  console.log(4)
                   setItems(itemsByCategory);
                   setCategories(Object.keys(itemsByCategory));
                   setLoading(false);

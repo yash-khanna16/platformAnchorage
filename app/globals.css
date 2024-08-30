@@ -30,3 +30,19 @@
 ::-webkit-scrollbar-thumb {
   background: #ccc
 } 
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.15);
+  transform: scale(0);
+  animation: ripple-animation 0.6s linear forwards;
+  -webkit-animation: ripple-animation 0.4s linear forwards;
+}
+
+@keyframes ripple-animation {
+  to {
+    transform: scale(4); 
+    opacity: 0; 
+  }
+}
