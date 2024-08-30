@@ -843,7 +843,7 @@ const Reservations: React.FC<ReservationsProps> = ({
             <div className="w-full flex justify-end">
               <PDFDownloadLink
                 document={<OrderFormDocument orderData={previewReceiptOrderData} />}
-                fileName={`Order_Summary_${previewReceiptOrderData[0].name}.pdf`}
+                fileName={`Order_Summary_${previewReceiptOrderData[0]?.name}_${previewReceiptOrderData[0]?.room}.pdf`}
                 style={{ textDecoration: "none" }}
               >
                 {({ loading }) => (
