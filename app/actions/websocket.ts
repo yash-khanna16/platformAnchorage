@@ -17,9 +17,11 @@ const initializeSocket = async (): Promise<void> => {
     try {
       const secret = await loadConfig();
       console.log(secret);
+      console.log("env backend: ", process.env.NEXT_PUBLIC_BACKEND_URL)
+      console.log("room code: ", process.env.NEXT_PUBLIC_ROOM_CODE)
       //fix this later temp change please change this
-      socket = io(secret.BACKEND_URL || "https://platformanchoragebackend-4av0.onrender.com");
-      socket.emit("join_room", secret.ROOM_CODE || "4398vnksd843jf7");
+      socket = io(secret.BACKEND_URL || "http://localhost:8000");
+      socket.emit("join_room", secret.ROOM_CODE || "test");
     } catch (error) {
       console.error("Error initializing socket:", error);
     }

@@ -8,6 +8,23 @@ import { Box, Typography, IconButton, DialogContent, DialogActions } from "@mui/
 import CheckInFormPDF from "@/app/admin/(navbar)/manage-rooms/[room]/CheckInFormPDF";
 import { PDFViewer } from "@react-pdf/renderer";
 import { Skeleton } from "@mui/joy";
+import OrderFormPDF from "@/app/admin/(navbar)/manage-rooms/[room]/OrdersFormPDF"
+
+export type OrderDetails = {
+  booking_id: string;   // Unique identifier for the booking
+  created_at: string;   // Timestamp for when the order was created (as a string)
+  email: string;        // Email of the guest
+  item_name: string;    // Name of the ordered item
+  name: string;         // Name of the guest
+  order_id: string;     // Unique identifier for the order
+  phone: string;        // Phone number of the guest
+  price: number;        // Price of the ordered item
+  qty: number;          // Quantity of the ordered item
+  remarks: string;      // Any remarks for the order
+  room: string;         // Room number associated with the booking
+  status: string;       // Current status of the order
+};
+
 
 type ReservationType = {
   additional_info: string | null;
@@ -87,6 +104,7 @@ function Guests() {
     try {
       setLoading(true);
       let fetchedRows = await searchAllGuests(token);
+      // console.log("fetched ROws: ", fetchedRows)
       console.log(fetchedRows);
 
       const currentTime = new Date();
@@ -113,7 +131,7 @@ function Guests() {
         };
       });
 
-      console.log("fetched Rows: ", fetchedRows)
+      // console.log("fetched Rows: ", fetchedRows)
 
       setRows(fetchedRows);
       setFilteredRows(fetchedRows);
@@ -164,75 +182,50 @@ function Guests() {
   //   link.click();
   //   document.body.removeChild(link);
   // };
- const data = {
-    additional_info: "AIRPORT PICK UP",
-    booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b",
-    breakfast: 0,
-    checkin: "2024-06-22T02:30:00.000Z",
-    checkout: "2024-07-31T11:40:00.000Z",
-    company: "PERSONAL",
-    email: "tarunrs@gmail.com",
-    guest_email: "tarunrs@gmail.com",
-    id: null,
-    meal_non_veg: 0,
-    meal_veg: 0,
-    meals: [
-      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-01T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
-      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-11T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 1, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
-      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-12T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
-      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-13T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
-      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-14T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
-      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-15T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
-      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-16T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
-      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-17T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
-      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-18T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
-      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-19T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
-      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-20T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
-      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-21T00:00:00.000Z", breakfast_veg: 0, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
-      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-23T00:00:00.000Z", breakfast_veg: 1, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 },
-      { booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b", date: "2024-07-24T00:00:00.000Z", breakfast_veg: 1, breakfast_nonveg: 0, lunch_veg: 0, lunch_nonveg: 0, dinner_veg: 0, dinner_nonveg: 0 }
+
+  
+type Item = {
+  name: string;
+  qty: number;
+  price: number;
+};
+
+type OrderDataType = {
+  order_id: number;
+  booking_id: string;
+  room: string;
+  created_at: string;
+  status: string;
+  remarks: string;
+  items: Item[];
+  name: string;
+  email: string;
+  phone: string;
+};
+
+
+  const orderData: OrderDataType[] = [{
+    order_id: 123456789,
+    booking_id: "B12345",
+    room: "101A",
+    created_at: "2024-08-29",
+    status: "Accepted",
+    remarks: "No onions",
+    items: [
+      { name: "Veg Sandwich", qty: 2, price: 50 },
+      { name: "Cold Coffee", qty: 1, price: 80 },
     ],
-    movements: [],
-    name: "YASH KHANNA",
-    occupancy: [
-      {
-        bookings: [
-          {
-            additional_info: "AIRPORT PICK UP",
-            booking_id: "a91cc983-a0cb-498a-9758-7a546b16a14b",
-            breakfast: 0,
-            checkin: "2024-06-22T02:30:00.000Z",
-            checkout: "2024-07-31T11:40:00.000Z",
-            company: "PERSONAL",
-            guest_email: "tarunrs@gmail.com",
-            meal_non_veg: 0,
-            meal_veg: 0,
-            name: "YASH KHANNA",
-            phone: "9999020069",
-            rank: "",
-            remarks: "PERSONAL",
-            room: "305",
-            vessel: ""
-          }
-        ],
-        end: "2024-07-31T11:40:00.000Z",
-        occupancy: "SINGLE OCCUPANCY",
-        start: "2024-06-22T02:30:00.000Z"
-      }
-    ],
-    phone: "9999020069",
-    rank: "",
-    remarks: "PERSONAL",
-    room: "305",
-    status: "Active",
-    vessel: ""
-  };
+    name: "John Doe",
+    email: "john.doe@example.com",
+    phone: "+1234567890",
+  }];
+  
 
   return (
     <div className="mx-5 mt-11 max-[1420px]:mx-10 max-lg:mx-5">
       {/* <Button variant="contained" color="primary" onClick={exportToCsv}>Export as CSV</Button> */}
       {/* <PDFViewer width="100%" height={1000}>
-        <CheckInFormPDF data={data} />
+        <OrderFormPDF orderData={orderData} />
       </PDFViewer> */}
       <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
         Search Reservations

@@ -97,7 +97,7 @@ function Orders() {
   const handleDeleteOrder = async (orderId: string) => {
     try {
       setLoadingDelete(true);
-      const res = await deleteOrder(token, orderId, reason, false);
+      const res = await deleteOrder(token, orderId, reason, true);
       convertAndSetOrderDetails(res.details);
       setLoadingDelete(false);
       setDelOrder(false);
@@ -122,8 +122,8 @@ function Orders() {
       setLoading(true);
       fetchAllOrders(token)
         .then((orders: OrderType[]) => {
-          console.log("orders: ", orders)
-          setLoading(false);    
+          console.log("orders: ", orders);
+          setLoading(false);
           convertAndSetOrderDetails(orders);
         })
         .catch((error) => {
@@ -139,13 +139,13 @@ function Orders() {
 
     orders.forEach((order) => {
       order.delay = Number(order.delay);
-      const maxTimeToPrepare =  Math.max(...order.items.map((item) => item.time_to_prepare))
+      const maxTimeToPrepare = Math.max(...order.items.map((item) => item.time_to_prepare));
       order.total_time_to_prepare = maxTimeToPrepare + order.delay;
       const currentTime = new Date();
       const timeElapsed = (currentTime.getTime() - Number(order.created_at)) / 1000; // elapsed time in seconds
       let remainingTime = 0;
       if (timeElapsed > 0) {
-        remainingTime = Math.max(order.total_time_to_prepare * 60 - timeElapsed, 0) ; // remaining time in seconds
+        remainingTime = Math.max(order.total_time_to_prepare * 60 - timeElapsed, 0); // remaining time in seconds
       }
       if (remainingTime > 0) {
         initialTimers[order.order_id] = remainingTime;
@@ -203,15 +203,14 @@ function Orders() {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds) % 60;
-  
+
     if (hours > 0) {
       return `${hours}:${minutes < 10 ? "0" : ""}${minutes}:${secs < 10 ? "0" : ""}${secs}`;
     } else {
       return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
     }
   };
-  
-  
+
   const handleUpdateOrderStatus = async (orderId: string, status: string) => {
     try {
       await updateOrderStatus(token, orderId, status);
