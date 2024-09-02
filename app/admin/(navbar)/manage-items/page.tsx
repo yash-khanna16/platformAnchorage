@@ -29,7 +29,7 @@ import { useEffect, useState } from "react";
 import veg from "@/app/assets/veg.svg";
 import nonveg from "@/app/assets/nonveg.svg";
 import Image from "next/image";
-import { Add, Close, DeleteForever, Edit, Info, WarningRounded } from "@mui/icons-material";
+import { Add, CleaningServices, Close, DeleteForever, Edit, Info, WarningRounded } from "@mui/icons-material";
 
 type MenuItem = {
   available: boolean;
@@ -104,7 +104,7 @@ function Items() {
     try {
       setLoading(true);
       const res = await updateItem(token, newItems[category][index]);
-      const items: MenuItem[] = await fetchAllItems(res);
+      const items: MenuItem[] = await fetchAllItems(token);
       const itemsByCategory = items.reduce<Record<string, MenuItem[]>>((acc, item) => {
         if (!acc[item.category]) {
           acc[item.category] = [];
@@ -265,11 +265,11 @@ function Items() {
             className=""
             onSubmit={async (event: React.FormEvent<HTMLFormElement>) => {
               event.preventDefault();
-              console.log("submit: ", newItem);
+              // console.log("submit: ", newItem);
               try {
                 setLoading(true);
                 const res = await putItem(token, newItem);
-                const items: MenuItem[] = await fetchAllItems(res);
+                const items: MenuItem[] = await fetchAllItems(token);
                 const itemsByCategory = items.reduce<Record<string, MenuItem[]>>((acc, item) => {
                   if (!acc[item.category]) {
                     acc[item.category] = [];
@@ -416,11 +416,8 @@ function Items() {
               try {
                 if (getItem(editId)) {
                   setLoading(true);
-                  console.log(1)
                   const res = await updateItem(token, getItem(editId) as MenuItem);
-                  console.log(2)
                   const items: MenuItem[] = await fetchAllItems(token);
-                  console.log(3)
                   const itemsByCategory = items.reduce<Record<string, MenuItem[]>>((acc, item) => {
                     if (!acc[item.category]) {
                       acc[item.category] = [];
@@ -428,7 +425,6 @@ function Items() {
                     acc[item.category].push(item);
                     return acc;
                   }, {});
-                  console.log(4)
                   setItems(itemsByCategory);
                   setCategories(Object.keys(itemsByCategory));
                   setLoading(false);
