@@ -18,7 +18,7 @@ import Checkbox from "@mui/joy/Checkbox";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Lottie from "lottie-web";
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
-import { CheckCircle, Close, Info } from "@mui/icons-material";
+import { CheckCircle, CleaningServices, Close, Info } from "@mui/icons-material";
 import { getAuthAdmin } from "@/app/actions/cookie";
 import { getAvailableRooms } from "@/app/actions/api";
 import CircularProgress from "@mui/joy/CircularProgress";
@@ -137,10 +137,10 @@ function EditBooking({
     //     }));
     //   }
     // } else {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
     // }
     if (name === "checkoutTime") {
       setErrors((prevData) => ({
@@ -163,12 +163,12 @@ function EditBooking({
   };
   const phoneNumberRegex = /^\+?(\d{1,3})?[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
 
-function isValidPhoneNumber(phoneNumber: string) {
+  function isValidPhoneNumber(phoneNumber: string) {
     // Remove all non-digit characters
     const digitsOnly = phoneNumber.replace(/\D/g, '');
     // Check if the cleaned number has at least 10 digits and matches the regex
     return digitsOnly.length >= 10 && phoneNumberRegex.test(phoneNumber);
-}
+  }
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -181,14 +181,17 @@ function isValidPhoneNumber(phoneNumber: string) {
     if (selectedCheckoutDateTime <= selectedCheckinDateTime) {
       newErrors.checkoutDate = "Check-out date and time must be after the check-in date and time.";
     }
+    console.log("form emaiL: ", formData.email)
+    if (formData.email === '') {
+      newErrors.email = "Please enter a valid email address.";
+    }
     if (formData.email) {
       const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
       if (!emailPattern.test(formData.email)) {
         newErrors.email = "Please enter a valid email address.";
       }
     }
-
+    
     if (formData.phoneNumber.length) {
       if (!isValidPhoneNumber(formData.phoneNumber)) {
         newErrors.phoneNumber = "Invalid Phone Number";
@@ -270,9 +273,9 @@ function isValidPhoneNumber(phoneNumber: string) {
     event: React.SyntheticEvent | null,
     newValue: string | null,
   ) => {
-    if(newValue) setRoomNumber(newValue)
+    if (newValue) setRoomNumber(newValue)
   };
-  
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-10 -w-full">
@@ -480,8 +483,8 @@ function isValidPhoneNumber(phoneNumber: string) {
         <div>
           <FormControl >
             <div className="flex space-x-5">
-            <FormLabel>Want to migrate?</FormLabel>
-            <Checkbox checked={checkBox} onChange={checkBoxChange} />
+              <FormLabel>Want to migrate?</FormLabel>
+              <Checkbox checked={checkBox} onChange={checkBoxChange} />
 
             </div>
           </FormControl>
@@ -531,7 +534,7 @@ function isValidPhoneNumber(phoneNumber: string) {
         }}
       >
         <ModalDialog size="lg">
-          <ModalClose style={{zIndex:"10"}}/>
+          <ModalClose style={{ zIndex: "10" }} />
           <DialogTitle className="">Edit Confirmation</DialogTitle>
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
