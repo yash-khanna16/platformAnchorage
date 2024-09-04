@@ -3,20 +3,22 @@ import React, { ReactFragment } from "react";
 import MeetingRoomOutlined from "@mui/icons-material/MeetingRoomOutlined";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
 import { CircularProgress, SvgIconTypeMap } from "@mui/material";
-import { MeetingRoom, RamenDining, Restaurant, RoomOutlined } from "@mui/icons-material";
+import { CurrencyRupee, MeetingRoom, RamenDining, Restaurant, RoomOutlined } from "@mui/icons-material";
 
-export type iconsType = "ROOM" | "MEAL" | "BREAKFAST";
+export type iconsType = "ROOM" | "MEAL" | "BREAKFAST" | "PROFIT";
 
 export const ICONS_MAP = new Map<iconsType, any>([
   ["ROOM", <MeetingRoom className="text-[#4754cf] scale-125 " key={1} />],
   ["MEAL", <RamenDining className="text-[#d3a122] scale-125 " key={2} />],
   ["BREAKFAST", <Restaurant className="text-[#2497ea] scale-125 " key={3} />],
+  ["PROFIT", <CurrencyRupee className="text-[#197a26] scale-125 " key={4} />],
 ]);
 
 function MonthCard({
   title,
   thisMonth,
   prevMonth,
+  totalProfit,
   icon,
   cardType,
   loading,
@@ -26,6 +28,7 @@ function MonthCard({
   prevMonth: number;
   icon: iconsType;
   cardType: string | null;
+  totalProfit?:number;
   loading: boolean;
 }) {
   return (
@@ -60,7 +63,7 @@ function MonthCard({
               <div
                 className={`w-[50px] ml-auto my-10  h-[50px] ${icon === "ROOM" && "bg-[#e3e6ff]"} ${
                   icon === "MEAL" && "bg-[#ffe9cc]"
-                } ${icon === "BREAKFAST" && "bg-[#cfebff]"} rounded-full flex justify-center items-center`}
+                } ${icon === "BREAKFAST" && "bg-[#cfebff]"}  ${icon === "PROFIT" && "bg-[#c8ffd8]"} rounded-full flex justify-center items-center`}
               >
                 {ICONS_MAP.get(icon)}
               </div>
@@ -104,7 +107,14 @@ function MonthCard({
                   )}
                 </div>
               </div>
-              <div className="flex mt-5 space-x-2 items-center">
+              {totalProfit && (
+                          <div className="flex mt-5 space-x-2 items-center">
+                          <div className=" text-gray-400 font-medium text-sm">Current {cardType}:</div>
+                          <div className=" font-bold ">{totalProfit}</div>
+                        </div>
+                        )}
+              
+              <div className={`flex space-x-2 items-center ${totalProfit?"":"mt-5"}`}>
                 <div className=" text-gray-400 font-medium text-sm">Previous {cardType}:</div>
                 <div className=" font-bold ">{prevMonth}</div>
               </div>
