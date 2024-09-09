@@ -149,7 +149,7 @@ const MovementReservations: React.FC<ReservationsProps> = ({
             rows={rowsData}
             loading={loading}
             rowHeight={70}
-            paginationModel={{ pageSize: rowsData.length, page: 0 }}
+            pagination
             columns={gridColumns}
             checkboxSelection
             disableMultipleRowSelection

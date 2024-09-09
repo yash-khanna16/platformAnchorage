@@ -9,11 +9,11 @@ export async function getAuthAdmin() {
 }
 
 export async function setAuthAdmin(token: string) {
-    cookies().set('admin', token , { secure: true })
+    cookies().set('admin', token )
 }
 
 export async function deleteAuthAdmin() {
-    cookies().set('admin', 'false' , { secure: true })
+    cookies().set('admin', 'false' )
 }
 
 
