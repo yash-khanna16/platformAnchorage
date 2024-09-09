@@ -46,6 +46,7 @@ function Analytics() {
   const [mealData, setMealData] = useState([]);
   const [breakfastData, setBreakfastData] = useState([]);
   const [profitData, setProfitData] = useState([]);
+  const [totalProfit,setTotalProfit]=useState(0)
   const [companyData, setCompanyData] = useState([]);
   // const [loading, setLoading] = useState(false);
   const [selectedOption, setSelectedOption] = useState<"quarter" | "year" | "month" | null>("month");
@@ -327,6 +328,7 @@ function Analytics() {
       currentProfit=currentProfit+Number(entry.data);
       numberOfdays++;
     })
+    setTotalProfit(currentProfit);
     const avgCurrentProfit=Number((currentProfit/numberOfdays).toFixed(2));
     setProfit(avgCurrentProfit);
 
@@ -405,7 +407,8 @@ function Analytics() {
             <MonthCard
               title="Profit"
               thisMonth={profit}
-              icon="BREAKFAST"
+              totalProfit={totalProfit}
+              icon="PROFIT"
               loading={loading}
               cardType={selectedOption}
               prevMonth={prevProfit}

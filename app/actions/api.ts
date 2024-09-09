@@ -144,6 +144,7 @@ export async function addGuest(
         guestCompany: string;
         guestVessel: string;
         guestRank: string;
+        guestId:string;
     }
 ) {
     try {

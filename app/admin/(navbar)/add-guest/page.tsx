@@ -3,7 +3,7 @@ import { addGuest } from "@/app/actions/api";
 import { Button } from "@mui/joy";
 import { Snackbar } from "@mui/joy";
 import React, { useEffect, useState } from "react";
-import {Input} from "@mui/joy";
+import { Input } from "@mui/joy";
 import { Close, Info } from "@mui/icons-material";
 import { getAuthAdmin } from "@/app/actions/cookie";
 
@@ -14,6 +14,7 @@ type guestType = {
   guestCompany: string;
   guestVessel: string;
   guestRank: string;
+  guestId: string;
 };
 
 function AddGuest() {
@@ -28,21 +29,21 @@ function AddGuest() {
     guestCompany: "",
     guestVessel: "",
     guestRank: "",
+    guestId: "",
   });
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    getAuthAdmin().then(auth => {
-      if(auth)
-        setToken(auth.value);
-    })
-  },[])
+    getAuthAdmin().then((auth) => {
+      if (auth) setToken(auth.value);
+    });
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: name === "guestPhone" ? parseInt(value) || "" : value,
+      [name]: value,
     }));
   };
 
@@ -52,11 +53,9 @@ function AddGuest() {
       console.log(formData);
       if (formData.guestPhone) {
         setLoading(true);
-        const res = await addGuest(token,formData);
+        const res = await addGuest(token, formData);
         setMessage(res.message);
-        setError(
-          res.message === "Guest Added Successfully!" ? "success" : "error"
-        );
+        setError(res.message === "Guest Added Successfully!" ? "success" : "error");
         setOpen(true);
         setLoading(false);
         console.log(res);
@@ -121,7 +120,6 @@ function AddGuest() {
             <label htmlFor="guestCompany">Company</label>
             <Input
               size="lg"
-              required
               type="text"
               name="guestCompany"
               value={formData.guestCompany}
@@ -135,7 +133,6 @@ function AddGuest() {
             <label htmlFor="guestVessel">Vessel</label>
             <Input
               size="lg"
-              required
               type="text"
               name="guestVessel"
               value={formData.guestVessel}
@@ -149,7 +146,6 @@ function AddGuest() {
             <label htmlFor="guestRank">Rank</label>
             <Input
               size="lg"
-              required
               type="text"
               name="guestRank"
               value={formData.guestRank}
@@ -159,13 +155,22 @@ function AddGuest() {
               className=""
             />
           </div>
-        <Button
-          size="lg"
-          loading={loading}
-          type="submit"
-          // className="w-1/2"
-          fullWidth
-        >
+          <div>
+            <label htmlFor="guestId">ID</label>
+            <Input
+              size="lg"
+              type="text"
+              name="guestId"
+              value={formData.guestId}
+              onChange={handleChange}
+              placeholder="Enter Id"
+              id="guestId"
+              className=""
+            />
+          </div>
+        </div>
+        <div className="w-full grid grid-cols-2 gap-7 mx-auto mt-[40px] max-lg:grid-cols-1">
+        <Button size="lg" loading={loading} type="submit" fullWidth>
           Add Guest
         </Button>
         </div>
@@ -180,10 +185,7 @@ function AddGuest() {
       >
         {" "}
         <Info /> {message}
-        <span
-          onClick={() => setOpen(false)}
-          className="cursor-pointer hover:bg-[#f3eded]"
-        >
+        <span onClick={() => setOpen(false)} className="cursor-pointer hover:bg-[#f3eded]">
           <Close />
         </span>
       </Snackbar>

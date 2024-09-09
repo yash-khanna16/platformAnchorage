@@ -254,7 +254,7 @@ function Navbar() {
   };
 
   return (
-    <div className="fixed bg-white z-50 flex flex-col items-center space-y-5 top-0 left-0 h-screen w-80 max-xl:w-60 border px-10 py-5 max-lg:px-3 max-xl:px-3 max-lg:h-20 max-lg:w-screen max-lg:flex-row max-lg:py-3 max-lg:space-y-1 max-lg:justify-between">
+    <div className="fixed overflow-scroll bg-white z-50 flex flex-col items-center space-y-5 top-0 left-0 h-screen w-80 max-xl:w-60 border px-10 py-5 max-lg:px-3 max-xl:px-3 max-lg:h-20 max-lg:w-screen max-lg:flex-row max-lg:py-3 max-lg:space-y-1 max-lg:justify-between">
       <div className="flex items-center font-medium text-xl max-lg:w-full">
         <img src={logo.src} alt="logo" style={{ height: "40px" }} />
         <span className="ml-3 max-lg:text-lg">Anchorage Admin</span>
