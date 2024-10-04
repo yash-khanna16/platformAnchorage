@@ -161,8 +161,17 @@ export const THEME_MAP = new Map<themeType, any>([
   ],
 ]);
 
-
-function LineChart({title,chartData,theme,graphType}:{title: string, chartData: {date: any, data: any}[], theme: themeType, graphType: "month"|"quarter"|"year"|null}) {
+function LineChart({
+  title,
+  chartData,
+  theme,
+  graphType,
+}: {
+  title: string;
+  chartData: { date: any; data: any }[];
+  theme: themeType;
+  graphType: "month" | "quarter" | "year" | null;
+}) {
   const chartDataGraph = {
     labels: chartData.map((data: any) => data.date),
     datasets: [
@@ -194,7 +203,7 @@ function LineChart({title,chartData,theme,graphType}:{title: string, chartData: 
         // borderColor: "#08acf8", // Blue border color
         // pointBorderColor: "#08acf8",
         ...THEME_MAP.get(theme),
-        pointRadius:0, // Size of the data points
+        pointRadius: 0, // Size of the data points
         pointHoverRadius: 8, // Size of the data points when hovered
         fill: true,
         borderWidth: 2,

@@ -1362,14 +1362,14 @@ export async function fetchProfitData(token: string, currentQuarter: string, cur
 export async function fetchProfitDataQuarter(token: string, currentQuarter: string, currentYear: string) {
     try {
         const secret= await loadConfig();
-        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getTotalProfitePerDay`, {
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getTotalProfitePerQuarter`, {
             method: "get",
             mode: "cors",
             headers: {
                 "Content-Type": "application/json",
                 token: token,
                 year: currentYear,
-                month: currentQuarter,
+                quarter: currentQuarter,
             },
             cache: "no-cache",
         });
@@ -1380,17 +1380,16 @@ export async function fetchProfitDataQuarter(token: string, currentQuarter: stri
         throw error;
     }
 }
-export async function fetchProfitDataYear(token: string, currentQuarter: string, currentYear: string) {
+export async function fetchProfitDataYear(token: string, currentYear: string) {
     try {
         const secret= await loadConfig();
-        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getTotalProfitePerDay`, {
+        const response = await fetch(`${secret.BACKEND_URL}/api/analytics/getTotalProfitPerYear`, {
             method: "get",
             mode: "cors",
             headers: {
                 "Content-Type": "application/json",
                 token: token,
                 year: currentYear,
-                month: currentQuarter,
             },
             cache: "no-cache",
         });

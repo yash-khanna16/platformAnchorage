@@ -31,6 +31,11 @@ import MonthCard from "./MonthCard";
 
 Chart.register(CategoryScale);
 
+type GraphData = {
+  date: string;
+  data: string;
+};
+
 function Analytics() {
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState("");
@@ -39,17 +44,19 @@ function Analytics() {
   const [breakfast, setBreakfast] = useState(0.0);
   const [prevBreakfast, setPrevBreakfast] = useState(0.0);
   const [profit, setProfit] = useState(0.0);
-  const [prevProfit, setPrevProfit] = useState(0.0);
+  const [prevProfit, setPrevProfit] = useState(0);
   const [meal, setMeal] = useState(0.0);
   const [prevMeal, setPrevMeal] = useState(0.0);
-  const [roomData, setRoomData] = useState([]);
-  const [mealData, setMealData] = useState([]);
-  const [breakfastData, setBreakfastData] = useState([]);
-  const [profitData, setProfitData] = useState([]);
-  const [totalProfit,setTotalProfit]=useState(0)
+  const [roomData, setRoomData] = useState<GraphData[]>([]);
+  const [mealData, setMealData] = useState<GraphData[]>([]);
+  const [breakfastData, setBreakfastData] = useState<GraphData[]>([]);
+  const [profitData, setProfitData] = useState<GraphData[]>([]);
+  const [totalProfit, setTotalProfit] = useState(0);
   const [companyData, setCompanyData] = useState([]);
   // const [loading, setLoading] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<"quarter" | "year" | "month" | null>("month");
+  const [selectedOption, setSelectedOption] = useState<"quarter" | "year" | "month" | null>(
+    "month"
+  );
 
   // const handleChange = (event: SelectChangeEvent) => {
   //   setTime(event.target.value as string);
@@ -70,7 +77,6 @@ function Analytics() {
       const currentMonth = (currentDate.getMonth() + 1).toString();
       const currentYear = currentDate.getFullYear().toString();
       const currentQuarter = Math.ceil(parseInt(currentMonth) / 3).toString();
-      console.log("fetching data for: ", currentMonth, currentYear);
 
       let room;
       let meal;
@@ -97,65 +103,94 @@ function Analytics() {
         meal = await fetchMeals(token, currentMonth, currentYear);
         company = await fetchCompanies(token, currentMonth, currentYear);
         breakfast = await fetchBreakfast(token, currentMonth, currentYear);
-        profit = await fetchProfitData(token,currentMonth,currentYear);
-        const transformedRoom = room.map((entry: { booking_date: string; rooms_booked: string }) => ({
-          date: entry.booking_date.slice(8, 10),
-          data: entry.rooms_booked,
-        }));
-        const transformedMeal = meal.map((entry: { booking_date: string; average_meals_per_day: string }) => ({
-          date: entry.booking_date.slice(8, 10),
-          data: entry.average_meals_per_day,
-        }));
+        profit = await fetchProfitData(token, currentMonth, currentYear);
 
-        const transformedBreakfast = breakfast.map((entry: { booking_date: string; average_breakfasts_per_day: string }) => ({
-          date: entry.booking_date.slice(8, 10),
-          data: entry.average_breakfasts_per_day,
-        }));
-        const transformedProfit=profit.map((entry:{order_date: string; total_profit: string})=>({
-          date: entry.order_date.slice(8, 10),
-          data:entry.total_profit
-        }))
-        await fetchUpDown(transformedMeal, transformedRoom, transformedBreakfast,transformedProfit)
+        const transformedRoom = room.map(
+          (entry: { booking_date: string; rooms_booked: string }) => ({
+            date: entry.booking_date.slice(8, 10),
+            data: entry.rooms_booked,
+          })
+        );
+        const transformedMeal = meal.map(
+          (entry: { booking_date: string; average_meals_per_day: string }) => ({
+            date: entry.booking_date.slice(8, 10),
+            data: entry.average_meals_per_day,
+          })
+        );
+
+        const transformedBreakfast = breakfast.map(
+          (entry: { booking_date: string; average_breakfasts_per_day: string }) => ({
+            date: entry.booking_date.slice(8, 10),
+            data: entry.average_breakfasts_per_day,
+          })
+        );
+        const transformedProfit = profit.map(
+          (entry: { order_date: string; total_profit: string }) => ({
+            date: entry.order_date.slice(8, 10),
+            data: entry.total_profit,
+          })
+        );
+        await fetchUpDown(
+          transformedMeal,
+          transformedRoom,
+          transformedBreakfast,
+          transformedProfit
+        );
         setRoomData(transformedRoom);
         setMealData(transformedMeal);
         setBreakfastData(transformedBreakfast);
         setProfitData(transformedProfit);
-        
       }
       if (selectedOption === "quarter") {
         room = await fetchRoomDataQuarter(token, currentQuarter, currentYear);
         meal = await fetchMealsQuarter(token, currentQuarter, currentYear);
         company = await fetchCompaniesQuarter(token, currentQuarter, currentYear);
         breakfast = await fetchBreakfastQuarter(token, currentQuarter, currentYear);
-        profit = await fetchProfitDataQuarter(token,currentMonth,currentYear);
-        const transformedRoom = room.map((entry: { booking_date: string; rooms_booked: string }) => {
-          const date = new Date(entry.booking_date);
-          return {
-            date: monthNames[date.getMonth()],
-            data: entry.rooms_booked,
-          };
-        });
+        profit = await fetchProfitDataQuarter(token, currentQuarter, currentYear);
+        const transformedRoom = room.map(
+          (entry: { booking_date: string; rooms_booked: string }) => {
+            const date = new Date(entry.booking_date);
+            return {
+              date: monthNames[date.getMonth()],
+              data: entry.rooms_booked,
+            };
+          }
+        );
 
-        const transformedMeal = meal.map((entry: { booking_date: string; average_meals_per_day: string }) => {
-          const date = new Date(entry.booking_date);
-          return {
-            date: monthNames[date.getMonth()],
-            data: entry.average_meals_per_day,
-          };
-        });
+        const transformedMeal = meal.map(
+          (entry: { booking_date: string; average_meals_per_day: string }) => {
+            const date = new Date(entry.booking_date);
+            return {
+              date: monthNames[date.getMonth()],
+              data: entry.average_meals_per_day,
+            };
+          }
+        );
 
-        const transformedBreakfast = breakfast.map((entry: { booking_date: string; average_breakfasts_per_day: string }) => {
-          const date = new Date(entry.booking_date);
-          return {
-            date: monthNames[date.getMonth()],
-            data: entry.average_breakfasts_per_day,
-          };
-        });
-        const transformedProfit=profit.map((entry:{order_date: string; total_profit: string})=>({
-          date: entry.order_date.slice(8, 10),
-          data:entry.total_profit
-        }))
-        await fetchUpDown(transformedMeal, transformedRoom, transformedBreakfast,transformedProfit)
+        const transformedBreakfast = breakfast.map(
+          (entry: { booking_date: string; average_breakfasts_per_day: string }) => {
+            const date = new Date(entry.booking_date);
+            return {
+              date: monthNames[date.getMonth()],
+              data: entry.average_breakfasts_per_day,
+            };
+          }
+        );
+        const transformedProfit = profit.map(
+          (entry: { order_date: string; total_profit: string }) => {
+            const date = new Date(entry.order_date);
+            return {
+              date: monthNames[date.getMonth()],
+              data: entry.total_profit,
+            };
+          }
+        );
+        await fetchUpDown(
+          transformedMeal,
+          transformedRoom,
+          transformedBreakfast,
+          transformedProfit
+        );
         setRoomData(transformedRoom);
         setMealData(transformedMeal);
         setBreakfastData(transformedBreakfast);
@@ -166,39 +201,128 @@ function Analytics() {
         meal = await fetchMealsYear(token, currentYear);
         company = await fetchCompaniesYear(token, currentYear);
         breakfast = await fetchBreakfastYear(token, currentYear);
-        profit = await fetchProfitDataYear(token,currentMonth,currentYear);
-        const transformedRoom = room.map((entry: { booking_date: string; rooms_booked: string }) => {
-          const date = new Date(entry.booking_date);
-          return {
-            date: monthNames[date.getMonth()],
-            data: entry.rooms_booked,
-          };
-        });
+        profit = await fetchProfitDataYear(token, currentYear);
+        const transformedRoom = room.map(
+          (entry: { booking_date: string; rooms_booked: string }) => {
+            const date = new Date(entry.booking_date);
+            return {
+              date: monthNames[date.getMonth()],
+              data: entry.rooms_booked,
+            };
+          }
+        );
 
-        const transformedMeal = meal.map((entry: { booking_date: string; average_meals_per_day: string }) => {
-          const date = new Date(entry.booking_date);
-          return {
-            date: monthNames[date.getMonth()],
-            data: entry.average_meals_per_day,
-          };
-        });
+        const transformedMeal = meal.map(
+          (entry: { booking_date: string; average_meals_per_day: string }) => {
+            const date = new Date(entry.booking_date);
+            return {
+              date: monthNames[date.getMonth()],
+              data: entry.average_meals_per_day,
+            };
+          }
+        );
 
-        const transformedBreakfast = breakfast.map((entry: { booking_date: string; average_breakfasts_per_day: string }) => {
-          const date = new Date(entry.booking_date);
-          return {
-            date: monthNames[date.getMonth()],
-            data: entry.average_breakfasts_per_day,
-          };
-        });
-        const transformedProfit=profit.map((entry:{order_date: string; total_profit: string})=>({
-          date: entry.order_date.slice(8, 10),
-          data:entry.total_profit
-        }))
-        setRoomData(transformedRoom);
-        setMealData(transformedMeal);
-        setBreakfastData(transformedBreakfast);
-        setProfitData(transformedProfit);
-        await fetchUpDown(transformedMeal, transformedRoom, transformedBreakfast,transformedProfit)
+        const transformedBreakfast = breakfast.map(
+          (entry: { booking_date: string; average_breakfasts_per_day: string }) => {
+            const date = new Date(entry.booking_date);
+            return {
+              date: monthNames[date.getMonth()],
+              data: entry.average_breakfasts_per_day,
+            };
+          }
+        );
+        const transformedProfit = profit.map(
+          (entry: { order_date: string; total_profit: string }) => {
+            const date = new Date(entry.order_date);
+            return {
+              date: monthNames[date.getMonth()],
+              data: entry.total_profit,
+            };
+          }
+        );
+        await fetchUpDown(
+          transformedMeal,
+          transformedRoom,
+          transformedBreakfast,
+          transformedProfit
+        );
+        const groupedRoom = transformedRoom.reduce(
+          (acc: any, element: { date: string; data: string }) => {
+            // If the date doesn't exist in the accumulator, initialize it
+            if (!acc[element.date]) {
+              acc[element.date] = {
+                date: element.date,
+                data: 0,
+              };
+            }
+
+            // Sum the data for the same date
+            acc[element.date].data += parseFloat(element.data); // Ensure data is treated as a number
+            return acc;
+          },
+          {}
+        );
+        const groupedMeals = transformedMeal.reduce(
+          (acc: any, element: { date: string; data: string }) => {
+            // If the date doesn't exist in the accumulator, initialize it
+            if (!acc[element.date]) {
+              acc[element.date] = {
+                date: element.date,
+                data: 0,
+              };
+            }
+
+            // Sum the data for the same date
+            acc[element.date].data += parseFloat(element.data); // Ensure data is treated as a number
+            return acc;
+          },
+          {}
+        );
+        const groupedBreakfast = transformedBreakfast.reduce(
+          (acc: any, element: { date: string; data: string }) => {
+            // If the date doesn't exist in the accumulator, initialize it
+            if (!acc[element.date]) {
+              acc[element.date] = {
+                date: element.date,
+                data: 0,
+              };
+            }
+
+            // Sum the data for the same date
+            acc[element.date].data += parseFloat(element.data); // Ensure data is treated as a number
+            return acc;
+          },
+          {}
+        );
+        const groupedProfit = transformedProfit.reduce(
+          (acc: any, element: { date: string; data: string }) => {
+            // If the date doesn't exist in the accumulator, initialize it
+            if (!acc[element.date]) {
+              acc[element.date] = {
+                date: element.date,
+                data: 0,
+              };
+            }
+
+            // Sum the data for the same date
+            acc[element.date].data += parseFloat(element.data); // Ensure data is treated as a number
+            return acc;
+          },
+          {}
+        );
+
+        const modifiedTransformedRoom: { date: string; data: string }[] =
+          Object.values(groupedRoom);
+        const modifiedTransformedMeals: { date: string; data: string }[] =
+          Object.values(groupedMeals);
+        const modifiedTransformedBreakfast: { date: string; data: string }[] =
+          Object.values(groupedBreakfast);
+        const modifiedTransformedProfit: { date: string; data: string }[] =
+          Object.values(groupedProfit);
+        setRoomData(modifiedTransformedRoom);
+        setMealData(modifiedTransformedMeals);
+        setBreakfastData(modifiedTransformedBreakfast);
+        setProfitData(modifiedTransformedProfit);
       }
 
       setCompanyData(company);
@@ -215,14 +339,22 @@ function Analytics() {
     }
   }, [token, selectedOption]);
 
-  const fetchUpDown = async (mealData: [], roomData: [], breakfastData: [],profitData:[]) => {
+  const fetchUpDown = async (mealData: [], roomData: [], breakfastData: [], profitData: []) => {
     setLoading(true);
     const currentDate = new Date();
-    const prevMonth = currentDate.getMonth().toString();
+    const currentMonth = (currentDate.getMonth() + 1).toString();
+    const prevMonth = currentMonth === "1" ? "12" : currentDate.getMonth().toString();
     const currentYear = currentDate.getFullYear().toString();
     const prevYear = (currentDate.getFullYear() - 1).toString();
-    const prevQuarter = Math.ceil(parseInt(prevMonth) / 3 - 1).toString();
 
+    // Calculate previous quarter
+    let prevQuarter;
+    if (parseInt(currentMonth) <= 2) {
+      prevQuarter = 4; // If it's Q1, previous quarter is Q4 of the previous year
+    } else {
+      prevQuarter = Math.ceil((parseInt(currentMonth) - 2) / 3); // Subtract 2 to adjust for 0-indexed months
+    }
+    prevQuarter = prevQuarter.toString();
     let room;
     let meal;
     let breakfast;
@@ -232,19 +364,26 @@ function Analytics() {
       room = await fetchRoomData(token, prevMonth, currentYear);
       meal = await fetchMeals(token, prevMonth, currentYear);
       breakfast = await fetchBreakfast(token, prevMonth, currentYear);
-      profit= await fetchProfitData(token,prevMonth,currentYear);
+      profit = await fetchProfitData(token, prevMonth, currentYear);
     }
     if (selectedOption === "quarter") {
-      room = await fetchRoomDataQuarter(token, prevQuarter, currentYear);
-      meal = await fetchMealsQuarter(token, prevQuarter, currentYear);
-      breakfast = await fetchBreakfastQuarter(token, prevQuarter, currentYear);
-      profit= await fetchProfitData(token,prevMonth,currentYear);
+      if (prevQuarter === "4") {
+        room = await fetchRoomDataQuarter(token, prevQuarter, prevYear);
+        meal = await fetchMealsQuarter(token, prevQuarter, prevYear);
+        breakfast = await fetchBreakfastQuarter(token, prevQuarter, prevYear);
+        profit = await fetchProfitDataQuarter(token, prevQuarter, prevYear);
+      } else {
+        room = await fetchRoomDataQuarter(token, prevQuarter, currentYear);
+        meal = await fetchMealsQuarter(token, prevQuarter, currentYear);
+        breakfast = await fetchBreakfastQuarter(token, prevQuarter, currentYear);
+        profit = await fetchProfitDataQuarter(token, prevQuarter, currentYear);
+      }
     }
     if (selectedOption === "year") {
       room = await fetchRoomDataYear(token, prevYear);
       meal = await fetchMealsYear(token, prevYear);
       breakfast = await fetchBreakfastYear(token, prevYear);
-      profit= await fetchProfitData(token,prevMonth,currentYear);
+      profit = await fetchProfitDataYear(token, prevYear);
     }
 
     let prevTotal: number = 0;
@@ -311,25 +450,25 @@ function Analytics() {
     const avgCurrentBreakfast = Number((currentBreakfast / numberOfdays).toFixed(2));
     setBreakfast(avgCurrentBreakfast);
 
-    let prevProfit:number=0;
+    let prevProfit: number = 0;
     numberOfdays = 0;
 
-    profit.map((entry:{order_date: string; total_profit: string})=>{
-      prevProfit=prevProfit+Number(entry.total_profit);
+    profit.map((entry: { order_date: string; total_profit: string }) => {
+      prevProfit = prevProfit + Number(entry.total_profit);
       numberOfdays++;
-    })
-    const avgPrevProfit=Number((prevProfit/numberOfdays).toFixed(2));
-    setPrevProfit(avgPrevProfit);
+    });
+    // const avgPrevProfit = Number((prevProfit / numberOfdays).toFixed(2));
+    setPrevProfit(prevProfit);
 
-    let currentProfit:number=0;
+    let currentProfit: number = 0;
     numberOfdays = 0;
 
-    profitData.map((entry:{date: string; data: string})=>{
-      currentProfit=currentProfit+Number(entry.data);
+    profitData.map((entry: { date: string; data: string }) => {
+      currentProfit = currentProfit + Number(entry.data);
       numberOfdays++;
-    })
+    });
     setTotalProfit(currentProfit);
-    const avgCurrentProfit=Number((currentProfit/numberOfdays).toFixed(2));
+    const avgCurrentProfit = Number((currentProfit / numberOfdays).toFixed(2));
     setProfit(avgCurrentProfit);
 
     setLoading(false);
@@ -345,11 +484,7 @@ function Analytics() {
     <div className="p-5 max-lg:p-1 ">
       <div className="text-4xl mx-5 px-5 flex justify-between items-center font-semibold max-lg:px-2 max-lg:mx-0">
         <div className={`${loading && "animate-pulse"}`}>Analytics</div>
-        {loading && (
-          <div className="w-32 h-8 bg-gray-200 animate-pulse rounded-md ">
-
-          </div>
-        )}
+        {loading && <div className="w-32 h-8 bg-gray-200 animate-pulse rounded-md "></div>}
         {!loading && (
           <FormControl sx={{ m: 1, minWidth: 120 }}>
             <Select
@@ -375,7 +510,7 @@ function Analytics() {
           </FormControl>
         )}
       </div>
-        
+
       <div className=" m-5 rounded-xl p-5 max-lg:m-0 max-lg:p-2">
         <div className="flex justify-end"></div>
         <div className="flex gap-5">
@@ -424,7 +559,12 @@ function Analytics() {
           )}
           {!loading && (
             <div className="p-5 shadow-md w-full xl:h-[45vh] border rounded-xl max-lg:p-0">
-              <LineChart graphType={selectedOption} theme="blue" chartData={mealData} title="Meals Served Per Day" />
+              <LineChart
+                graphType={selectedOption}
+                theme="blue"
+                chartData={mealData}
+                title="Meals Served Per Day"
+              />
             </div>
           )}
           {loading && (
@@ -446,12 +586,22 @@ function Analytics() {
           )}
           {!loading && (
             <div className="p-5 shadow-md w-full xl:h-[45vh]  border rounded-xl max-lg:p-0">
-              <LineChart graphType={selectedOption} theme="cyan" chartData={roomData} title="Bookings Per Day" />
+              <LineChart
+                graphType={selectedOption}
+                theme="cyan"
+                chartData={roomData}
+                title="Bookings Per Day"
+              />
             </div>
           )}
           {!loading && (
             <div className="p-5 shadow-md w-full xl:h-[45vh]  border rounded-xl max-lg:p-0">
-              <LineChart graphType={selectedOption} theme="cyan" chartData={profitData} title="Profit Per Day" />
+              <LineChart
+                graphType={selectedOption}
+                theme="cyan"
+                chartData={profitData}
+                title="Profit Per Day"
+              />
             </div>
           )}
 
@@ -463,7 +613,12 @@ function Analytics() {
           )}
           {!loading && (
             <div className="p-5 shadow-md w-full xl:h-[45vh]  border rounded-xl max-lg:p-0">
-              <LineChart graphType={selectedOption} theme="red" chartData={breakfastData} title="Breakfast Served Per Day" />
+              <LineChart
+                graphType={selectedOption}
+                theme="red"
+                chartData={breakfastData}
+                title="Breakfast Served Per Day"
+              />
             </div>
           )}
         </div>
