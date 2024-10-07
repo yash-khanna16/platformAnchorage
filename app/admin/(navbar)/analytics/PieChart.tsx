@@ -39,7 +39,7 @@ function DonutChart(props: any) {
   const currentMonth = new Date().toLocaleString("default", { month: "long" });
   return (
     <div className="chart-container h-full pb-5 ">
-      <div className="text-lg max-xl:text-center font-bold text-[#353738]">
+      <div className="text-lg max-xl:text-center font-bold text-[#353738] capitalize">
         {props.title}
       </div>
       <div className="mx-auto h-full ">

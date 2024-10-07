@@ -44,7 +44,8 @@ function Analytics() {
   const [breakfast, setBreakfast] = useState(0.0);
   const [prevBreakfast, setPrevBreakfast] = useState(0.0);
   const [profit, setProfit] = useState(0.0);
-  const [prevProfit, setPrevProfit] = useState(0);
+  const [prevProfit, setPrevProfit] = useState(0.0);
+  const [prevTotalProfit, setPrevTotalProfit] = useState(0);
   const [meal, setMeal] = useState(0.0);
   const [prevMeal, setPrevMeal] = useState(0.0);
   const [roomData, setRoomData] = useState<GraphData[]>([]);
@@ -457,8 +458,9 @@ function Analytics() {
       prevProfit = prevProfit + Number(entry.total_profit);
       numberOfdays++;
     });
-    // const avgPrevProfit = Number((prevProfit / numberOfdays).toFixed(2));
-    setPrevProfit(prevProfit);
+    const avgPrevProfit = Number((prevProfit / numberOfdays).toFixed(2));
+    setPrevProfit(avgPrevProfit);
+    setPrevTotalProfit(prevProfit);
 
     let currentProfit: number = 0;
     numberOfdays = 0;
@@ -470,7 +472,6 @@ function Analytics() {
     setTotalProfit(currentProfit);
     const avgCurrentProfit = Number((currentProfit / numberOfdays).toFixed(2));
     setProfit(avgCurrentProfit);
-
     setLoading(false);
   };
 
@@ -543,6 +544,7 @@ function Analytics() {
               title="Profit"
               thisMonth={profit}
               totalProfit={totalProfit}
+              totalPrevProfit={prevTotalProfit}
               icon="PROFIT"
               loading={loading}
               cardType={selectedOption}
@@ -563,7 +565,7 @@ function Analytics() {
                 graphType={selectedOption}
                 theme="blue"
                 chartData={mealData}
-                title="Meals Served Per Day"
+                title={`Meals Served Per ${selectedOption}`}
               />
             </div>
           )}
@@ -575,7 +577,7 @@ function Analytics() {
           )}
           {!loading && (
             <div className="p-5 shadow-md w-full  xl:h-[45vh]  border rounded-xl max-lg:p-0">
-              <PieChart chartData={companyData} title="Company Wise Booking Per Day" />
+              <PieChart chartData={companyData} title={`Company Wise Booking Per ${selectedOption}`} />
             </div>
           )}
           {loading && (
@@ -590,7 +592,7 @@ function Analytics() {
                 graphType={selectedOption}
                 theme="cyan"
                 chartData={roomData}
-                title="Bookings Per Day"
+                title={`Bookings Per ${selectedOption}`}
               />
             </div>
           )}
@@ -600,7 +602,7 @@ function Analytics() {
                 graphType={selectedOption}
                 theme="cyan"
                 chartData={profitData}
-                title="Profit Per Day"
+                title={`Profit Per ${selectedOption}`}
               />
             </div>
           )}
@@ -617,7 +619,7 @@ function Analytics() {
                 graphType={selectedOption}
                 theme="red"
                 chartData={breakfastData}
-                title="Breakfast Served Per Day"
+                title={`Breakfast Served Per ${selectedOption}`}
               />
             </div>
           )}
