@@ -329,8 +329,8 @@ function Orders() {
                       </div>
                       <div className="text-lg text-[#636363]">ORDER NO: {order.order_id}</div>
                       <div className="text-[#7c7c7c] my-2 font-semibold">
-                        {order.guest_name}
-                        {"'s"} Order
+                        {order.guest_name!==null && <>{order.guest_name}
+                        {"'s"} Order</>}
                       </div>
                     </div>
                     <div className="">
@@ -471,8 +471,8 @@ function Orders() {
                       </div>
                       <div className="text-lg text-[#636363]">ORDER NO: {order.order_id}</div>
                       <div className="text-[#7c7c7c] my-2 font-semibold">
-                        {order.guest_name}
-                        {"'s"} Order
+                      {order.guest_name!==null && <>{order.guest_name}
+                      {"'s"} Order</>}
                       </div>
                     </div>
                     <div className="">
