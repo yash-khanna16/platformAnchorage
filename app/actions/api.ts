@@ -1423,3 +1423,27 @@ export async function fetchAllFeedback(token: string) {
         throw error;
     }
 }
+export async function fetchAllCoupons(token: string) {
+    try {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/fetchAllCouponsAdmin`, {
+            method: "GET",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+                token: token,
+            },
+            cache: "no-cache",
+        });
+
+        const data = await response.json(); // Parse the JSON response
+        if (!response.ok) {
+            throw new Error("Error fetching coupons" + data);
+        }
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
