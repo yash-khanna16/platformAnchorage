@@ -799,7 +799,7 @@ function Items() {
                   }}
                   type="button"
                 >
-                  Cancle
+                  Cancel
                 </Button>
                 <Button
                   size="lg"
