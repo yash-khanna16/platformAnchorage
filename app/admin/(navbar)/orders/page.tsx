@@ -46,6 +46,7 @@ export type OrderType = {
   created_at: Date;
   total_time_to_prepare: number;
   delay: number;
+  discount: number;
   status: string;
   guest_name: string;
   items: ItemType[];

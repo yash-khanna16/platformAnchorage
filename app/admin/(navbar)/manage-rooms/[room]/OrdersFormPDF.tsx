@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
   page: {
     // padding: 30,
     fontFamily: "Helvetica",
-    position: "relative"
+    position: "relative",
   },
   section: {
     marginBottom: 10,
@@ -128,9 +128,13 @@ export type OrderDataType = {
   name: string;
   email: string;
   phone: string;
+  discount: number;
 };
 
+const platformFee = 2;
+
 const OrderFormDocument = ({ orderData }: { orderData: OrderDataType[] }) => {
+  console.log("order: ", orderData)
   return (
     <Document>
       {orderData.map((order, orderIndex) => {
@@ -140,8 +144,8 @@ const OrderFormDocument = ({ orderData }: { orderData: OrderDataType[] }) => {
 
         return (
           <Page key={orderIndex} style={styles.page}>
-            <View style={{ height: "100%", padding: 20,  }}>
-              <View style={{border: '1px solid black', padding: 20,margin:10, height: "100%"}}>
+            <View style={{ height: "100%", padding: 20 }}>
+              <View style={{ border: "1px solid black", padding: 20, margin: 10, height: "100%" }}>
                 <View style={styles.heading}>
                   <Image src={logo.src} style={{ width: 80, height: 80 }} />
                 </View>
@@ -188,7 +192,9 @@ const OrderFormDocument = ({ orderData }: { orderData: OrderDataType[] }) => {
                     <Text style={[styles.col, styles.boldText, { textAlign: "left" }]}>Item</Text>
                     <Text style={[styles.col, styles.boldText]}>Price</Text>
                     <Text style={[styles.col, styles.boldText]}>Qty</Text>
-                    <Text style={[styles.col, styles.boldText, { borderRightWidth: 0, textAlign: "right", paddingRight: 45 }]}>Total</Text>
+                    <Text style={[styles.col, styles.boldText, { borderRightWidth: 0, textAlign: "right", paddingRight: 45 }]}>
+                      Total
+                    </Text>
                   </View>
                   {items.map((item, index) => (
                     <View key={index} style={styles.row}>
@@ -212,20 +218,73 @@ const OrderFormDocument = ({ orderData }: { orderData: OrderDataType[] }) => {
                       borderTop: 1,
                       borderColor: "#a1a1a1",
                       borderRightWidth: 0,
+                      borderBottomWidth: 0,
                     }}
                   >
-                    <Text style={[styles.col, { borderRight: 0, textAlign: "left" }]}>Total</Text>
+                    <Text style={[styles.col, { borderRight: 0, textAlign: "left" }]}>SubTotal</Text>
                     <Text style={[styles.col, { borderRight: 0, textAlign: "right", paddingRight: 45 }]}>
                       <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {totalAmount}
                     </Text>
                   </View>
+                  {order.discount > 0 && (
+                    <View
+                      style={{
+                        fontSize: 10,
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        borderTop: 0,
+                        borderColor: "#a1a1a1",
+                        borderRightWidth: 0,
+                        borderBottomWidth: 0,
+                      }}
+                    >
+                      <Text style={[styles.col, { borderRight: 0, textAlign: "left" }]}>Discount</Text>
+                      <Text style={[styles.col, { borderRight: 0, textAlign: "right", paddingRight: 45 }]}>
+                        <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {order.discount}
+                      </Text>
+                    </View>
+                  )}
+                  <View
+                    style={{
+                      fontSize: 10,
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      borderTop: 0,
+                      borderColor: "#a1a1a1",
+                      borderRightWidth: 0,
+                      borderBottomWidth: 0,
+                    }}
+                  >
+                    <Text style={[styles.col, { borderRight: 0, textAlign: "left" }]}>Platform Fee</Text>
+                    <Text style={[styles.col, { borderRight: 0, textAlign: "right", paddingRight: 45 }]}>
+                      <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {platformFee}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      fontSize: 10,
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      borderTop: 0,
+                      borderColor: "#a1a1a1",
+                      borderRightWidth: 0,
+                    }}
+                  >
+                    <Text style={[styles.col, { borderRight: 0, textAlign: "left" }]}>Total</Text>
+                    <Text style={[styles.col, { borderRight: 0, textAlign: "right", paddingRight: 45 }]}>
+                      <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {totalAmount + platformFee - order.discount}
+                    </Text>
+                  </View>
                 </View>
               </View>
-                <View style={styles.footer}>
-                  <Text style={styles.footer}>
-                    Page {orderIndex + 1} of {orderData.length}
-                  </Text>
-                </View>
+              <View style={styles.footer}>
+                <Text style={styles.footer}>
+                  Page {orderIndex + 1} of {orderData.length}
+                </Text>
+              </View>
             </View>
           </Page>
         );
