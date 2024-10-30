@@ -1,30 +1,38 @@
 "use client";
 
 import { Cancel, Close } from "@mui/icons-material";
-import { Chip } from "@mui/joy";
+import { Chip, Modal } from "@mui/joy";
 import { Coupon } from "./page";
+import { use, useEffect, useState } from "react";
+import ModifyCoupon from "./ModifyCoupon";
 
 function Card({ coupon }: { coupon: Coupon }) {
   const couponTypeName = { free_item: "FREE ITEM", flat_discount: "FLAT DISCOUNT", percentage_discount: "PERCENTAGE DISCOUNT" };
+  const [openModifyModal, setOpenModifyModal] = useState(false);
   const colors = {
     free_item: {
-      background: "#f0fdf4", // Light green background for free items
-      text: "#16a34a", // Text color for free items
+      background: "#f0fdf4",
+      text: "#16a34a",
     },
     flat_discount: {
-      background: "#f5f3ff", // Light purple background for flat discounts
-      text: "#7c3aed", // Text color for flat discounts
+      background: "#f5f3ff",
+      text: "#7c3aed",
     },
     percentage_discount: {
-      background: "#f0f9ff", // Light blue background for percentage discounts
-      text: "#0284c7", // Text color for percentage discounts
+      background: "#f0f9ff",
+      text: "#0284c7",
     },
   };
+
+  useEffect(() => {
+    console.log("first: ", openModifyModal);
+  }, [openModifyModal]);
 
   return (
     <div
       onClick={() => {
         console.log("clicked on coupon");
+        setOpenModifyModal(true);
       }}
       className={`border ${
         coupon.is_active === false && "grayscale"
@@ -39,11 +47,6 @@ function Card({ coupon }: { coupon: Coupon }) {
       >
         <Cancel />
       </div>
-
-      {/* <div className=" mb-2 -mt-1 text-xs text-slate-600 font-semibold w-full flex justify-between ">
-          <div>Expiring</div> <div> {coupon.end_date} </div>
-        </div> */}
-
       <div className=" mb-2 -mt-1 text-xs text-slate-600 font-semibold w-full flex justify-between ">
         <div>Expiry date</div> <div> {!coupon.end_date ? "No expiry" : coupon.end_date} </div>
       </div>
@@ -53,10 +56,9 @@ function Card({ coupon }: { coupon: Coupon }) {
         </div>
         <Chip
           size="md"
-          // color="success"
           sx={{
-            backgroundColor: colors[coupon.coupon_type].background, // Background color based on coupon type
-            color: colors[coupon.coupon_type].text, // Text color based on coupon type
+            backgroundColor: colors[coupon.coupon_type].background,
+            color: colors[coupon.coupon_type].text,
           }}
         >
           {couponTypeName[coupon.coupon_type]}
@@ -75,6 +77,15 @@ function Card({ coupon }: { coupon: Coupon }) {
           </Chip>
         ))}
       </div>
+      <Modal
+        open={openModifyModal}
+        onClose={(event:any) => {
+          event.stopPropagation(); 
+          setOpenModifyModal(false);
+        }}
+      >
+        <ModifyCoupon coupon={coupon} />
+      </Modal>
     </div>
   );
 }

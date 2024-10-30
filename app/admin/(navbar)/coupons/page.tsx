@@ -28,16 +28,22 @@ export type Coupon = {
   item_id: string | null;
   user_usage_limit: number | null;
   percentage_discount: number | null;
+  applicable_items: {
+    item_id: string;
+    qty: number
+  }[],
+  applicable_categories: string[],
+  selectedGuests: string[],
   free_items: {
-    item_id: string,
-    qty: number,
-    name: string,
-    price: number,
-    type: string,
-    available: boolean,
-    time_to_prepare: number,
-    base_price: number,
-  }[]
+    item_id: string;
+    qty: number;
+    name: string;
+    price: number;
+    type: string;
+    available: boolean;
+    time_to_prepare: number;
+    base_price: number;
+  }[];
 };
 
 export type FreeItem = {
@@ -60,7 +66,7 @@ export type FreeItem = {
 export default function Coupon() {
   const [token, setToken] = useState("");
   const [coupons, setCoupons] = useState<Coupon[]>([]);
-  const [addCoupon, setAddCoupon] = useState(true)
+  const [addCoupon, setAddCoupon] = useState(false);
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -70,9 +76,10 @@ export default function Coupon() {
 
   useEffect(() => {
     if (token !== "") {
-      fetchAllCoupons(token).then((coupons:Coupon[]) => {
+      fetchAllCoupons(token).then((coupons: Coupon[]) => {
         setCoupons(coupons);
-      })  
+        console.log("coupons: ", coupons)
+      });
     }
   }, [token]);
 
@@ -80,14 +87,19 @@ export default function Coupon() {
     <div className="m-10 max-xl:mx-5">
       <div className="flex justify-between">
         <div className="text-3xl font-semibold text-slate-800">Coupons</div>
-        <Button onClick={()=>{
-          setAddCoupon(true);
-        }} variant="outlined" color="neutral" startDecorator={<Add />}>
+        <Button
+          onClick={() => {
+            setAddCoupon(true);
+          }}
+          variant="outlined"
+          color="neutral"
+          startDecorator={<Add />}
+        >
           Add Coupon
         </Button>
       </div>
       <div className="my-5 flex flex-wrap gap-5">
-        {coupons.map((coupon:Coupon, index: number) => (
+        {coupons.map((coupon: Coupon, index: number) => (
           <CouponCard key={index} coupon={coupon} />
         ))}
       </div>
