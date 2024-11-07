@@ -56,7 +56,7 @@ export default function AddCouponBasicDetails({
   };
 
   return (
-    <div className="w-full grid grid-cols-2 gap-4">
+    <div className="w-full grid grid-cols-2 gap-4 overflow-y-scroll scrollNone">
       <FormControl>
         <FormLabel>Coupon Code</FormLabel>
         <Input required name="code" value={formData.code} placeholder="WELCOME50" onChange={handleChange} />
