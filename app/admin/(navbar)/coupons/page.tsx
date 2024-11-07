@@ -22,7 +22,6 @@ export type Coupon = {
   created_at: string | null;
   modified_at: string | null;
   coupon_type_description: string;
-  restriction_id: string | null;
   category_id: string;
   is_allowed: boolean | null;
   item_id: string | null;
@@ -30,10 +29,10 @@ export type Coupon = {
   percentage_discount: number | null;
   applicable_items: {
     item_id: string;
-    qty: number
-  }[],
-  applicable_categories: string[],
-  selectedGuests: string[],
+    qty: number;
+  }[];
+  applicable_categories: string[];
+  selectedGuests: string[];
   free_items: {
     item_id: string;
     qty: number;
@@ -67,6 +66,7 @@ export default function Coupon() {
   const [token, setToken] = useState("");
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [addCoupon, setAddCoupon] = useState(false);
+  const [reload, setReload] = useState(false);
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
@@ -77,11 +77,15 @@ export default function Coupon() {
   useEffect(() => {
     if (token !== "") {
       fetchAllCoupons(token).then((coupons: Coupon[]) => {
+        coupons.map((coupon: Coupon) => {
+          coupon.start_date = coupon.start_date.split("T")[0];
+          coupon.end_date = coupon.end_date.split("T")[0];
+        });
         setCoupons(coupons);
-        console.log("coupons: ", coupons)
+        console.log("coupons: ", coupons);
       });
     }
-  }, [token]);
+  }, [token, reload]);
 
   return (
     <div className="m-10 max-xl:mx-5">
@@ -100,12 +104,23 @@ export default function Coupon() {
       </div>
       <div className="my-5 flex flex-wrap gap-5">
         {coupons.map((coupon: Coupon, index: number) => (
-          <CouponCard key={index} coupon={coupon} />
+          <CouponCard
+            key={index}
+            coupon={coupon}
+            token={token}
+            reload={reload}
+            setReload={setReload}
+          />
         ))}
       </div>
 
       <Modal open={addCoupon} onClose={() => setAddCoupon(false)}>
-        <AddCoupon />
+        <AddCoupon
+          token={token}
+          setAddCoupon={setAddCoupon}
+          reload={reload}
+          setReload={setReload}
+        />
       </Modal>
     </div>
   );

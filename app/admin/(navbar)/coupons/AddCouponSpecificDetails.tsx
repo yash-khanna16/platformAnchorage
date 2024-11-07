@@ -292,7 +292,7 @@ export default function AddCouponSpecificDetails({
 
   return (
     <div>
-      <div className="gap-4 grid grid-cols-2">
+      <div className="gap-4 grid grid-cols-2 overflow-y-scroll scrollNone">
         <FormControl>
           <FormLabel>Start Date</FormLabel>
           <Input name="start_date" type="date" value={formData.start_date} onChange={handleChange} />
@@ -304,8 +304,8 @@ export default function AddCouponSpecificDetails({
         <FormControl>
           <FormLabel>Coupon Usage Limit</FormLabel>
           <Input
-            name="user_usage_limit"
-            value={formData.user_usage_limit || ""}
+            name="usage_limit"
+            value={formData.usage_limit || ""}
             placeholder="Enter limit or leave blank for unlimited"
             onChange={handleChange}
           />
