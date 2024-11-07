@@ -549,7 +549,7 @@ const Reservations: React.FC<ReservationsProps> = ({
         // Create a link and set it to download the blob
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
-        link.download = 'document'; // Set a filename here if you want a specific name, e.g., 'document.pdf'
+        link.download = `${params.row.room + "_" + params.row.name}`;
         link.style.display = 'none';
         
         // Append the link, trigger click, and then remove it
