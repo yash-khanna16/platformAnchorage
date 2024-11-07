@@ -1,9 +1,10 @@
 import { Button, ModalDialog } from "@mui/joy";
 import { DialogTitle } from "@mui/joy";
 import { DialogActions } from "@mui/joy";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import AddCouponBasicDetails from "./AddCouponBasicDetails";
 import AddCouponSpecificDetails from "./AddCouponSpecificDetails";
+import { addCoupon } from "@/app/actions/api";
 
 export type MenuItem = {
   available: boolean;
@@ -14,6 +15,7 @@ export type MenuItem = {
 };
 
 export type CouponForm = {
+  coupon_id: string;
   code: string;
   description: string;
   coupon_type: string;
@@ -29,7 +31,7 @@ export type CouponForm = {
   free_items: {
     item_id: string;
     qty: number;
-    name: string
+    name: string;
   }[];
   applicable_categories: string[];
   applicable_items: {
@@ -39,16 +41,24 @@ export type CouponForm = {
   }[];
   selectedGuests: {
     booking_id: string;
-    email: string
+    email: string;
   }[];
   is_active: boolean;
 };
+type AddCouponProps = {
+  token: string;
+  setAddCoupon: Dispatch<SetStateAction<boolean>>;
+  reload: boolean;
+  setReload: Dispatch<SetStateAction<boolean>>;
+};
 
-export default function AddCoupon() {
+export default function AddCoupon({ token, setAddCoupon, reload, setReload }: AddCouponProps) {
   const [step, setStep] = useState(0);
+  const [loading, setLoading] = useState(false);
   const steps = 2;
 
   const [formData, setFormData] = useState<CouponForm>({
+    coupon_id: "",
     code: "",
     description: "",
     coupon_type: "free_item", // Default value
@@ -68,6 +78,29 @@ export default function AddCoupon() {
     is_active: true,
   });
 
+  const handleCouponSubmit = async () => {
+    let couponData: CouponForm = formData;
+    couponData.max_discount =
+      formData.max_discount === "" ? 0 : parseInt(formData.max_discount.toString());
+    couponData.min_order_value =
+      formData.min_order_value === "" ? 0 : parseInt(formData.min_order_value.toString());
+    couponData.percentage_discount =
+      formData.percentage_discount === "" ? 0 : parseInt(formData.percentage_discount.toString());
+    couponData.usage_limit =
+      formData.usage_limit === null ? 0 : parseInt(formData.percentage_discount.toString());
+    couponData.user_usage_limit =
+      formData.user_usage_limit === null ? 0 : parseInt(formData.percentage_discount.toString());
+    couponData.discount_value =
+      formData.discount_value === "" ? 0 : parseInt(formData.discount_value.toString());
+    console.log(couponData);
+    setLoading(true);
+    const result = await addCoupon(token, couponData);
+    setLoading(false);
+    setReload(!reload);
+    setAddCoupon(false);
+    console.log(result);
+  };
+
   useEffect(() => {
     if (formData.coupon_type === "free_item") {
       setFormData((prev) => ({
@@ -76,30 +109,35 @@ export default function AddCoupon() {
         percentage_discount: "",
         discount_value: "",
       }));
-    } else if (formData.coupon_type === 'flat_discount') {
+    } else if (formData.coupon_type === "flat_discount") {
       setFormData((prev) => ({
         ...prev,
         max_discount: "",
         percentage_discount: "",
-        free_items: []
+        free_items: [],
       }));
-    } else if (formData.coupon_type === 'percentage_discount') {
+    } else if (formData.coupon_type === "percentage_discount") {
       setFormData((prev) => ({
         ...prev,
         discount_value: "",
-        free_items: []
+        free_items: [],
       }));
     }
   }, [formData.coupon_type]);
 
   const validateStep0 = () => {
     const { code, description, coupon_type, coupon_type_description } = formData;
-    return code.trim() !== "" && description.trim() !== "" && coupon_type.trim() !== "" && coupon_type_description.trim() !== "";
+    return (
+      code.trim() !== "" &&
+      description.trim() !== "" &&
+      coupon_type.trim() !== "" &&
+      coupon_type_description.trim() !== ""
+    );
   };
 
   const handleNext = () => {
     if (step === steps - 1) {
-      console.log("form: ", formData);
+      handleCouponSubmit();
     } else {
       setStep(step + 1);
     }
@@ -109,6 +147,7 @@ export default function AddCoupon() {
     <ModalDialog
       sx={{
         width: 700,
+        overflowY: "auto",
       }}
     >
       <DialogTitle>
@@ -125,12 +164,12 @@ export default function AddCoupon() {
         {step === 1 && <AddCouponSpecificDetails formData={formData} setFormData={setFormData} />}
       </form>
       <DialogActions>
-        <Button onClick={handleNext} type="submit" disabled={!validateStep0()}>
+        <Button loading={loading} onClick={handleNext} type="submit" disabled={!validateStep0()}>
           {" "}
           {step === steps - 1 ? "Finish" : "Next"}{" "}
         </Button>
         <Button
-        variant="outlined"
+          variant="outlined"
           onClick={() => {
             setStep(step - 1);
           }}

@@ -219,7 +219,7 @@ function LineChart({
   return (
     <div className="chart-container ">
       <div className="flex justify-between">
-        <div className="text-lg max-xl:text-center w-full font-bold text-[#353738]">{title}</div>
+        <div className="text-lg max-xl:text-center w-full font-bold text-[#353738] capitalize">{title}</div>
         {/* <Select indicator={<KeyboardArrowDown />} size="sm" defaultValue="June">
           <Option value="June">June</Option>
           <Option value="May">May</Option>

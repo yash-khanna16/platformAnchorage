@@ -23,6 +23,7 @@ export type OrderDetails = {
   remarks: string;      // Any remarks for the order
   room: string;         // Room number associated with the booking
   status: string;       // Current status of the order
+  discount:number;
 };
 
 
@@ -202,24 +203,25 @@ type OrderDataType = {
   name: string;
   email: string;
   phone: string;
+  discount: number;
 };
 
 
-  const orderData: OrderDataType[] = [{
-    order_id: 123456789,
-    booking_id: "B12345",
-    room: "101A",
-    created_at: "2024-08-29",
-    status: "Accepted",
-    remarks: "No onions",
-    items: [
-      { name: "Veg Sandwich", qty: 2, price: 50 },
-      { name: "Cold Coffee", qty: 1, price: 80 },
-    ],
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+1234567890",
-  }];
+  // const orderData: OrderDataType[] = [{
+  //   order_id: 123456789,
+  //   booking_id: "B12345",
+  //   room: "101A",
+  //   created_at: "2024-08-29",
+  //   status: "Accepted",
+  //   remarks: "No onions",
+  //   items: [
+  //     { name: "Veg Sandwich", qty: 2, price: 50 },
+  //     { name: "Cold Coffee", qty: 1, price: 80 },
+  //   ],
+  //   name: "John Doe",
+  //   email: "john.doe@example.com",
+  //   phone: "+1234567890",
+  // }];
   
 
   return (

@@ -22,6 +22,7 @@ function MonthCard({
   icon,
   cardType,
   loading,
+  totalPrevProfit,
 }: {
   title: string;
   thisMonth: number;
@@ -29,6 +30,7 @@ function MonthCard({
   icon: iconsType;
   cardType: string | null;
   totalProfit?:number;
+  totalPrevProfit?:number;
   loading: boolean;
 }) {
   return (
@@ -116,7 +118,7 @@ function MonthCard({
               
               <div className={`flex space-x-2 items-center ${totalProfit?"":"mt-5"}`}>
                 <div className=" text-gray-400 font-medium text-sm">Previous {cardType}:</div>
-                <div className=" font-bold ">{prevMonth}</div>
+                <div className=" font-bold ">{title==="Profit"?totalPrevProfit:prevMonth}</div>
               </div>
             </div>
           </>

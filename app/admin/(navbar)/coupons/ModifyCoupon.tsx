@@ -1,11 +1,11 @@
 import { Button, ModalClose, ModalDialog } from "@mui/joy";
 import { DialogTitle } from "@mui/joy";
 import { DialogActions } from "@mui/joy";
-import { useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import AddCouponBasicDetails from "./AddCouponBasicDetails";
 import AddCouponSpecificDetails from "./AddCouponSpecificDetails";
 import { Coupon } from "./page";
-import { fetchAllItems, searchAllGuests } from "@/app/actions/api";
+import { fetchAllItems, modifyCoupon, searchAllGuests } from "@/app/actions/api";
 import { formatDate } from "@/app/actions/utils";
 import { getAuthAdmin } from "@/app/actions/cookie";
 
@@ -22,6 +22,7 @@ export type MenuItem = {
 };
 
 export type CouponForm = {
+  coupon_id: string;
   code: string;
   description: string;
   coupon_type: string;
@@ -52,7 +53,11 @@ export type CouponForm = {
   is_active: boolean;
 };
 
-export function convertCouponToForm(coupon: Coupon, rows: ReservationType[], items: MenuItem[]): CouponForm {
+export function convertCouponToForm(
+  coupon: Coupon,
+  rows: ReservationType[],
+  items: MenuItem[]
+): CouponForm {
   // Create an array of { booking_id, email } objects based on emails in coupon.selectedGuests
   const selectedGuests = coupon.selectedGuests.map((guestEmail) => {
     const booking = rows.find((row) => row.guest_email === guestEmail);
@@ -63,6 +68,7 @@ export function convertCouponToForm(coupon: Coupon, rows: ReservationType[], ite
   });
 
   return {
+    coupon_id: coupon.coupon_id,
     code: coupon.code,
     description: coupon.description,
     coupon_type: coupon.coupon_type,
@@ -84,10 +90,10 @@ export function convertCouponToForm(coupon: Coupon, rows: ReservationType[], ite
     applicable_items: coupon.applicable_items.map((item) => ({
       item_id: item.item_id,
       qty: item.qty,
-      name: items.find(i=>i.item_id === item.item_id)?.name||""
+      name: items.find((i) => i.item_id === item.item_id)?.name || "",
     })),
     selectedGuests, // Use the newly mapped array of { booking_id, email }
-    is_active: coupon.is_active
+    is_active: coupon.is_active,
   };
 }
 
@@ -110,12 +116,23 @@ type ReservationType = {
   vessel: string;
 };
 
-export default function ModifyCoupon({ coupon }: { coupon: Coupon }) {
+export default function ModifyCoupon({
+  coupon,
+  reload,
+  setReload,
+  setOpenModifyModal,
+}: {
+  coupon: Coupon;
+  reload: boolean;
+  setReload: Dispatch<SetStateAction<boolean>>;
+  setOpenModifyModal: Dispatch<SetStateAction<boolean>>;
+}) {
   const [step, setStep] = useState(0);
   const steps = 2;
   const [rows, setRows] = useState<ReservationType[]>([]);
   const [token, setToken] = useState("");
-  const [items, setItems] = useState<MenuItem[]>([])
+  const [items, setItems] = useState<MenuItem[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (token !== "") {
@@ -127,6 +144,7 @@ export default function ModifyCoupon({ coupon }: { coupon: Coupon }) {
   }, [token]);
 
   const [formData, setFormData] = useState<CouponForm>({
+    coupon_id: "",
     code: "",
     description: "",
     coupon_type: "free_item", // Default value
@@ -143,7 +161,7 @@ export default function ModifyCoupon({ coupon }: { coupon: Coupon }) {
     applicable_categories: [],
     applicable_items: [],
     selectedGuests: [],
-    is_active: true
+    is_active: true,
   });
 
   useEffect(() => {
@@ -155,9 +173,9 @@ export default function ModifyCoupon({ coupon }: { coupon: Coupon }) {
   useEffect(() => {
     if (rows.length > 0 && items.length > 0) {
       setFormData(convertCouponToForm(coupon, rows, items));
-    //   console.log("useeffect ran selected guest: ", coupon.selectedGuests);
-    //   console.log("useeffect ran rows: ", rows);
-    console.log("coupon: ", coupon)
+      //   console.log("useeffect ran selected guest: ", coupon.selectedGuests);
+      //   console.log("useeffect ran rows: ", rows);
+      console.log("coupon: ", coupon);
       console.log("useeffect ran final: ", convertCouponToForm(coupon, rows, items));
     }
   }, [rows, items]);
@@ -195,6 +213,26 @@ export default function ModifyCoupon({ coupon }: { coupon: Coupon }) {
     }
   }
 
+  const handleCouponSubmit = async () => {
+    let couponData: CouponForm = formData;
+    couponData.max_discount =
+      formData.max_discount === "" ? 0 : parseInt(formData.max_discount.toString());
+    couponData.min_order_value =
+      formData.min_order_value === "" ? 0 : parseInt(formData.min_order_value.toString());
+    couponData.percentage_discount =
+      formData.percentage_discount === "" ? 0 : parseInt(formData.percentage_discount.toString());
+      console.log(formData.user_usage_limit,formData.usage_limit)
+    couponData.discount_value =
+      formData.discount_value === "" ? 0 : parseInt(formData.discount_value.toString());
+    console.log(couponData);
+    setLoading(true);
+    const result = await modifyCoupon(token, couponData);
+    setLoading(false);
+    setReload(!reload);
+    setOpenModifyModal(false);
+    console.log(result);
+  };
+
   useEffect(() => {
     getGuests();
   }, []);
@@ -225,12 +263,17 @@ export default function ModifyCoupon({ coupon }: { coupon: Coupon }) {
 
   const validateStep0 = () => {
     const { code, description, coupon_type, coupon_type_description } = formData;
-    return code.trim() !== "" && description.trim() !== "" && coupon_type.trim() !== "" && coupon_type_description.trim() !== "";
+    return (
+      code.trim() !== "" &&
+      description.trim() !== "" &&
+      coupon_type.trim() !== "" &&
+      coupon_type_description.trim() !== ""
+    );
   };
 
   const handleNext = () => {
     if (step === steps - 1) {
-      console.log("form: ", formData);
+      handleCouponSubmit();
     } else {
       setStep(step + 1);
     }
@@ -240,6 +283,7 @@ export default function ModifyCoupon({ coupon }: { coupon: Coupon }) {
     <ModalDialog
       sx={{
         width: 700,
+        overflowY: "auto",
       }}
     >
       <DialogTitle>
@@ -257,7 +301,7 @@ export default function ModifyCoupon({ coupon }: { coupon: Coupon }) {
         {step === 1 && <AddCouponSpecificDetails formData={formData} setFormData={setFormData} />}
       </form>
       <DialogActions>
-        <Button onClick={handleNext} type="submit" disabled={!validateStep0()}>
+        <Button loading={loading} onClick={handleNext} type="submit" disabled={!validateStep0()}>
           {" "}
           {step === steps - 1 ? "Finish" : "Next"}{" "}
         </Button>

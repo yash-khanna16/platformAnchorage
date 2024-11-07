@@ -1,11 +1,7 @@
 "use client";
-import { deleteItem, fetchAllItems, putItem, updateItem } from "@/app/actions/api";
+import { deleteItem, fetchAllItems, putItem, updateItem, updateCategory } from "@/app/actions/api";
 import { getAuthAdmin } from "@/app/actions/cookie";
 import {
-  Accordion,
-  AccordionDetails,
-  AccordionGroup,
-  AccordionSummary,
   Autocomplete,
   Button,
   DialogActions,
@@ -29,7 +25,15 @@ import { useEffect, useState } from "react";
 import veg from "@/app/assets/veg.svg";
 import nonveg from "@/app/assets/nonveg.svg";
 import Image from "next/image";
-import { Add, CleaningServices, Close, DeleteForever, Edit, Info, WarningRounded } from "@mui/icons-material";
+import {
+  Add,
+  CleaningServices,
+  Close,
+  DeleteForever,
+  Edit,
+  Info,
+  WarningRounded,
+} from "@mui/icons-material";
 
 type MenuItem = {
   available: boolean;
@@ -41,6 +45,8 @@ type MenuItem = {
   time_to_prepare: number;
   type: string;
   base_price: number;
+  category_id: string;
+  sequence: number;
 };
 
 type ItemsByCategory = Record<string, MenuItem[]>;
@@ -49,6 +55,7 @@ function Items() {
   const [items, setItems] = useState<ItemsByCategory>({});
   const [token, setToken] = useState("");
   const [addItem, setAddItem] = useState(false);
+  const [reload, setReload] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [categories, setCategories] = useState<string[]>([]);
   const [types, setTypes] = useState<string[]>(["veg", "nonveg"]);
@@ -58,6 +65,9 @@ function Items() {
   const [edit, setEdit] = useState(false);
   const [editId, setEditId] = useState("");
   const [del, setDel] = useState(false);
+  const [editCategoryModal, setEditCategoryModal] = useState(false);
+  const [originalCategory, setOriginalCategory] = useState({ category: "", sequence: 0 });
+  const [newCategory, setNewCategory] = useState({ category: "", sequence: 0 });
   const [delId, setDelId] = useState("");
   const [newItem, setNewItem] = useState<MenuItem>({
     available: true,
@@ -69,64 +79,115 @@ function Items() {
     time_to_prepare: 0,
     type: "",
     base_price: 0,
+    category_id: "",
+    sequence: 0,
   });
 
   useEffect(() => {
     getAuthAdmin().then((auth) => {
       if (auth) setToken(auth.value);
     });
-  }, []); 
+  }, []);
 
   useEffect(() => {
     if (token !== "") {
       fetchAllItems(token)
         .then((items: MenuItem[]) => {
-          const itemsByCategory = items.reduce<Record<string, MenuItem[]>>((acc, item) => {
+          console.log(items);
+  
+          // Sort items based on sequence number
+          const sortedItems = items.sort((a, b) => a.sequence - b.sequence);
+  
+          // Group items by category and sort each category by item_id
+          const itemsByCategory = sortedItems.reduce<Record<string, MenuItem[]>>((acc, item) => {
             if (!acc[item.category]) {
               acc[item.category] = [];
             }
             acc[item.category].push(item);
+  
+            // Sort items within each category by item_id
+            acc[item.category] = acc[item.category].sort((a, b) => a.name.localeCompare(b.name));
+            
             return acc;
           }, {});
-
+  
+          // Sort categories based on the sequence of the first item in each category
+          const sortedCategories = Object.keys(itemsByCategory).sort((a, b) => {
+            const firstItemInCategoryA = itemsByCategory[a][0].sequence;
+            const firstItemInCategoryB = itemsByCategory[b][0].sequence;
+            return firstItemInCategoryA - firstItemInCategoryB;
+          });
+  
           setItems(itemsByCategory);
-          setCategories(Object.keys(itemsByCategory));
+          setCategories(sortedCategories);
         })
         .catch((error) => {
           console.log("error fetching all items: ", error);
         });
     }
-  }, [token]);
+  }, [token, reload]);
+  
 
-  const handleAvailabilityChange = (category: string, index: number) => async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newItems = { ...items };
-    newItems[category][index].available = event.target.checked;
-    try {
-      setLoading(true);
-      const res = await updateItem(token, newItems[category][index]);
-      const items: MenuItem[] = await fetchAllItems(token);
-      const itemsByCategory = items.reduce<Record<string, MenuItem[]>>((acc, item) => {
-        if (!acc[item.category]) {
-          acc[item.category] = [];
-        }
-        acc[item.category].push(item);
-        return acc;
-      }, {});
-      setItems(itemsByCategory);
-      setCategories(Object.keys(itemsByCategory));
-      setLoading(false);
-      setAlert(true);
-      setMessage("Availability updated successfully");
-    } catch (error) {
-      console.log("Error updating availability item ", error);
-      setLoading(false);
-      setAlert(true);
-      setMessage("Something Went Wrong!");
-    }
-    // setItems(newItems);
+  const updateCategorySequences = (updatedCategory: string, newSequence: number): string[] => {
+    const updatedCategories = [...categories];
+  
+    const filteredCategories = updatedCategories.filter(
+      (category) => category !== updatedCategory
+    );
+  
+    const reorderedCategories: string[] = [];
+    let inserted = false;
+  
+    filteredCategories.forEach((category, index) => {
+      if (index === newSequence - 1) {
+        reorderedCategories.push(updatedCategory);
+        inserted = true;
+      }
+      reorderedCategories.push(category);
+    });
+  
+    if (!inserted) reorderedCategories.push(updatedCategory);
+  
+    setCategories(reorderedCategories);
+  
+    return reorderedCategories;
   };
+  
 
-  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>, value?: string) => {
+  const handleAvailabilityChange =
+    (category: string, index: number) => async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const newItems = { ...items };
+      newItems[category][index].available = event.target.checked;
+      try {
+        setLoading(true);
+        const res = await updateItem(token, newItems[category][index]);
+        const items: MenuItem[] = await fetchAllItems(token);
+        const itemsByCategory = items.reduce<Record<string, MenuItem[]>>((acc, item) => {
+          if (!acc[item.category]) {
+            acc[item.category] = [];
+          }
+          acc[item.category].push(item);
+          return acc;
+        }, {});
+        setItems(itemsByCategory);
+        setReload(!reload);
+        setCategories(Object.keys(itemsByCategory));
+        setLoading(false);
+        setAlert(true);
+        setMessage("Availability updated successfully");
+      } catch (error) {
+        console.log("Error updating availability item ", error);
+        setLoading(false);
+        setAlert(true);
+        setMessage("Something Went Wrong!");
+      }
+      // setItems(newItems);
+    };
+
+  const handleEditChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    value?: string
+  ) => {
     const { name, value: targetValue } = e.target as HTMLInputElement;
     const fieldName = name as keyof MenuItem; // Ensure name is a valid key of MenuItem
 
@@ -147,7 +208,11 @@ function Items() {
   };
 
   // Utility function to handle type-safe assignment
-  function castValueToFieldType<T extends keyof MenuItem>(key: T, value: string, altValue?: string): MenuItem[T] {
+  function castValueToFieldType<T extends keyof MenuItem>(
+    key: T,
+    value: string,
+    altValue?: string
+  ): MenuItem[T] {
     if (key === "price" || key === "time_to_prepare") {
       return Number(value) as MenuItem[T]; // Convert to number
     } else if (key === "type" || key === "category") {
@@ -161,6 +226,7 @@ function Items() {
     for (const category in items) {
       const item = items[category].find((item) => item.item_id === itemId);
       if (item) {
+        item.sequence=categories.length+1;
         return item;
       }
     }
@@ -188,66 +254,81 @@ function Items() {
                     </Button> */}
         </div>
         {/* <AccordionGroup disableDivider transition="0.2s ease"> */}
-        {Object.keys(items).map((key, index:number) => (
+        {Object.keys(items).map((key, index: number) => (
           <div key={index} className="my-5 border p-4 rounded-2xl shadow-md">
-            <div>
+            <div className="flex justify-between">
               <div className="text-2xl px-4 text-black font-medium my-3 capitalize"> {key}</div>
+              <div>
+                <IconButton
+                  onClick={() => {
+                    setOriginalCategory({ category: key, sequence: items[key][0].sequence });
+                    setNewCategory({ category: key, sequence: items[key][0].sequence });
+                    setEditCategoryModal(true);
+                  }}
+                >
+                  <Edit className="text-slate-500" fontSize="small" />
+                </IconButton>
+              </div>
             </div>
-            <div className="w-full overflow-scroll " style={{scrollbarWidth:"none"}}>
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="font-bold border-b">
-                  <th className="w-[20%] px-4 py-2 text-left">Item Name</th>
-                  <th className="w-[10%] px-4 py-2 text-left">Price</th>
-                  <th className="w-[10%] px-4 py-2 text-left">Base Price</th>
-                  <th className="w-[10%] px-4 py-2 text-left">Time to Prepare</th>
-                  <th className="w-[10%] px-4 py-2 text-center">Type</th>
-                  <th className="w-[48%] min-w-40 px-4 py-2 text-left">Description</th>
-                  <th className="w-[12%] px-4 py-2 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items[key].map((item, index) => (
-                  <tr key={item.item_id} className="border-b">
-                    <td className="w-[20%] px-4 py-2 font-medium">{item.name}</td>
-                    <td className="w-[10%] px-4 py-2">₹{item.price}</td>
-                    <td className="w-[10%] px-4 py-2">₹{item.base_price}</td>
-                    <td className="w-[10%] px-4 py-2">{item.time_to_prepare} mins</td>
-                    <td className="w-[10%] px-4 py-2 ">
-                      <Image
-                        className="mx-auto"
-                        width={18}
-                        height={18}
-                        alt={item.type}
-                        src={item.type === "veg" ? veg.src : nonveg.src}
-                      />
-                    </td>
-                    <td className="w-[48%] min-w-40 px-4 py-2">{item.description}</td>
-                    <td className="w-[12%] px-4 py-2 ">
-                      <div className="flex justify-around gap-x-3">
-                        <Switch size="sm" checked={item.available} onChange={handleAvailabilityChange(key, index)} />
-                        <IconButton
-                          onClick={() => {
-                            setEdit(true);
-                            setEditId(item.item_id);
-                          }}
-                        >
-                          <Edit className="text-slate-500" fontSize="small" />
-                        </IconButton>
-                        <IconButton
-                          onClick={() => {
-                            setDel(true);
-                            setDelId(item.item_id);
-                          }}
-                        >
-                          <DeleteForever className="text-red-700" fontSize="small" />
-                        </IconButton>
-                      </div>
-                    </td>
+            <div className="w-full overflow-scroll " style={{ scrollbarWidth: "none" }}>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="font-bold border-b">
+                    <th className="w-[20%] px-4 py-2 text-left">Item Name</th>
+                    <th className="w-[10%] px-4 py-2 text-left">Price</th>
+                    <th className="w-[10%] px-4 py-2 text-left">Base Price</th>
+                    <th className="w-[10%] px-4 py-2 text-left">Time to Prepare</th>
+                    <th className="w-[10%] px-4 py-2 text-center">Type</th>
+                    <th className="w-[48%] min-w-40 px-4 py-2 text-left">Description</th>
+                    <th className="w-[12%] px-4 py-2 text-center">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {items[key].map((item, index) => (
+                    <tr key={item.item_id} className="border-b">
+                      <td className="w-[20%] px-4 py-2 font-medium">{item.name}</td>
+                      <td className="w-[10%] px-4 py-2">₹{item.price}</td>
+                      <td className="w-[10%] px-4 py-2">₹{item.base_price}</td>
+                      <td className="w-[10%] px-4 py-2">{item.time_to_prepare} mins</td>
+                      <td className="w-[10%] px-4 py-2 ">
+                        <Image
+                          className="mx-auto"
+                          width={18}
+                          height={18}
+                          alt={item.type}
+                          src={item.type === "veg" ? veg.src : nonveg.src}
+                        />
+                      </td>
+                      <td className="w-[48%] min-w-40 px-4 py-2">{item.description}</td>
+                      <td className="w-[12%] px-4 py-2 ">
+                        <div className="flex justify-around gap-x-3">
+                          <Switch
+                            size="sm"
+                            checked={item.available}
+                            onChange={handleAvailabilityChange(key, index)}
+                          />
+                          <IconButton
+                            onClick={() => {
+                              setEdit(true);
+                              setEditId(item.item_id);
+                            }}
+                          >
+                            <Edit className="text-slate-500" fontSize="small" />
+                          </IconButton>
+                          <IconButton
+                            onClick={() => {
+                              setDel(true);
+                              setDelId(item.item_id);
+                            }}
+                          >
+                            <DeleteForever className="text-red-700" fontSize="small" />
+                          </IconButton>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         ))}
@@ -261,162 +342,15 @@ function Items() {
           </DialogTitle>
           <DialogContent>
             <span className="text-lg">Enter details of the new item.</span>{" "}
-          <form
-            className=""
-            onSubmit={async (event: React.FormEvent<HTMLFormElement>) => {
-              event.preventDefault();
-              // console.log("submit: ", newItem);
-              try {
-                setLoading(true);
-                const res = await putItem(token, newItem);
-                const items: MenuItem[] = await fetchAllItems(token);
-                const itemsByCategory = items.reduce<Record<string, MenuItem[]>>((acc, item) => {
-                  if (!acc[item.category]) {
-                    acc[item.category] = [];
-                  }
-                  acc[item.category].push(item);
-                  return acc;
-                }, {});
-                setItems(itemsByCategory);
-                setCategories(Object.keys(itemsByCategory));
-                setLoading(false);
-                setAlert(true);
-                setAddItem(false);
-                setMessage("Item inserted successfully");
-              } catch (error) {
-                console.log("Error inserting item ", error);
-                setLoading(false);
-                setAlert(true);
-                setMessage("Something Went Wrong!");
-              }
-            }}
-          >
-            <Stack spacing={2}>
-              <div className="gap-3 grid grid-cols-2 max-sm:grid-cols-1 ">
-                <FormControl size="lg">
-                  <FormLabel>Item Name</FormLabel>
-                  <Input
-                    value={newItem.name}
-                    onChange={(e) => {
-                      setNewItem({ ...newItem, name: e.target.value });
-                    }}
-                    placeholder="Paneer Butter Masala"
-                    autoFocus
-                    required
-                  />
-                </FormControl>
-                <FormControl size="lg">
-                  <FormLabel>Item Price</FormLabel>
-                  <Input
-                    value={newItem.price === 0 ? "" : newItem.price}
-                    onChange={(e) => {
-                      setNewItem({ ...newItem, price: Number(e.target.value) });
-                    }}
-                    type="number"
-                    placeholder="250"
-                    autoFocus
-                    required
-                  />
-                </FormControl>
-                <FormControl size="lg">
-                  <FormLabel>Base Price</FormLabel>
-                  <Input
-                    value={newItem.base_price === 0 ? "" : newItem.base_price}
-                    onChange={(e) => {
-                      setNewItem({ ...newItem, base_price: Number(e.target.value) });
-                    }}
-                    type="number"
-                    placeholder="200"
-                    autoFocus
-                    required
-                  />
-                </FormControl>
-                <FormControl size="lg">
-                  <FormLabel>Time to Prepare (in mins)</FormLabel>
-                  <Input
-                    value={newItem.time_to_prepare === 0 ? "" : newItem.time_to_prepare}
-                    onChange={(e) => {
-                      setNewItem({ ...newItem, time_to_prepare: Number(e.target.value) });
-                    }}
-                    type="25"
-                    placeholder="Time To Prepare(in mins)"
-                    autoFocus
-                    required
-                  />
-                </FormControl>
-                <FormControl size="lg">
-                  <FormLabel>Type</FormLabel>
-                  <Select
-                    placeholder="veg"
-                    required
-                    value={newItem.type}
-                    onChange={(event, value) => {
-                      setNewItem({ ...newItem, type: value as string });
-                    }}
-                  >
-                    {types.map((type) => (
-                      <Option key={type} value={type}>
-                        {type}
-                      </Option>
-                    ))}
-                  </Select>
-                </FormControl>
-                <FormControl size="lg">
-                  <FormLabel>Category</FormLabel>
-                  <Autocomplete
-                    freeSolo
-                    placeholder="lunch"
-                    required
-                    onInputChange={(e, value) => {
-                      setNewItem({ ...newItem, category: value });
-                    }}
-                    onChange={(event, value) => {
-                      if (value) {
-                        setNewItem({ ...newItem, category: value });
-                      }
-                    }}
-                    options={categories}
-                  />
-                </FormControl>
-                <div className="sm:col-span-2">
-                  <FormControl size="lg">
-                    <FormLabel>Description</FormLabel>
-                    <Textarea
-                      value={newItem.description}
-                      onChange={(e) => {
-                        setNewItem({ ...newItem, description: e.target.value });
-                      }}
-                      minRows={3}
-                      placeholder="Paneer Butter Masala is a rich, creamy Indian dish featuring tender paneer cubes in a spiced tomato-based gravy, flavored with butter and aromatic spices"
-                      autoFocus
-                      required
-                    />
-                  </FormControl>
-                </div>
-              </div>
-              <Button size="lg" loading={loading} type="submit">
-                Add Item
-              </Button>
-            </Stack>
-          </form>
-          </DialogContent>
-        </ModalDialog>
-      </Modal>
-      <Modal open={edit} onClose={() => setEdit(false)}>
-        <ModalDialog size="lg" sx={{ width: 800, padding: 3 }}>
-          <DialogTitle>
-            <span className="text-2xl">Edit Item</span>
-          </DialogTitle>
-          <DialogContent>
-            <span className="text-lg">Enter details of the item.</span>
-          
-          <form
-            onSubmit={async (event: React.FormEvent<HTMLFormElement>) => {
-              event.preventDefault();
-              try {
-                if (getItem(editId)) {
+            <form
+              className=""
+              onSubmit={async (event: React.FormEvent<HTMLFormElement>) => {
+                event.preventDefault();
+                // console.log("submit: ", newItem);
+                try {
                   setLoading(true);
-                  const res = await updateItem(token, getItem(editId) as MenuItem);
+                  newItem.sequence=categories.length + 1;
+                  const res = await putItem(token, newItem);
                   const items: MenuItem[] = await fetchAllItems(token);
                   const itemsByCategory = items.reduce<Record<string, MenuItem[]>>((acc, item) => {
                     if (!acc[item.category]) {
@@ -427,134 +361,285 @@ function Items() {
                   }, {});
                   setItems(itemsByCategory);
                   setCategories(Object.keys(itemsByCategory));
+                  setReload(!reload);
                   setLoading(false);
                   setAlert(true);
-                  setEdit(false);
-                  setMessage("Item updated successfully");
+                  setAddItem(false);
+                  setMessage("Item inserted successfully");
+                } catch (error) {
+                  console.log("Error inserting item ", error);
+                  setLoading(false);
+                  setAlert(true);
+                  setMessage("Something Went Wrong!");
                 }
-              } catch (error) {
-                console.log("Error updating item ", error);
-                setLoading(false);
-                setAlert(true);
-                setMessage("Something Went Wrong!");
-              }
-            }}
-          >
-            <Stack spacing={2}>
-              <div className="gap-3 grid grid-cols-2 max-sm:grid-cols-1">
-                <FormControl size="lg">
-                  <FormLabel>Item Name</FormLabel>
-                  <Input
-                    name="name"
-                    value={getItem(editId)?.name}
-                    onChange={handleEditChange}
-                    placeholder="Item Name"
-                    autoFocus
-                    required
-                  />
-                </FormControl>
-
-                <FormControl size="lg">
-                  <FormLabel>Item Price</FormLabel>
-                  <Input
-                    name="price"
-                    value={getItem(editId)?.price}
-                    onChange={handleEditChange}
-                    type="number"
-                    placeholder="Price"
-                    required
-                  />
-                </FormControl>
-
-                <FormControl size="lg">
-                  <FormLabel>Base Price</FormLabel>
-                  <Input
-                    name="base_price"
-                    value={getItem(editId)?.base_price}
-                    onChange={handleEditChange}
-                    type="number"
-                    placeholder="Base Price"
-                    required
-                  />
-                </FormControl>
-
-                <FormControl size="lg">
-                  <FormLabel>Time to Prepare (in mins)</FormLabel>
-                  <Input
-                    name="time_to_prepare"
-                    value={getItem(editId)?.time_to_prepare}
-                    onChange={handleEditChange}
-                    type="number"
-                    placeholder="Time To Prepare (in mins)"
-                    required
-                  />
-                </FormControl>
-
-                <FormControl size="lg">
-                  <FormLabel>Type</FormLabel>
-                  <Select
-                    name="type"
-                    placeholder="Type"
-                    value={getItem(editId)?.type || ""}
-                    onChange={(event, value) => {
-                      const name = "type";
-                      setItems((prevItems) => {
-                        const updatedItems = { ...prevItems };
-                        for (const category in updatedItems) {
-                          const itemIndex = updatedItems[category].findIndex((item) => item.item_id === editId);
-                          if (itemIndex !== -1) {
-                            updatedItems[category][itemIndex] = {
-                              ...updatedItems[category][itemIndex],
-                              [name]: value as string,
-                            };
-                          }
-                        }
-                        return updatedItems;
-                      });
-                    }}
-                  >
-                    {types.map((type) => (
-                      <Option key={type} value={type}>
-                        {type}
-                      </Option>
-                    ))}
-                  </Select>
-                </FormControl>
-
-                <FormControl size="lg">
-                  <FormLabel>Category</FormLabel>
-                  <Autocomplete
-                    name="category"
-                    freeSolo
-                    placeholder="Category"
-                    value={getItem(editId)?.category}
-                    onInputChange={(_, value) =>
-                      handleEditChange({ target: { name: "category" } } as React.ChangeEvent<HTMLInputElement>, value)
-                    }
-                    options={categories}
-                  />
-                </FormControl>
-
-                <div className="sm:col-span-2">
+              }}
+            >
+              <Stack spacing={2}>
+                <div className="gap-3 grid grid-cols-2 max-sm:grid-cols-1 ">
                   <FormControl size="lg">
-                    <FormLabel>Description</FormLabel>
-                    <Textarea
-                      name="description"
-                      value={getItem(editId)?.description}
-                      onChange={handleEditChange}
-                      minRows={3}
-                      placeholder="Description"
+                    <FormLabel>Item Name</FormLabel>
+                    <Input
+                      value={newItem.name}
+                      onChange={(e) => {
+                        setNewItem({ ...newItem, name: e.target.value });
+                      }}
+                      placeholder="Paneer Butter Masala"
                       autoFocus
                       required
                     />
                   </FormControl>
+                  <FormControl size="lg">
+                    <FormLabel>Item Price</FormLabel>
+                    <Input
+                      value={newItem.price === 0 ? "" : newItem.price}
+                      onChange={(e) => {
+                        setNewItem({ ...newItem, price: Number(e.target.value) });
+                      }}
+                      type="number"
+                      placeholder="250"
+                      autoFocus
+                      required
+                    />
+                  </FormControl>
+                  <FormControl size="lg">
+                    <FormLabel>Base Price</FormLabel>
+                    <Input
+                      value={newItem.base_price === 0 ? "" : newItem.base_price}
+                      onChange={(e) => {
+                        setNewItem({ ...newItem, base_price: Number(e.target.value) });
+                      }}
+                      type="number"
+                      placeholder="200"
+                      autoFocus
+                      required
+                    />
+                  </FormControl>
+                  <FormControl size="lg">
+                    <FormLabel>Time to Prepare (in mins)</FormLabel>
+                    <Input
+                      value={newItem.time_to_prepare === 0 ? "" : newItem.time_to_prepare}
+                      onChange={(e) => {
+                        setNewItem({ ...newItem, time_to_prepare: Number(e.target.value) });
+                      }}
+                      type="25"
+                      placeholder="Time To Prepare(in mins)"
+                      autoFocus
+                      required
+                    />
+                  </FormControl>
+                  <FormControl size="lg">
+                    <FormLabel>Type</FormLabel>
+                    <Select
+                      placeholder="veg"
+                      required
+                      value={newItem.type}
+                      onChange={(event, value) => {
+                        setNewItem({ ...newItem, type: value as string });
+                      }}
+                    >
+                      {types.map((type) => (
+                        <Option key={type} value={type}>
+                          {type}
+                        </Option>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl size="lg">
+                    <FormLabel>Category</FormLabel>
+                    <Autocomplete
+                      freeSolo
+                      placeholder="lunch"
+                      required
+                      onInputChange={(e, value) => {
+                        setNewItem({ ...newItem, category: value });
+                      }}
+                      onChange={(event, value) => {
+                        if (value) {
+                          setNewItem({ ...newItem, category: value });
+                        }
+                      }}
+                      options={categories}
+                    />
+                  </FormControl>
+                  <div className="sm:col-span-2">
+                    <FormControl size="lg">
+                      <FormLabel>Description</FormLabel>
+                      <Textarea
+                        value={newItem.description}
+                        onChange={(e) => {
+                          setNewItem({ ...newItem, description: e.target.value });
+                        }}
+                        minRows={3}
+                        placeholder="Paneer Butter Masala is a rich, creamy Indian dish featuring tender paneer cubes in a spiced tomato-based gravy, flavored with butter and aromatic spices"
+                        autoFocus
+                        required
+                      />
+                    </FormControl>
+                  </div>
                 </div>
-              </div>
-              <Button size="lg" loading={loading} type="submit">
-                Edit Item
-              </Button>
-            </Stack>
-          </form>
+                <Button size="lg" loading={loading} type="submit">
+                  Add Item
+                </Button>
+              </Stack>
+            </form>
+          </DialogContent>
+        </ModalDialog>
+      </Modal>
+      <Modal open={edit} onClose={() => setEdit(false)}>
+        <ModalDialog size="lg" sx={{ width: 800, padding: 3 }}>
+          <DialogTitle>
+            <span className="text-2xl">Edit Item</span>
+          </DialogTitle>
+          <DialogContent>
+            <span className="text-lg">Enter details of the item.</span>
+            <form
+              onSubmit={async (event: React.FormEvent<HTMLFormElement>) => {
+                event.preventDefault();
+                try {
+                  if (getItem(editId)) {
+                    setLoading(true);
+                    const res = await updateItem(token, getItem(editId) as MenuItem);
+                    const items: MenuItem[] = await fetchAllItems(token);
+                    const itemsByCategory = items.reduce<Record<string, MenuItem[]>>(
+                      (acc, item) => {
+                        if (!acc[item.category]) {
+                          acc[item.category] = [];
+                        }
+                        acc[item.category].push(item);
+                        return acc;
+                      },
+                      {}
+                    );
+                    setItems(itemsByCategory);
+                    setCategories(Object.keys(itemsByCategory));
+                    setLoading(false);
+                    setReload(!reload)
+                    setAlert(true);
+                    setEdit(false);
+                    setMessage("Item updated successfully");
+                  }
+                } catch (error) {
+                  console.log("Error updating item ", error);
+                  setLoading(false);
+                  setAlert(true);
+                  setMessage("Something Went Wrong!");
+                }
+              }}
+            >
+              <Stack spacing={2}>
+                <div className="gap-3 grid grid-cols-2 max-sm:grid-cols-1">
+                  <FormControl size="lg">
+                    <FormLabel>Item Name</FormLabel>
+                    <Input
+                      name="name"
+                      value={getItem(editId)?.name}
+                      onChange={handleEditChange}
+                      placeholder="Item Name"
+                      autoFocus
+                      required
+                    />
+                  </FormControl>
+                  <FormControl size="lg">
+                    <FormLabel>Item Price</FormLabel>
+                    <Input
+                      name="price"
+                      value={getItem(editId)?.price}
+                      onChange={handleEditChange}
+                      type="number"
+                      placeholder="Price"
+                      required
+                    />
+                  </FormControl>
+                  <FormControl size="lg">
+                    <FormLabel>Base Price</FormLabel>
+                    <Input
+                      name="base_price"
+                      value={getItem(editId)?.base_price}
+                      onChange={handleEditChange}
+                      type="number"
+                      placeholder="Base Price"
+                      required
+                    />
+                  </FormControl>
+                  <FormControl size="lg">
+                    <FormLabel>Time to Prepare (in mins)</FormLabel>
+                    <Input
+                      name="time_to_prepare"
+                      value={getItem(editId)?.time_to_prepare}
+                      onChange={handleEditChange}
+                      type="number"
+                      placeholder="Time To Prepare (in mins)"
+                      required
+                    />
+                  </FormControl>
+                  <FormControl size="lg">
+                    <FormLabel>Type</FormLabel>
+                    <Select
+                      name="type"
+                      placeholder="Type"
+                      value={getItem(editId)?.type || ""}
+                      onChange={(event, value) => {
+                        const name = "type";
+                        setItems((prevItems) => {
+                          const updatedItems = { ...prevItems };
+                          for (const category in updatedItems) {
+                            const itemIndex = updatedItems[category].findIndex(
+                              (item) => item.item_id === editId
+                            );
+                            if (itemIndex !== -1) {
+                              updatedItems[category][itemIndex] = {
+                                ...updatedItems[category][itemIndex],
+                                [name]: value as string,
+                              };
+                            }
+                          }
+                          return updatedItems;
+                        });
+                      }}
+                    >
+                      {types.map((type) => (
+                        <Option key={type} value={type}>
+                          {type}
+                        </Option>
+                      ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl size="lg">
+                    <FormLabel>Category</FormLabel>
+                    <Autocomplete
+                      name="category"
+                      freeSolo
+                      placeholder="Category"
+                      value={getItem(editId)?.category}
+                      onInputChange={(_, value) =>
+                        handleEditChange(
+                          { target: { name: "category" } } as React.ChangeEvent<HTMLInputElement>,
+                          value
+                        )
+                      }
+                      options={categories}
+                    />
+                  </FormControl>
+                  <div className="sm:col-span-2">
+                    <FormControl size="lg">
+                      <FormLabel>Description</FormLabel>
+                      <Textarea
+                        name="description"
+                        value={getItem(editId)?.description}
+                        onChange={handleEditChange}
+                        minRows={3}
+                        placeholder="Description"
+                        autoFocus
+                        required
+                      />
+                    </FormControl>
+                  </div>
+                </div>
+                <Button size="lg" loading={loading} type="submit">
+                  Edit Item
+                </Button>
+              </Stack>
+            </form>
           </DialogContent>
         </ModalDialog>
       </Modal>
@@ -609,6 +694,7 @@ function Items() {
                   setItems(itemsByCategory);
                   setCategories(Object.keys(itemsByCategory));
                   setAlert(true);
+                  setReload(!reload);
                   setMessage("Item deleted successfully");
                   setLoading(false);
                   setDel(false);
@@ -626,6 +712,106 @@ function Items() {
               Cancel
             </Button>
           </DialogActions>
+        </ModalDialog>
+      </Modal>
+
+      <Modal
+        open={editCategoryModal}
+        onClose={() => {
+          setEditCategoryModal(false);
+          setOriginalCategory({ category: "", sequence: 0 });
+          setNewCategory({ category: "", sequence: 0 });
+        }}
+      >
+        <ModalDialog size="lg" sx={{ width: 800, padding: 3 }}>
+          <DialogTitle>
+            <span className="text-2xl">Edit Category</span>
+          </DialogTitle>
+          <DialogContent>
+            <span className="text-lg">Enter details of the category</span>
+
+            <form
+              onSubmit={async (event: React.FormEvent<HTMLFormElement>) => {
+                event.preventDefault();
+                try {
+                  setLoading(true);
+                  const reorderedCategories = updateCategorySequences(originalCategory.category, newCategory.sequence);
+                  // Use the reordered categories directly in the API call
+                  const res = await updateCategory(token, originalCategory.category, newCategory.category, reorderedCategories);
+                  setOriginalCategory({ category: "", sequence: 0 });
+                  setNewCategory({ category: "", sequence: 0 });
+                  setEditCategoryModal(false);
+                  setReload(!reload);
+                  setLoading(false);
+                  setAlert(true);
+                  setEdit(false);
+                  setMessage("Category updated successfully");
+                } catch (error) {
+                  console.log("Error updating item ", error);
+                  setLoading(false);
+                  setAlert(true);
+                  setMessage("Something Went Wrong!");
+                }
+              }}
+            >
+              <div className="gap-3 grid grid-cols-2 max-sm:grid-cols-1">
+                <FormControl size="lg">
+                  <FormLabel>Category Name</FormLabel>
+                  <Input
+                    name="categoryChange"
+                    value={newCategory.category}
+                    onChange={(e) => {
+                      setNewCategory({ ...newCategory, category: e.target.value });
+                    }}
+                    placeholder="Category Name"
+                    autoFocus
+                    required
+                  />
+                </FormControl>
+
+                <FormControl size="lg">
+                  <FormLabel>Sequence Number</FormLabel>
+                  <Input
+                    name="sequence"
+                    value={newCategory.sequence}
+                    onChange={(e) => {
+                      if(parseInt(e.target.value)>categories.length){
+                        setNewCategory({ ...newCategory, sequence: categories.length});
+                      }
+                      else{
+                        setNewCategory({ ...newCategory, sequence: parseInt(e.target.value) });
+                      }
+                    }}
+                    type="number"
+                    placeholder="Sequence"
+                    required
+                  />
+                </FormControl>
+              </div>
+              <div className="flex justify-end">
+                <Button
+                  size="lg"
+                  className="mt-5 mr-3 bg-red-600 hover:bg-red-700"
+                  onClick={() => {
+                    setEditCategoryModal(false);
+                    setOriginalCategory({ category: "", sequence: 0 });
+                    setNewCategory({ category: "", sequence: 0 });
+                  }}
+                  type="button"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="lg"
+                  className="mt-5 bg-green-600 hover:bg-green-700"
+                  loading={loading}
+                  type="submit"
+                >
+                  Edit Category
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
         </ModalDialog>
       </Modal>
     </div>

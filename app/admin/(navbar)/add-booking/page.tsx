@@ -387,7 +387,6 @@ function NewBooking(): JSX.Element {
             <FormLabel className="text-[#0D141C] font-medium">Remarks</FormLabel>
             <Input value={formData.remarks} name="remarks" onChange={handleChange} fullWidth size="lg" placeholder="Remarks" />
           </FormControl>
-
           <FormControl size="lg" className="space-y-1">
             <FormLabel>Additional Information</FormLabel>
             <Input
