@@ -1,19 +1,33 @@
 import React, { ReactEventHandler, SetStateAction, useEffect, useRef, useState } from "react";
 import SearchInput from "@/app/components/Search";
 import { searchIconSecondary } from "@/assets/icons";
-import { DataGrid, GridColDef, GridRowSelectionModel, GridColumnHeaderParams, GridPaginationModel, useGridApiRef } from "@mui/x-data-grid";
+import {
+  DataGrid,
+  GridColDef,
+  GridRowSelectionModel,
+  GridColumnHeaderParams,
+  GridPaginationModel,
+  useGridApiRef,
+} from "@mui/x-data-grid";
 import { Box, Typography, IconButton, DialogContent, DialogActions } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit"; // Import the EditIcon
-import { Button, Chip, DialogTitle, Divider, Modal, ModalClose, ModalDialog, Snackbar, Input, FormControl, FormLabel } from "@mui/joy";
-import EditBooking from "./EditBooking";
-import { Close, DeleteForever, Download, FileDownload, Info, OpenInNew, ReceiptLong } from "@mui/icons-material";
-import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import {
-  deleteBooking,
-  fetchMealsByBookingId,
-  fetchMovementByBookingId,
-  fetchOccupancyByBookingId,
-} from "@/app/actions/api";
+  Button,
+  Chip,
+  DialogTitle,
+  Divider,
+  Modal,
+  ModalClose,
+  ModalDialog,
+  Snackbar,
+  Input,
+  FormControl,
+  FormLabel,
+} from "@mui/joy";
+import EditBooking from "./EditBooking";
+import { AssignmentInd, Close, DeleteForever, Download, FileDownload, Info, OpenInNew, ReceiptLong } from "@mui/icons-material";
+import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
+import { deleteBooking, fetchMealsByBookingId, fetchMovementByBookingId, fetchOccupancyByBookingId } from "@/app/actions/api";
 import { useRouter } from "next/navigation";
 import { getAuthAdmin } from "@/app/actions/cookie";
 import CheckInForm from "@/app/admin/(navbar)/manage-rooms/[room]/CheckInForm";
@@ -205,36 +219,23 @@ const Reservations: React.FC<ReservationsProps> = ({
     saveAs(blob, fileName);
   };
 
-  const BoldHeaderCell = (props: any) => (
-    <div style={{ fontWeight: "bold" }}>{props.colDef.headerName}</div>
-  );
+  const BoldHeaderCell = (props: any) => <div style={{ fontWeight: "bold" }}>{props.colDef.headerName}</div>;
   let gridColumns: GridColDef[];
   const statusOrder = ["active", "upcoming", "expired"];
 
-    const customSortComparator = (v1: string, v2: string) => {
-      return statusOrder.indexOf(v1.toLowerCase()) - statusOrder.indexOf(v2.toLowerCase());
-    };
+  const customSortComparator = (v1: string, v2: string) => {
+    return statusOrder.indexOf(v1.toLowerCase()) - statusOrder.indexOf(v2.toLowerCase());
+  };
   if (location === "movement") {
-
     gridColumns = [
       ...columns.map((columnName, index) => ({
         field: columnName,
         headerName: headers[index],
         hide: columnName === "email",
         // width: 100,
-        flex:
-          index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
-            ? 0
-            : undefined,
-        width:
-          index === 11 ||
-          index === 12 ||
-          index === 13 ||
-          columnName === "room" ||
-          columnName === "status"
-            ? 100
-            : 160,
-            sortable: columnName === "status" ? true : undefined,
+        flex: index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 0 : undefined,
+        width: index === 11 || index === 12 || index === 13 || columnName === "room" || columnName === "status" ? 100 : 160,
+        sortable: columnName === "status" ? true : undefined,
         sortComparator: columnName === "status" ? customSortComparator : undefined,
         renderHeader: (params: GridColumnHeaderParams) => (
           <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
@@ -247,11 +248,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                   size="sm"
                   variant="outlined"
                   color={
-                    params.row[columnName] === "Expired"
-                      ? "danger"
-                      : params.row[columnName] === "Active"
-                      ? "success"
-                      : "warning"
+                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
                   }
                 >
                   {params.row[columnName]}
@@ -271,10 +268,7 @@ const Reservations: React.FC<ReservationsProps> = ({
         headerName: headers[index],
         hide: columnName === "email",
         // width: 100,
-        flex:
-          index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
-            ? 0
-            : undefined,
+        flex: index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 0 : undefined,
         width:
           index === 11 ||
           index === 12 ||
@@ -286,7 +280,7 @@ const Reservations: React.FC<ReservationsProps> = ({
           columnName === "car_name"
             ? 100
             : 160,
-            sortable: columnName === "status" ? true : undefined,
+        sortable: columnName === "status" ? true : undefined,
         sortComparator: columnName === "status" ? customSortComparator : undefined,
         renderHeader: (params: GridColumnHeaderParams) => (
           <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
@@ -299,11 +293,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                   size="sm"
                   variant="outlined"
                   color={
-                    params.row[columnName] === "Expired"
-                      ? "danger"
-                      : params.row[columnName] === "Active"
-                      ? "success"
-                      : "warning"
+                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
                   }
                 >
                   {params.row[columnName]}
@@ -324,7 +314,9 @@ const Reservations: React.FC<ReservationsProps> = ({
         hide: columnName === "email",
         width: columnName === "time" ? 150 : 300,
 
-        renderHeader: (params: GridColumnHeaderParams) => <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>,
+        renderHeader: (params: GridColumnHeaderParams) => (
+          <span className="text-[#0D141C] font-semibold pl-3">{headers[index]}</span>
+        ),
         renderCell: (params: any) => {
           return (
             <div>
@@ -333,11 +325,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                   size="sm"
                   variant="outlined"
                   color={
-                    params.row[columnName] === "Expired"
-                      ? "danger"
-                      : params.row[columnName] === "Active"
-                      ? "success"
-                      : "warning"
+                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
                   }
                 >
                   {params.row[columnName]}
@@ -356,10 +344,7 @@ const Reservations: React.FC<ReservationsProps> = ({
         field: columnName,
         headerName: headers[index],
         hide: index === 7,
-        flex:
-          index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status"
-            ? 0
-            : undefined,
+        flex: index === 0 || index === 11 || index === 12 || index === 13 || columnName === "status" ? 0 : undefined,
         width:
           index === 11 ||
           index === 12 ||
@@ -380,11 +365,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                   size="sm"
                   variant="outlined"
                   color={
-                    params.row[columnName] === "Expired"
-                      ? "danger"
-                      : params.row[columnName] === "Active"
-                      ? "success"
-                      : "warning"
+                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
                   }
                 >
                   {params.row[columnName]}
@@ -404,10 +385,7 @@ const Reservations: React.FC<ReservationsProps> = ({
         headerAlign: "center",
         width: 180,
         renderHeader: (params: GridColumnHeaderParams) => (
-          <span
-            className="text-[#0D141C] font-semibold pl-3 text-center"
-            style={{ display: "block", width: "100%" }}
-          >
+          <span className="text-[#0D141C] font-semibold pl-3 text-center" style={{ display: "block", width: "100%" }}>
             Actions
           </span>
         ),
@@ -519,7 +497,9 @@ const Reservations: React.FC<ReservationsProps> = ({
                 <Chip
                   size="sm"
                   variant="outlined"
-                  color={params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"}
+                  color={
+                    params.row[columnName] === "Expired" ? "danger" : params.row[columnName] === "Active" ? "success" : "warning"
+                  }
                 >
                   {params.row[columnName]}
                 </Chip>
@@ -548,7 +528,6 @@ const Reservations: React.FC<ReservationsProps> = ({
               <IconButton
                 className="w-[40px]"
                 onClick={async () => {
-                  console.log("Download this order receipt please");
                   setPreviewReceiptOrderData(params.row.orders);
                   setPreviewReceiptOrder(true);
                 }}
@@ -556,13 +535,49 @@ const Reservations: React.FC<ReservationsProps> = ({
                 <ReceiptLong className="scale-75" />
               </IconButton>
             )}
+            {params.row.document_url && (
+              <IconButton
+  className="w-[40px]"
+  onClick={async () => {
+    const url = params.row.document_url;
+    if (url) {
+      try {
+        // Fetch the file as a blob
+        const response = await fetch(url);
+        const blob = await response.blob();
+        
+        // Create a link and set it to download the blob
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'document'; // Set a filename here if you want a specific name, e.g., 'document.pdf'
+        link.style.display = 'none';
+        
+        // Append the link, trigger click, and then remove it
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Revoke the blob URL after download
+        URL.revokeObjectURL(link.href);
+      } catch (error) {
+        console.error("Failed to download document:", error);
+      }
+    } else {
+      console.log("No document URL found");
+    }
+  }}
+>
+  <AssignmentInd className="scale-75" />
+</IconButton>
+
+            )}
             <IconButton
               className="w-[40px]"
               onClick={async () => {
                 const meals = await fetchMeals(params.row.booking_id);
                 const movements = await fetchMovement(params.row.booking_id);
                 const occupancy = await fetchOccupancy(params.row.booking_id);
-    
+
                 console.log(movements);
                 if (meals && movements && occupancy) {
                   console.log("meals ", meals);
@@ -586,7 +601,7 @@ const Reservations: React.FC<ReservationsProps> = ({
                 const meals = await fetchMeals(params.row.booking_id);
                 const movements = await fetchMovement(params.row.booking_id);
                 const occupancy = await fetchOccupancy(params.row.booking_id);
-    
+
                 console.log(movements);
                 if (meals && movements && occupancy) {
                   console.log("meals ", meals);
@@ -668,7 +683,12 @@ const Reservations: React.FC<ReservationsProps> = ({
             </Typography>
           )}
         </div>
-        <SearchInput value={search} onChange={handleSearchInput} icon={searchIconSecondary} placeholder="Search by guest name, email, company..." />
+        <SearchInput
+          value={search}
+          onChange={handleSearchInput}
+          icon={searchIconSecondary}
+          placeholder="Search by guest name, email, company..."
+        />
         <br />
 
         {location === "movement" ? (
@@ -763,7 +783,6 @@ const Reservations: React.FC<ReservationsProps> = ({
                       paginationModel={paginationModel}
                       onPaginationModelChange={setPaginationModel}
                       initialState={{
-                        
                         columns: {
                           columnVisibilityModel: {
                             email: false,
@@ -839,14 +858,7 @@ const Reservations: React.FC<ReservationsProps> = ({
             <span className="text-2xl">Edit Booking</span>
           </DialogTitle>
           <DialogContent className="">
-            {editId && (
-              <EditBooking
-                setReload={setReload}
-                reload={reload}
-                setOpenModal={setEdit}
-                initialData={editId}
-              />
-            )}
+            {editId && <EditBooking setReload={setReload} reload={reload} setOpenModal={setEdit} initialData={editId} />}
           </DialogContent>
         </ModalDialog>
       </Modal>
@@ -865,7 +877,15 @@ const Reservations: React.FC<ReservationsProps> = ({
           <Divider />
           <div className="">Enter your secret password to delete</div>
           <FormControl size="lg" className="space-y-1">
-            <Input type="password" value={password} name="password" onChange={changePassword} fullWidth size="md" placeholder="Password" />
+            <Input
+              type="password"
+              value={password}
+              name="password"
+              onChange={changePassword}
+              fullWidth
+              size="md"
+              placeholder="Password"
+            />
           </FormControl>
           <div className="flex space-x-2 justify-end w-full">
             <Button
@@ -931,7 +951,7 @@ const Reservations: React.FC<ReservationsProps> = ({
               >
                 {({ loading }) => (
                   <Button className="my-4" loading={loading} variant="solid" startDecorator={<Download fontSize="small" />}>
-                   Download PDF
+                    Download PDF
                   </Button>
                 )}
               </PDFDownloadLink>
