@@ -48,10 +48,10 @@ export default function AddCouponBasicDetails({
     }));
   };
 
-  const handleIsActiveChange = (event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null, value: boolean|null) => {
+  const handleIsActiveChange = (event: React.MouseEvent | React.KeyboardEvent | React.FocusEvent | null, value: string|null) => {
     setFormData((prev) => ({
       ...prev,
-      is_active: value||true,
+      is_active: value==="true",
     }));
   };
 
@@ -93,7 +93,7 @@ export default function AddCouponBasicDetails({
       </FormControl>
       <FormControl>
         <FormLabel>Coupon Active?</FormLabel>
-        <Select required name="is_active" value={formData.is_active} placeholder="" onChange={handleIsActiveChange}>
+        <Select required name="is_active" defaultValue="true" value={formData.is_active ? "true": "false"} placeholder="" onChange={handleIsActiveChange}>
           <Option value="true">Yes</Option>
           <Option value="false">No</Option>
         </Select>

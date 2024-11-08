@@ -1560,10 +1560,10 @@ export async function addCoupon(
     description: string;
     coupon_type: string;
     coupon_type_description: string;
-    percentage_discount: number | string;
-    discount_value: number | string;
-    max_discount: number | string;
-    min_order_value: number | string;
+    percentage_discount: number | null;
+    discount_value: number | null;
+    max_discount: number | null;
+    min_order_value: number | null;
     start_date: string;
     end_date: string;
     usage_limit: number | null;
@@ -1586,6 +1586,7 @@ export async function addCoupon(
     is_active: boolean;}
 ) {
   try {
+    console.log("abc: ", formData.applicable_categories)
     const secret = await loadConfig();
     const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/addCoupon`, {
       method: "POST",
@@ -1624,7 +1625,7 @@ export async function deleteCoupon(
         token: token,
       },
       body: JSON.stringify({
-        couponId:couponId
+        coupon_id:couponId
       }),
       cache: "no-cache",
     });
@@ -1646,10 +1647,10 @@ export async function modifyCoupon(
     description: string;
     coupon_type: string;
     coupon_type_description: string;
-    percentage_discount: number | string;
-    discount_value: number | string;
-    max_discount: number | string;
-    min_order_value: number | string;
+    percentage_discount: number | null;
+    discount_value: number | null;
+    max_discount: number | null;
+    min_order_value: number | null;
     start_date: string;
     end_date: string;
     usage_limit: number | null;

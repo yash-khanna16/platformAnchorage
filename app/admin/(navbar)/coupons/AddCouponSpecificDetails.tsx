@@ -324,7 +324,7 @@ export default function AddCouponSpecificDetails({
           <Input
             name="min_order_value"
             value={formData.min_order_value}
-            placeholder="Enter amount or leave blank for no min order value"
+            placeholder="Enter amount "
             onChange={handleChange}
           />
         </FormControl>

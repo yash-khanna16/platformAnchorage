@@ -5,15 +5,7 @@ import { Chip, Modal, ModalDialog } from "@mui/joy";
 import { Coupon } from "./page";
 import { Dispatch, SetStateAction, use, useEffect, useState } from "react";
 import ModifyCoupon from "./ModifyCoupon";
-import {
-  Button,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Divider,
-  FormControl,
-  FormLabel,
-} from "@mui/joy";
+import { Button, DialogActions, DialogContent, DialogTitle, Divider, FormControl, FormLabel } from "@mui/joy";
 import { deleteCoupon } from "@/app/actions/api";
 
 function Card({
@@ -49,8 +41,6 @@ function Card({
       text: "#0284c7",
     },
   };
-  
-  
 
   useEffect(() => {
     console.log("first: ", openModifyModal);
@@ -63,6 +53,8 @@ function Card({
     setReload(!reload);
     setOpenDeleteModal(false);
   };
+
+  console.log("coupon: ", coupon);
 
   return (
     <div
@@ -89,10 +81,7 @@ function Card({
           <div>Expiry date</div> <div> {!coupon.end_date ? "No expiry" : coupon.end_date} </div>
         </div>
         <div className="flex justify-between">
-          <div
-            style={{ color: colors[coupon.coupon_type].text }}
-            className={` font-semibold text-2xl `}
-          >
+          <div style={{ color: colors[coupon.coupon_type].text }} className={` font-semibold text-2xl `}>
             {coupon.code}
           </div>
           <Chip
@@ -108,17 +97,18 @@ function Card({
         <div className="my-1 text-slate-700 font-medium">{coupon.coupon_type_description}</div>
         <div className="text-sm text-slate-600 italic my-2 w-3/4">{coupon.description}</div>
         <div className="flex flex-wrap my-3 gap-2">
-          {coupon.min_order_value && (
-            <Chip size="sm">Min Order Value: ₹{coupon.min_order_value}</Chip>
-          )}
+          {coupon.min_order_value && <Chip size="sm">Min Order Value: ₹{coupon.min_order_value}</Chip>}
+
           {coupon.max_discount && <Chip size="sm">Max Discount: ₹{coupon.max_discount}</Chip>}
-          {coupon.percentage_discount && <Chip size="sm">{coupon.percentage_discount}% OFF </Chip>}
-          {coupon.free_items.map((freeItem) => (
-            <Chip key={freeItem.item_id} size="sm">
-              {" "}
-              {freeItem.name} x{freeItem.qty}{" "}
-            </Chip>
-          ))}
+          {coupon.percentage_discount && coupon.percentage_discount !== 0 ? (
+            <Chip size="sm">{coupon.percentage_discount}% OFF</Chip>
+          ) : null}
+          {coupon.free_items.length > 0 &&
+            coupon.free_items.map((freeItem) => (
+              <Chip key={freeItem.item_id} size="sm">
+                {freeItem.name} x{freeItem.qty}
+              </Chip>
+            ))}
         </div>
       </div>
       <Modal
@@ -128,12 +118,7 @@ function Card({
           setOpenModifyModal(false);
         }}
       >
-        <ModifyCoupon
-          coupon={coupon}
-          reload={reload}
-          setReload={setReload}
-          setOpenModifyModal={setOpenModifyModal}
-        />
+        <ModifyCoupon coupon={coupon} reload={reload} setReload={setReload} setOpenModifyModal={setOpenModifyModal} />
       </Modal>
       <Modal
         open={openDeleteModal}

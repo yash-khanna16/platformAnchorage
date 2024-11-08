@@ -4,7 +4,7 @@ import { DialogActions } from "@mui/joy";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import AddCouponBasicDetails from "./AddCouponBasicDetails";
 import AddCouponSpecificDetails from "./AddCouponSpecificDetails";
-import { addCoupon } from "@/app/actions/api";
+import { addCoupon, fetchAllItems } from "@/app/actions/api";
 
 export type MenuItem = {
   available: boolean;
@@ -53,8 +53,9 @@ type AddCouponProps = {
 };
 
 export default function AddCoupon({ token, setAddCoupon, reload, setReload }: AddCouponProps) {
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState<number>(0);
   const [loading, setLoading] = useState(false);
+  const [categoryMap, setCategoryMap] = useState<Map<string, string>>(new Map());
   const steps = 2;
 
   const [formData, setFormData] = useState<CouponForm>({
@@ -79,27 +80,47 @@ export default function AddCoupon({ token, setAddCoupon, reload, setReload }: Ad
   });
 
   const handleCouponSubmit = async () => {
-    let couponData: CouponForm = formData;
+    let couponData = formData as any;
+
+    couponData.applicable_categories = couponData.applicable_categories
+      .map((categoryName: string) => {
+        const categoryId = categoryMap.get(categoryName);
+        return categoryId;
+      })
+      .filter((categoryId: string | undefined) => categoryId !== undefined);
+
     couponData.max_discount =
-      formData.max_discount === "" ? 0 : parseInt(formData.max_discount.toString());
+      formData.max_discount === "" || !formData.max_discount ? null : parseInt(formData.max_discount.toString());
     couponData.min_order_value =
-      formData.min_order_value === "" ? 0 : parseInt(formData.min_order_value.toString());
+      formData.min_order_value === "" || !formData.min_order_value ? null : parseInt(formData.min_order_value.toString());
     couponData.percentage_discount =
-      formData.percentage_discount === "" ? 0 : parseInt(formData.percentage_discount.toString());
-    couponData.usage_limit =
-      formData.usage_limit === null ? 0 : parseInt(formData.percentage_discount.toString());
-    couponData.user_usage_limit =
-      formData.user_usage_limit === null ? 0 : parseInt(formData.percentage_discount.toString());
+      formData.percentage_discount === "" || !formData.percentage_discount
+        ? null
+        : parseInt(formData.percentage_discount.toString());
+    couponData.usage_limit = formData.usage_limit === null ? null : parseInt(formData.usage_limit.toString());
+    couponData.user_usage_limit = formData.user_usage_limit === null ? null : parseInt(formData.user_usage_limit.toString());
     couponData.discount_value =
-      formData.discount_value === "" ? 0 : parseInt(formData.discount_value.toString());
+      formData.discount_value === "" || !formData.discount_value ? null : parseInt(formData.discount_value.toString());
     console.log(couponData);
     setLoading(true);
     const result = await addCoupon(token, couponData);
+    console.log(result);
     setLoading(false);
     setReload(!reload);
     setAddCoupon(false);
-    console.log(result);
   };
+
+  useEffect(() => {
+    if (token !== "") {
+      fetchAllItems(token).then((items: any[]) => {
+        const map = items.reduce((acc, item) => {
+          acc.set(item.category, item.category_id);
+          return acc;
+        }, new Map<string, string>());
+        setCategoryMap(map);
+      });
+    }
+  }, [token]);
 
   useEffect(() => {
     if (formData.coupon_type === "free_item") {
@@ -127,12 +148,24 @@ export default function AddCoupon({ token, setAddCoupon, reload, setReload }: Ad
 
   const validateStep0 = () => {
     const { code, description, coupon_type, coupon_type_description } = formData;
-    return (
-      code.trim() !== "" &&
-      description.trim() !== "" &&
-      coupon_type.trim() !== "" &&
-      coupon_type_description.trim() !== ""
-    );
+    return code.trim() !== "" && description.trim() !== "" && coupon_type.trim() !== "" && coupon_type_description.trim() !== "";
+  };
+
+  const validateStep1 = () => {
+    const { start_date,end_date, min_order_value,percentage_discount,free_items,discount_value,max_discount,coupon_type } = formData;
+
+    if (start_date === "" && end_date === "" && min_order_value === "" ) {
+      return false;
+    }
+    if (coupon_type === 'free_item') {
+      return free_items.length > 0;
+    }
+    if (coupon_type === 'flat_discount') {
+      return discount_value !== "";
+    }
+    if (coupon_type === 'percentage_discount') {
+      return percentage_discount !== "" && max_discount !== "";
+    }
   };
 
   const handleNext = () => {
@@ -164,10 +197,15 @@ export default function AddCoupon({ token, setAddCoupon, reload, setReload }: Ad
         {step === 1 && <AddCouponSpecificDetails formData={formData} setFormData={setFormData} />}
       </form>
       <DialogActions>
-        <Button loading={loading} onClick={handleNext} type="submit" disabled={!validateStep0()}>
-          {" "}
-          {step === steps - 1 ? "Finish" : "Next"}{" "}
+        <Button
+          loading={loading}
+          onClick={handleNext}
+          type="submit"
+          disabled={(step === 0 && !validateStep0()) || (step === 1 && !validateStep1())}
+        >
+          {step === steps - 1 ? "Finish" : "Next"}
         </Button>
+
         <Button
           variant="outlined"
           onClick={() => {
