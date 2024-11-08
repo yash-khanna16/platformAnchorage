@@ -44,6 +44,7 @@ type ReservationType = {
   remarks: string;
   room: string;
   vessel: string;
+  document_url: string;
   status?: string; // Add this line
 };
 
@@ -228,6 +229,9 @@ type OrderDataType = {
       {/* <Button variant="contained" color="primary" onClick={exportToCsv}>Export as CSV</Button> */}
       {/* <PDFViewer width="100%" height={1000}>
         <OrderFormPDF orderData={orderData} />
+      </PDFViewer> */}
+       {/* <PDFViewer width="100%" height={1000}>
+        <CheckInFormPDF data={filteredRows[0]} />
       </PDFViewer> */}
       <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
         Search Reservations

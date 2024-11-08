@@ -167,12 +167,12 @@ function NewBooking({ reload, setReload }: { reload: boolean; setReload: React.D
       }
     }
 
-    if (formData.phoneNumber.length ) {
-      if (!isValidPhoneNumber(formData.phoneNumber)) {
-        newErrors.phoneNumber = "Invalid Phone Number";
-      }
-      // newErrors.phoneNumber = "Phone number must be of 10 digits";
-    }
+    // if (formData.phoneNumber.length ) {
+    //   if (!isValidPhoneNumber(formData.phoneNumber)) {
+    //     newErrors.phoneNumber = "Invalid Phone Number";
+    //   }
+    //   // newErrors.phoneNumber = "Phone number must be of 10 digits";
+    // }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);

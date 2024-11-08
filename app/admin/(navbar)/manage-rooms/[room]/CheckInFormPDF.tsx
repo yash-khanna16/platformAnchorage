@@ -10,6 +10,7 @@ import { saveAs } from "file-saver";
 import { pdf } from "@react-pdf/renderer";
 import { domainToASCII } from "url";
 import star from "@/app/assets/star-solid.png";
+import { DATA_GRID_DEFAULT_SLOTS_COMPONENTS } from "@mui/x-data-grid/internals";
 
 const dummyData: any[] = [];
 const transportData: any[] = [];
@@ -160,7 +161,9 @@ const MyDocument = ({ data }: { data: any }) => {
               <View style={styles.bottomSection}>
                 <View style={styles.row}>
                   <View style={styles.rowItemLeft}>
-                    <Text>Guest Name: {data.rank} {data.name}</Text>
+                    <Text>
+                      Guest Name: {data.rank} {data.name}
+                    </Text>
                   </View>
                   <View style={styles.rowItemRight}>
                     <Text>Vessel: {data.vessel}</Text>
@@ -463,13 +466,13 @@ const MyDocument = ({ data }: { data: any }) => {
                   <Text>GUEST INFORMATION</Text>
                 </View>
                 <View style={{ display: "flex", flexDirection: "row", width: 239 }}>
-                  <View style={{ padding: 5,  borderTop: 1,borderRight: 1,  width:'100%' }}>
+                  <View style={{ padding: 5, borderTop: 1, borderRight: 1, width: "100%" }}>
                     <Text>NAME</Text>
                   </View>
-                  <View style={{ padding: 5,  borderTop: 1, borderRight: 1, width:'100%' }}>
+                  <View style={{ padding: 5, borderTop: 1, borderRight: 1, width: "100%" }}>
                     <Text>RANK</Text>
                   </View>
-                  <View style={{ padding: 5,  borderTop: 1,width:'100%' }}>
+                  <View style={{ padding: 5, borderTop: 1, width: "100%" }}>
                     <Text>COMPANY</Text>
                   </View>
                 </View>
@@ -517,13 +520,13 @@ const MyDocument = ({ data }: { data: any }) => {
                 <View style={{ width: "49%" }}>
                   {occupancy.bookings.map((booking: any, index: number) => (
                     <View key={index} style={{ display: "flex", flexDirection: "row", width: 240.7 }}>
-                      <View style={{ padding: 5, borderBottom: 1,borderRight: 1, width: 242, borderLeft: 1,minHeight: 40 }}>
+                      <View style={{ padding: 5, borderBottom: 1, borderRight: 1, width: 242, borderLeft: 1, minHeight: 40 }}>
                         <Text>{booking.name}</Text>
                       </View>
-                      <View style={{ padding: 5, borderBottom: 1, borderRight: 1, width: 239,minHeight: 40 }}>
+                      <View style={{ padding: 5, borderBottom: 1, borderRight: 1, width: 239, minHeight: 40 }}>
                         <Text>{booking.rank}</Text>
                       </View>
-                      <View style={{ padding: 5, borderBottom: 1,borderRight: 1, width: '100%',minHeight: 40 }}>
+                      <View style={{ padding: 5, borderBottom: 1, borderRight: 1, width: "100%", minHeight: 40 }}>
                         <Text>{booking.company}</Text>
                       </View>
                     </View>
@@ -537,7 +540,59 @@ const MyDocument = ({ data }: { data: any }) => {
       <Page size="A4" style={styles.page}>
         <View style={{ padding: 30, paddingBottom: 40, width: "100%", height: "100%", border: 1 }}>
           <View style={{ border: 1, padding: 20, height: "100%" }}>
-            <Text style={{ fontSize: 20, textDecoration: "underline" }}>FEEDBACK FORM</Text>
+            <Text style={{ fontSize: 20 }}>FEEDBACK FORM</Text>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                marginTop: 20,
+                border: 1,
+                borderBottom: 0,
+                height: "13%",
+              }}
+            >
+              <View style={styles.row}>
+                <View style={styles.rowItemLeft}>
+                  <Text>
+                    Guest Name: {data.rank} {data.name}
+                  </Text>
+                </View>
+                <View style={styles.rowItemRight}>
+                  <Text>Vessel: {data.vessel}</Text>
+                </View>
+              </View>
+              <View style={styles.row}>
+                <View style={{ ...styles.rowItemLeft, width: "30%" }}>
+                  <Text>Phone No: {data.phone}</Text>
+                </View>
+                <View style={{ ...styles.rowItemRight, width: "80%" }}>
+                  <Text>Email: {data.guest_email}</Text>
+                </View>
+              </View>
+              <View style={styles.row}>
+                <View style={styles.rowItemLeft}>
+                  <Text>Company Name: {data.company}</Text>
+                </View>
+                <View style={styles.rowItemRight}>
+                  <Text>ID No: {data.id}</Text>
+                </View>
+              </View>
+
+              <View style={styles.row}>
+                <View style={styles.rowItemLeft}>
+                  <Text>
+                    Check In Date:-&nbsp;&nbsp; {data.checkin.split(" ")[0]} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Time:-{" "}
+                    {data.checkin.split(" ")[1]}{" "}
+                  </Text>
+                </View>
+                <View style={styles.rowItemRight}>
+                  <Text>
+                    Check Out Date:-&nbsp;&nbsp; {data.checkout.split(" ")[0]} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Time:-{" "}
+                    {data.checkout.split(" ")[1]}{" "}
+                  </Text>
+                </View>
+              </View>
+            </View>
             <View style={{ marginVertical: 20, fontSize: 12 }}>
               <Text>KINDLY WRITE A FEW WORDS ON OUR SERVICES:</Text>
             </View>
@@ -620,10 +675,16 @@ const MyDocument = ({ data }: { data: any }) => {
                 </View>
               </View>
             </View>
+            {data.document_url && /\.(jpg|jpeg|png)$/i.test(data.document_url) && (
+              <View style={{ marginTop: 15, width: "100%" }}>
+                <Text style={{ fontSize: 12, marginVertical: 8 }}>ID DOCUMENT</Text>
+                <Image
+                  style={{ height: 300, marginHorizontal: "auto", marginVertical: 20, objectFit: "contain" }}
+                  src={data.document_url}
+                />
+              </View>
+            )}
 
-            <View style={{ fontSize: 12, marginTop: 8 }}>
-              <Text>ANY OTHER COMMENTS: </Text>
-            </View>
             <View style={{ fontSize: 12, marginTop: "auto", padding: 20, marginLeft: "auto" }}>
               <Text>SIGNATURE </Text>
             </View>

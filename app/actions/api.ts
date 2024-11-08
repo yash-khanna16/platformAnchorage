@@ -1530,3 +1530,174 @@ export async function updateCategory(
     throw error;
   }
 }
+
+export async function fetchAllCoupons(token: string) {
+    try {
+        const secret= await loadConfig();
+        const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/fetchAllCouponsAdmin`, {
+            method: "GET",
+            mode: "cors",
+            headers: {
+                "Content-Type": "application/json",
+                token: token,
+            },
+            cache: "no-cache",
+        });
+
+        const data = await response.json(); // Parse the JSON response
+        if (!response.ok) {
+            throw new Error("Error fetching coupons" + data);
+        }
+        return data;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+export async function addCoupon(
+  token: string,
+  formData:{code: string;
+    description: string;
+    coupon_type: string;
+    coupon_type_description: string;
+    percentage_discount: number | null;
+    discount_value: number | null;
+    max_discount: number | null;
+    min_order_value: number | null;
+    start_date: string;
+    end_date: string;
+    usage_limit: number | null;
+    user_usage_limit: number | null;
+    free_items: {
+      item_id: string;
+      qty: number;
+      name: string;
+    }[];
+    applicable_categories: string[];
+    applicable_items: {
+      item_id: string;
+      qty: number;
+      name: string;
+    }[];
+    selectedGuests: {
+      booking_id: string;
+      email: string;
+    }[];
+    is_active: boolean;}
+) {
+  try {
+    console.log("abc: ", formData.applicable_categories)
+    const secret = await loadConfig();
+    const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/addCoupon`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({
+        couponData:formData
+      }),
+      cache: "no-cache",
+    });
+
+    const data = await response.json(); // Parse the JSON response
+    if (!response.ok) {
+      throw new Error("Error adding coupon" + data);
+    }
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+export async function deleteCoupon(
+  token: string,
+  couponId:string
+) {
+  try {
+    const secret = await loadConfig();
+    const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/deleteCoupon`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({
+        coupon_id:couponId
+      }),
+      cache: "no-cache",
+    });
+    
+    const data = await response.json(); // Parse the JSON response
+    if (!response.ok) {
+      throw new Error("Error adding coupon" + data);
+    }
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function modifyCoupon(
+  token: string,
+  formData:{code: string;
+    description: string;
+    coupon_type: string;
+    coupon_type_description: string;
+    percentage_discount: number | null;
+    discount_value: number | null;
+    max_discount: number | null;
+    min_order_value: number | null;
+    start_date: string;
+    end_date: string;
+    usage_limit: number | null;
+    user_usage_limit: number | null;
+    free_items: {
+      item_id: string;
+      qty: number;
+      name: string;
+    }[];
+    applicable_categories: string[];
+    applicable_items: {
+      item_id: string;
+      qty: number;
+      name: string;
+    }[];
+    selectedGuests: {
+      booking_id: string;
+      email: string;
+    }[];
+    is_active: boolean;}
+) {
+  try {
+    const secret = await loadConfig();
+    const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/updateCoupon`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({
+        couponData:formData
+      }),
+      cache: "no-cache",
+    });
+
+    const data = await response.json(); // Parse the JSON response
+    if (!response.ok) {
+      throw new Error("Error adding coupon" + data);
+    }
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+
+
+

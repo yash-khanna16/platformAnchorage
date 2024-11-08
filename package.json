@@ -21,7 +21,9 @@
     "@react-pdf/fontkit": "^2.1.2",
     "@react-pdf/renderer": "^3.4.4",
     "autoprefixer": "^10.4.19",
+    "aws-sdk": "^2.1692.0",
     "chart.js": "^4.4.3",
+    "dayjs": "^1.11.13",
     "file-loader": "^6.2.0",
     "file-saver": "^2.0.5",
     "jose": "^5.4.0",
@@ -30,6 +32,8 @@
     "jspdf-autotable": "^3.8.2",
     "lottie-web": "^5.12.2",
     "next": "^14.2.6",
+    "node-cron": "^3.0.3",
+    "pg": "^8.13.1",
     "react": "^18",
     "react-chartjs-2": "^5.2.0",
     "react-dom": "^18",
@@ -38,6 +42,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@locator/babel-jsx": "^0.4.4",
     "@types/file-saver": "^2.0.7",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20",

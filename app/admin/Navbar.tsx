@@ -19,6 +19,7 @@ import {
   foodIcon,
   manageItems,
   feedbackIcon,
+  couponIcon,
 } from "../../assets/icons";
 import { deleteAuthAdmin, getAuthAdmin } from "../actions/cookie";
 import { parseJwt } from "../actions/utils";
@@ -216,6 +217,7 @@ function Navbar() {
     { icon: addPersonIcon, route: "add-guest", value: "Add Guest" },
     { icon: foodIcon, route: "orders", value: "Orders" },
     { icon: manageItems, route: "manage-items", value: "Manage Items" },
+    { icon: couponIcon, route: "coupons", value: "Coupons" },
     { icon: mailIcon, route: "emails", value: "Emails" },
     { icon: searchIcon, route: "check-logs", value: "Check Logs" },
     { icon: feedbackIcon, route: "feedbacks", value: "Feedbacks" },
