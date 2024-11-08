@@ -230,6 +230,9 @@ type OrderDataType = {
       {/* <PDFViewer width="100%" height={1000}>
         <OrderFormPDF orderData={orderData} />
       </PDFViewer> */}
+       {/* <PDFViewer width="100%" height={1000}>
+        <CheckInFormPDF data={filteredRows[0]} />
+      </PDFViewer> */}
       <Typography className="text-5xl max-[960px]:text-4xl" component="div" fontWeight="bold">
         Search Reservations
       </Typography>

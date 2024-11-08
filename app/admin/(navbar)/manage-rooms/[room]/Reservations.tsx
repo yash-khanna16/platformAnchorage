@@ -399,8 +399,6 @@ const Reservations: React.FC<ReservationsProps> = ({
 
                 console.log(movements);
                 if (meals && movements && occupancy) {
-                  console.log("meals ", meals);
-                  console.log("movements ", movements);
                   const data = {
                     ...params.row,
                     meals: meals,
@@ -537,39 +535,37 @@ const Reservations: React.FC<ReservationsProps> = ({
             )}
             {params.row.document_url && (
               <IconButton
-  className="w-[40px]"
-  onClick={async () => {
-    const url = params.row.document_url;
-    if (url) {
-      try {
-        // Fetch the file as a blob
-        const response = await fetch(url);
-        const blob = await response.blob();
-        
-        // Create a link and set it to download the blob
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `${params.row.room + "_" + params.row.name}`;
-        link.style.display = 'none';
-        
-        // Append the link, trigger click, and then remove it
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        // Revoke the blob URL after download
-        URL.revokeObjectURL(link.href);
-      } catch (error) {
-        console.error("Failed to download document:", error);
-      }
-    } else {
-      console.log("No document URL found");
-    }
-  }}
->
-  <AssignmentInd className="scale-75" />
-</IconButton>
-
+                className="w-[40px]"
+                onClick={async () => {
+                  const url = params.row.document_url;
+                  if (url) {
+                    try {
+                      // Fetch the file as a blob
+                      const response = await fetch(url);
+                      const blob = await response.blob();
+                      
+                      // Create a link and set it to download the blob
+                      const link = document.createElement('a');
+                      link.href = URL.createObjectURL(blob);
+                      link.download = params.row.room + "_" + params.row.name; // Set a filename here if you want a specific name, e.g., 'document.pdf'
+                      link.style.display = 'none';
+                      
+                      // Append the link, trigger click, and then remove it
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      // Revoke the blob URL after download
+                      URL.revokeObjectURL(link.href);
+                    } catch (error) {
+                      console.error("Failed to download document:", error);
+                    }
+                  } else {
+                    console.log("No document URL found");
+                  }
+                }}
+              >
+                <AssignmentInd className="scale-75" />
+              </IconButton>
             )}
             <IconButton
               className="w-[40px]"
