@@ -598,11 +598,12 @@ const Reservations: React.FC<ReservationsProps> = ({
               <IconButton
                 className="w-[40px]"
                 onClick={async () => {
-                  const url = params.row.document_url;
-                  if (url) {
+                  const url_front = params.row.document_url;
+                  const url_back = params.row.document_url_back;
+                  if (url_front) {
                     try {
                       // Fetch the file as a blob
-                      const response = await fetch(url);
+                      const response = await fetch(url_front);
                       const blob = await response.blob();
 
                       // Create a link and set it to download the blob
@@ -611,6 +612,54 @@ const Reservations: React.FC<ReservationsProps> = ({
                       link.download = params.row.room + "_" + params.row.name; // Set a filename here if you want a specific name, e.g., 'document.pdf'
                       link.style.display = "none";
 
+                      // Append the link, trigger click, and then remove it
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      // Revoke the blob URL after download
+                      URL.revokeObjectURL(link.href);
+                    } catch (error) {
+                      console.error("Failed to download document:", error);
+                    }
+                  } else {
+                    console.log("No document URL found");
+                  }
+                  if (url_back) {
+                    try {
+                      // Fetch the file as a blob
+                      const response = await fetch(url_back);
+                      const blob = await response.blob();
+                      
+                      // Create a link and set it to download the blob
+                      const link = document.createElement('a');
+                      link.href = URL.createObjectURL(blob);
+                      link.download = params.row.room + "_" + params.row.name + "_back"; // Set a filename here if you want a specific name, e.g., 'document.pdf'
+                      link.style.display = 'none';
+                      
+                      // Append the link, trigger click, and then remove it
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      // Revoke the blob URL after download
+                      URL.revokeObjectURL(link.href);
+                    } catch (error) {
+                      console.error("Failed to download document:", error);
+                    }
+                  } else {
+                    console.log("No document URL found");
+                  }
+                  if (url_back) {
+                    try {
+                      // Fetch the file as a blob
+                      const response = await fetch(url_back);
+                      const blob = await response.blob();
+                      
+                      // Create a link and set it to download the blob
+                      const link = document.createElement('a');
+                      link.href = URL.createObjectURL(blob);
+                      link.download = params.row.room + "_" + params.row.name + "_back"; // Set a filename here if you want a specific name, e.g., 'document.pdf'
+                      link.style.display = 'none';
+                      
                       // Append the link, trigger click, and then remove it
                       document.body.appendChild(link);
                       link.click();

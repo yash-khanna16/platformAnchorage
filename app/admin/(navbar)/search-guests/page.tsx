@@ -45,6 +45,7 @@ type ReservationType = {
   room: string;
   vessel: string;
   document_url: string;
+  document_url_back: string | null;
   status?: string; // Add this line
 };
 

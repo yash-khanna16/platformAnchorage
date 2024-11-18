@@ -678,10 +678,18 @@ const MyDocument = ({ data }: { data: any }) => {
             {data.document_url && /\.(jpg|jpeg|png)$/i.test(data.document_url) && (
               <View style={{ marginTop: 15, width: "100%" }}>
                 <Text style={{ fontSize: 12, marginVertical: 8 }}>ID DOCUMENT</Text>
-                <Image
-                  style={{ height: 300, marginHorizontal: "auto", marginVertical: 20, objectFit: "contain" }}
-                  src={data.document_url}
-                />
+                <View style={{ display: "flex", flexDirection: "row", columnGap: 15, justifyContent: "center" }}>
+                  <Image
+                    style={{ height: 200, marginVertical: 20, objectFit: "contain" }}
+                    src={data.document_url}
+                  />
+                  {data.document_url_back && /\.(jpg|jpeg|png)$/i.test(data.document_url_back) && (
+                    <Image
+                      style={{ height: 200, marginVertical: 20, objectFit: "contain" }}
+                      src={data.document_url_back}
+                    />
+                  )}
+                </View>
               </View>
             )}
 
