@@ -718,9 +718,8 @@ const Reservations: React.FC<ReservationsProps> = ({
               <DataGrid
                 apiRef={apiRef}
                 rows={rowsData}
-                paginationModel={{ pageSize: rowsData.length, page: 0 }} // Show all rows on one page
-                rowHeight={50}
-                hideFooterPagination
+                paginationModel={paginationModel} // Show all rows on one page
+                rowHeight={50}                
                 loading={loading}
                 columns={gridColumns}
                 checkboxSelection
