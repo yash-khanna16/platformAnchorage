@@ -24,6 +24,7 @@ import {
   Snackbar,
   Typography,
   Alert,
+  Chip,
 } from "@mui/joy";
 
 export type ItemType = {
@@ -43,7 +44,7 @@ export type OrderType = {
   booking_id: string;
   room: string;
   remarks: string;
-  created_at: Date;
+  created_at: number;
   total_time_to_prepare: number;
   delay: number;
   discount: number;
@@ -74,6 +75,27 @@ function Orders() {
   const [delayId, setDelayId] = useState("");
 
   let dummy = [1, 1, 1, 1, 1, 1];
+
+  const MEAL_IDS: Record<"BREAKFAST" | "LUNCH" | "DINNER", { veg: string; nonVeg: string }> = {
+    BREAKFAST: {
+      veg: process.env.NEXT_PUBLIC_BREAKFAST_VEG_ID || "",
+      nonVeg: process.env.NEXT_PUBLIC_BREAKFAST_NON_VEG_ID || "",
+    },
+    LUNCH: {
+      veg: process.env.NEXT_PUBLIC_LUNCH_VEG_ID || "",
+      nonVeg: process.env.NEXT_PUBLIC_LUNCH_NON_VEG_ID || "",
+    },
+    DINNER: {
+      veg: process.env.NEXT_PUBLIC_DINNER_VEG_ID || "",
+      nonVeg: process.env.NEXT_PUBLIC_DINNER_NON_VEG_ID || "",
+    },
+  };
+
+  const isMealOrder = (order: OrderType): Boolean => {
+    return order.items.some((item) =>
+      Object.values(MEAL_IDS).some((meal) => meal.veg === item.item_id || meal.nonVeg === item.item_id)
+    );
+  };
 
   const handleRejectOrder = async () => {
     try {
@@ -201,14 +223,21 @@ function Orders() {
   }, [orderData]);
 
   const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
+    const days = Math.floor(seconds / 86400); // 86400 seconds in a day
+    const hours = Math.floor((seconds % 86400) / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = Math.floor(seconds) % 60;
 
-    if (hours > 0) {
-      return `${hours}:${minutes < 10 ? "0" : ""}${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+    const paddedHours = hours < 10 ? `0${hours}` : `${hours}`;
+    const paddedMinutes = minutes < 10 ? `0${minutes}` : `${minutes}`;
+    const paddedSecs = secs < 10 ? `0${secs}` : `${secs}`;
+
+    if (days > 0) {
+      return `${days}d:${paddedHours}:${paddedMinutes}:${paddedSecs}`;
+    } else if (hours > 0) {
+      return `${paddedHours}:${paddedMinutes}:${paddedSecs}`;
     } else {
-      return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+      return `${paddedMinutes}:${paddedSecs}`;
     }
   };
 
@@ -245,6 +274,36 @@ function Orders() {
         </TabList>
         <TabPanels className="my-5">
           <TabPanel className="space-y-3">
+            <div className="grid my-5 gap-3 [grid-template-columns:repeat(2,150px)] sm:[grid-template-columns:repeat(3,150px)] md:[grid-template-columns:repeat(4,150px)]  lg:[grid-template-columns:repeat(6,150px)] justify-start">
+              <div className="text-sm border border-green-300 px-2 h-fit font-medium py-1 rounded-2xl bg-green-50 text-green-800">
+                Breakfast Veg: 6
+              </div>
+              <div className="text-sm border border-red-300 px-2 h-fit font-medium py-1 rounded-2xl bg-red-50 text-red-800">
+                Breakfast N.Veg: 6
+              </div>
+              <div className="text-sm border border-green-300 px-2 h-fit font-medium py-1 rounded-2xl bg-green-50 text-green-800">
+                Lunch Veg: 6
+              </div>
+              <div className="text-sm border border-red-300 px-2 h-fit font-medium py-1 rounded-2xl bg-red-50 text-red-800">
+                Lunch N.Veg: 6
+              </div>
+              <div className="text-sm border border-green-300 px-2 h-fit font-medium py-1 rounded-2xl bg-green-50 text-green-800">
+                Dinner Veg: 6
+              </div>
+              <div className="text-sm border border-red-300 px-2 h-fit font-medium py-1 rounded-2xl bg-red-50 text-red-800">
+                Dinner N.Veg: 6
+              </div>
+            </div>
+            {/* <div className="flex gap-x-3">
+              <div className="text-sm border px-2 font-medium py-1 rounded-2xl bg-green-50 text-green-800">Breakfast Veg: 6</div>
+              <div className="text-sm border px-2 font-medium py-1 rounded-2xl bg-green-50 text-green-800">Lunch Veg: 6</div>
+              <div className="text-sm border px-2 font-medium py-1 rounded-2xl bg-green-50 text-green-800">Dinner Veg: 6</div>
+            </div>
+            <div className="flex gap-x-3">
+              <div className="text-sm border px-2 font-medium py-1 rounded-2xl bg-red-50 text-red-800">Breakfast N.Veg: 6</div>
+              <div className="text-sm border px-2 font-medium py-1 rounded-2xl bg-red-50 text-red-800">Lunch N.Veg: 6</div>
+              <div className="text-sm border px-2 font-medium py-1 rounded-2xl bg-red-50 text-red-800">Dinner N.Veg: 6</div>
+            </div> */}
             {loading &&
               dummy.map((index) => {
                 return (
@@ -297,113 +356,279 @@ function Orders() {
                   </div>
                 );
               })}
-            {!loading &&
-              orderData.length > 0 &&
-              orderData.map((order, index) => (
-                <div
-                  key={index}
-                  className="w-full border relative max-md:flex-col text-[#636363] flex shadow-md px-6 py-8 font-medium rounded-3xl"
-                >
-                  <IconButton
-                    onClick={() => {
-                      setDelOrder(true);
-                      setDeleteId(order.order_id);
-                    }}
-                    className="absolute  -top-2 -right-3"
-                  >
-                    <Cancel className="text-red-700 text-lg" />
-                  </IconButton>
-                  <div className="w-2/5 max-md:w-full pr-3 md:border-r border-dashed">
-                    <div className="space-y-2 border-b pb-5">
-                      <div className="flex gap-x-3">
-                        <div className="text-green-600 bg-green-[#fdfffe] text-2xl border w-fit px-2 py-1 rounded-lg">
-                          {order.room}
-                        </div>
-                        {order.delay > 0 && (
-                          <div>
-                            <Alert color="warning">
-                              <Warning className="text-yellow-600" />
-                              Order Delayed for {order.delay} mins
-                            </Alert>
-                          </div>
-                        )}
-                      </div>
-                      <div className="text-lg text-[#636363]">ORDER NO: {order.order_id}</div>
-                      <div className="text-[#7c7c7c] my-2 font-semibold">
-                        {order.guest_name!==null && <>{order.guest_name}
-                        {"'s"} Order</>}
-                      </div>
-                    </div>
-                    <div className="">
-                      <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm">
-                        <div>
-                          <CheckCircle className="scale-[80%] z-10 text-green-600" />
-                        </div>
-                        <div>Accepted</div>
-                      </div>
-                      <div className="my-5  border w-fit  text-[#7a7a7a] text-sm px-2 py-1 bg-slate-100 rounded-md ">
-                        Instructions: {order.remarks}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="w-3/5 md:mx-6 max-md:w-full">
-                    <div className="">
-                      {order.items.map((item) => (
-                        <div key={item.item_id} className="flex justify-between items-center w-full">
-                          <div className="md:px-6 py-2 flex gap-x-3">
-                            <Image width={16} height={16} alt="veg" src={item.type === "veg" ? veg.src : nonveg.src} />
-                            <div>
-                              {item.qty} x {item.name}
+            <div className="flex max-lg:flex-col gap-x-6  w-full">
+              <div className="space-y-6 w-full">
+                {!loading &&
+                  orderData.length > 0 &&
+                  orderData.map(
+                    (order, index) =>
+                      !isMealOrder(order) && (
+                        <div
+                          key={index}
+                          className="w-full border relative max-md:flex-col  text-[#636363] flex shadow-md px-6 py-8 font-medium rounded-3xl"
+                        >
+                          <IconButton
+                            onClick={() => {
+                              setDelOrder(true);
+                              setDeleteId(order.order_id);
+                            }}
+                            className="absolute  -top-2 -right-3"
+                          >
+                            <Cancel className="text-red-700 text-lg" />
+                          </IconButton>
+                          <div className="w-2/5 max-md:w-full pr-3 md:border-r border-dashed">
+                            <div className="space-y-2 border-b pb-5">
+                              <div className="flex gap-x-3">
+                                <div className="text-green-600 h-fit bg-green-[#fdfffe] text-2xl border w-fit px-2 py-1 rounded-lg">
+                                  {order.room}
+                                </div>
+                                {order.delay > 0 && (
+                                  <div>
+                                    <Alert color="warning">
+                                      <Warning className="text-yellow-600" />
+                                      {isMealOrder(order) ? (
+                                        <>
+                                          Meal Scheduled for{" "}
+                                          {(() => {
+                                            const d = new Date(
+                                              Number(order.created_at) + order.total_time_to_prepare * 60000 + order.delay * 60000
+                                            );
+                                            return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(
+                                              2,
+                                              "0"
+                                            )}/${d.getFullYear()} ${d.getHours() % 12 || 12}:${String(d.getMinutes()).padStart(
+                                              2,
+                                              "0"
+                                            )}${d.getHours() >= 12 ? " PM" : " AM"}`;
+                                          })()}
+                                        </>
+                                      ) : (
+                                        <>Order Delayed for {order.delay} mins</>
+                                      )}
+                                    </Alert>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-lg text-[#636363]">ORDER NO: {order.order_id}</div>
+                              <div className="text-[#7c7c7c] my-2 font-semibold">
+                                {order.guest_name !== null && (
+                                  <>
+                                    {order.guest_name}
+                                    {"'s"} Order
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                            <div className="">
+                              <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm">
+                                <div>
+                                  <CheckCircle className="scale-[80%] z-10 text-green-600" />
+                                </div>
+                                <div>Accepted</div>
+                              </div>
+                              <div className="my-5  border w-fit  text-[#7a7a7a] text-sm px-2 py-1 bg-slate-100 rounded-md ">
+                                Instructions: {order.remarks}
+                              </div>
                             </div>
                           </div>
-                          <div>₹{item.price * item.qty}</div>
+                          <div className="w-3/5 md:mx-6 max-md:w-full">
+                            <div className="">
+                              {order.items.map((item) => (
+                                <div key={item.item_id} className="flex justify-between items-center w-full">
+                                  <div className="md:px-6 py-2 flex gap-x-3">
+                                    <Image width={16} height={16} alt="veg" src={item.type === "veg" ? veg.src : nonveg.src} />
+                                    <div>
+                                      {item.qty} x {item.name}
+                                    </div>
+                                  </div>
+                                  <div>₹{item.price * item.qty}</div>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="my-4 py-4 md:pl-6 border-t flex w-full justify-between">
+                              <div>Total Bill:</div>
+                              <div>₹{order.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
+                            </div>
+                            <div className="flex items-center gap-x-2">
+                              <div className="md:ml-6 overflow-hidden h-[56px] my-2 w-[100%] font-medium relative">
+                                <div className="absolute left-0 bg-[#538cee] rounded-2xl h-[56px] w-full"></div>
+                                <div className="absolute z-10 left-0 text-white w-full py-4 text-center">
+                                  Order Ready ({formatTime(timers[order.order_id] || 0)})
+                                </div>
+                                <div className="w-full overflow-clip absolute rounded-2xl">
+                                  <div
+                                    className={`bg-[#256fef] py-4 rounded-2xl text-white h-[56px]`}
+                                    style={{
+                                      width: `${((timers[order.order_id] || 0) / (order.total_time_to_prepare * 60)) * 100}%`,
+                                    }}
+                                  ></div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex space-x-3 lg:ml-6 my-3">
+                              <button
+                                onClick={() => {
+                                  handleUpdateOrderStatus(order.order_id, "Delivered");
+                                }}
+                                className="w-full py-3 border hover:bg-green-50 border-green-500 text-green-500 rounded-2xl"
+                              >
+                                Set as Delivered
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setDelayModal(true);
+                                  setDelayId(order.order_id);
+                                  setDelay(order.delay);
+                                }}
+                                className="w-full py-3 border text-white hover:bg-red-600 border-red-500 bg-red-500 rounded-2xl"
+                              >
+                                Delay Order
+                              </button>
+                            </div>
+                          </div>
                         </div>
-                      ))}
-                    </div>
-                    <div className="my-4 py-4 md:pl-6 border-t flex w-full justify-between">
-                      <div>Total Bill:</div>
-                      <div>₹{order.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
-                    </div>
-                    <div className="flex items-center gap-x-2">
-                      <div className="md:ml-6 overflow-hidden h-[56px] my-2 w-[100%] font-medium relative">
-                        <div className="absolute left-0 bg-[#538cee] rounded-2xl h-[56px] w-full"></div>
-                        <div className="absolute z-10 left-0 text-white w-full py-4 text-center">
-                          Order Ready ({formatTime(timers[order.order_id] || 0)})
+                      )
+                  )}
+                {!loading && orderData.length === 0 && (
+                  <div className="text-[#7c7c7c] w-full  my-5 font-medium text-xl text-center">No orders yet</div>
+                )}
+              </div>
+              <div className="space-y-6 w-full">
+                {!loading &&
+                  orderData.length > 0 &&
+                  orderData.map(
+                    (order, index) =>
+                      isMealOrder(order) && (
+                        <div
+                          key={index}
+                          className="w-full border relative max-md:flex-col text-[#636363] flex shadow-md px-6 py-8 font-medium rounded-3xl"
+                        >
+                          <IconButton
+                            onClick={() => {
+                              setDelOrder(true);
+                              setDeleteId(order.order_id);
+                            }}
+                            className="absolute  -top-2 -right-3"
+                          >
+                            <Cancel className="text-red-700 text-lg" />
+                          </IconButton>
+                          <div className="w-2/5 max-md:w-full pr-3 md:border-r border-dashed">
+                            <div className="space-y-2 border-b pb-5">
+                              <div className="flex gap-x-3">
+                                <div className="text-green-600 h-fit bg-green-[#fdfffe] text-2xl border w-fit px-2 py-1 rounded-lg">
+                                  {order.room}
+                                </div>
+                                {order.delay > 0 && (
+                                  <div>
+                                    <Alert color="warning">
+                                      {isMealOrder(order) ? (
+                                        <>
+                                          Meal Scheduled for{" "}
+                                          {(() => {
+                                            const d = new Date(
+                                              Number(order.created_at) + order.total_time_to_prepare * 60000 + order.delay * 60000
+                                            );
+                                            return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(
+                                              2,
+                                              "0"
+                                            )}/${d.getFullYear()} ${d.getHours() % 12 || 12}:${String(d.getMinutes()).padStart(
+                                              2,
+                                              "0"
+                                            )}${d.getHours() >= 12 ? " PM" : " AM"}`;
+                                          })()}
+                                        </>
+                                      ) : (
+                                        <>Order Delayed for {order.delay} mins</>
+                                      )}
+                                    </Alert>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="text-lg text-[#636363]">ORDER NO: {order.order_id}</div>
+                              <div className="text-[#7c7c7c] my-2 font-semibold">
+                                {order.guest_name !== null && (
+                                  <>
+                                    {order.guest_name}
+                                    {"'s"} Order
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                            <div className="">
+                              <div className="text-[#7a7a7a] my-2 items-center gap-x-2 flex text-sm">
+                                <div>
+                                  <CheckCircle className="scale-[80%] z-10 text-green-600" />
+                                </div>
+                                <div>Accepted</div>
+                              </div>
+                              <div className="my-5  border w-fit  text-[#7a7a7a] text-sm px-2 py-1 bg-slate-100 rounded-md ">
+                                Instructions: {order.remarks}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="w-3/5 md:mx-6 max-md:w-full">
+                            <div className="">
+                              {order.items.map((item) => (
+                                <div key={item.item_id} className="flex justify-between items-center w-full">
+                                  <div className="md:px-6 py-2 flex gap-x-3">
+                                    <Image width={16} height={16} alt="veg" src={item.type === "veg" ? veg.src : nonveg.src} />
+                                    <div>
+                                      {item.qty} x {item.name}
+                                    </div>
+                                  </div>
+                                  <div>₹{item.price * item.qty}</div>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="my-4 py-4 md:pl-6 border-t flex w-full justify-between">
+                              <div>Total Bill:</div>
+                              <div>₹{order.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
+                            </div>
+                            <div className="flex items-center gap-x-2">
+                              <div className="md:ml-6 overflow-hidden h-[56px] my-2 w-[100%] font-medium relative">
+                                <div className="absolute left-0 bg-[#538cee] rounded-2xl h-[56px] w-full"></div>
+                                <div className="absolute z-10 left-0 text-white w-full py-4 text-center">
+                                  Order Ready ({formatTime(timers[order.order_id] || 0)})
+                                </div>
+                                <div className="w-full overflow-clip absolute rounded-2xl">
+                                  <div
+                                    className={`bg-[#256fef] py-4 rounded-2xl text-white h-[56px]`}
+                                    style={{
+                                      width: `${((timers[order.order_id] || 0) / (order.total_time_to_prepare * 60)) * 100}%`,
+                                    }}
+                                  ></div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex space-x-3 lg:ml-6 my-3">
+                              <button
+                                onClick={() => {
+                                  handleUpdateOrderStatus(order.order_id, "Delivered");
+                                }}
+                                className="w-full py-3 border hover:bg-green-50 border-green-500 text-green-500 rounded-2xl"
+                              >
+                                Set as Delivered
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setDelayModal(true);
+                                  setDelayId(order.order_id);
+                                  setDelay(order.delay);
+                                }}
+                                className="w-full py-3 border text-white hover:bg-red-600 border-red-500 bg-red-500 rounded-2xl"
+                              >
+                                Delay Order
+                              </button>
+                            </div>
+                          </div>
                         </div>
-                        <div className="w-full overflow-clip absolute rounded-2xl">
-                          <div
-                            className={`bg-[#256fef] py-4 rounded-2xl text-white h-[56px]`}
-                            style={{ width: `${((timers[order.order_id] || 0) / (order.total_time_to_prepare * 60)) * 100}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex space-x-3 lg:ml-6 my-3">
-                      <button
-                        onClick={() => {
-                          handleUpdateOrderStatus(order.order_id, "Delivered");
-                        }}
-                        className="w-full py-3 border hover:bg-green-50 border-green-500 text-green-500 rounded-2xl"
-                      >
-                        Set as Delivered
-                      </button>
-                      <button
-                        onClick={() => {
-                          setDelayModal(true);
-                          setDelayId(order.order_id);
-                          setDelay(order.delay);
-                        }}
-                        className="w-full py-3 border text-white hover:bg-red-600 border-red-500 bg-red-500 rounded-2xl"
-                      >
-                        Delay Order
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            {!loading && orderData.length === 0 && (
-              <div className="text-[#7c7c7c]  my-5 font-medium text-xl text-center">No orders yet</div>
-            )}
+                      )
+                  )}
+                {!loading && orderData.length === 0 && (
+                  <div className="text-[#7c7c7c]  my-5 font-medium text-xl text-center">No orders yet</div>
+                )}
+              </div>
+            </div>
           </TabPanel>
           <TabPanel>
             {loading &&
@@ -472,8 +697,12 @@ function Orders() {
                       </div>
                       <div className="text-lg text-[#636363]">ORDER NO: {order.order_id}</div>
                       <div className="text-[#7c7c7c] my-2 font-semibold">
-                      {order.guest_name!==null && <>{order.guest_name}
-                      {"'s"} Order</>}
+                        {order.guest_name !== null && (
+                          <>
+                            {order.guest_name}
+                            {"'s"} Order
+                          </>
+                        )}
                       </div>
                     </div>
                     <div className="">
