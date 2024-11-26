@@ -114,6 +114,7 @@ const styles = StyleSheet.create({
 type Item = {
   name: string;
   qty: number;
+  item_id: string;
   price: number;
 };
 
@@ -133,8 +134,32 @@ export type OrderDataType = {
 
 const platformFee = 2;
 
+const MEAL_IDS: Record<"BREAKFAST" | "LUNCH" | "DINNER", { veg: string; nonVeg: string }> = {
+  BREAKFAST: {
+    veg: process.env.NEXT_PUBLIC_BREAKFAST_VEG_ID || "",
+    nonVeg: process.env.NEXT_PUBLIC_BREAKFAST_NON_VEG_ID || "",
+  },
+  LUNCH: {
+    veg: process.env.NEXT_PUBLIC_LUNCH_VEG_ID || "",
+    nonVeg: process.env.NEXT_PUBLIC_LUNCH_NON_VEG_ID || "",
+  },
+  DINNER: {
+    veg: process.env.NEXT_PUBLIC_DINNER_VEG_ID || "",
+    nonVeg: process.env.NEXT_PUBLIC_DINNER_NON_VEG_ID || "",
+  },
+};
+
+const hasMealItems = (order: OrderDataType): boolean => {
+  const res = order.items.some((item) =>
+    Object.values(MEAL_IDS).some(
+      (meal) => meal.veg === item.item_id || meal.nonVeg === item.item_id || item.item_id === process.env.NEXT_PUBLIC_TEA_ID
+    )
+  );
+  return res;
+};
+
 const OrderFormDocument = ({ orderData }: { orderData: OrderDataType[] }) => {
-  console.log("order: ", orderData)
+  console.log("order: ", orderData);
   return (
     <Document>
       {orderData.map((order, orderIndex) => {
@@ -245,23 +270,25 @@ const OrderFormDocument = ({ orderData }: { orderData: OrderDataType[] }) => {
                       </Text>
                     </View>
                   )}
-                  <View
-                    style={{
-                      fontSize: 10,
-                      display: "flex",
-                      flexDirection: "row",
-                      justifyContent: "space-between",
-                      borderTop: 0,
-                      borderColor: "#a1a1a1",
-                      borderRightWidth: 0,
-                      borderBottomWidth: 0,
-                    }}
-                  >
-                    <Text style={[styles.col, { borderRight: 0, textAlign: "left" }]}>Platform Fee</Text>
-                    <Text style={[styles.col, { borderRight: 0, textAlign: "right", paddingRight: 45 }]}>
-                      <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {platformFee}
-                    </Text>
-                  </View>
+                  {!hasMealItems(order) && (
+                    <View
+                      style={{
+                        fontSize: 10,
+                        display: "flex",
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        borderTop: 0,
+                        borderColor: "#a1a1a1",
+                        borderRightWidth: 0,
+                        borderBottomWidth: 0,
+                      }}
+                    >
+                      <Text style={[styles.col, { borderRight: 0, textAlign: "left" }]}>Platform Fee</Text>
+                      <Text style={[styles.col, { borderRight: 0, textAlign: "right", paddingRight: 45 }]}>
+                        <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {platformFee}
+                      </Text>
+                    </View>
+                  )}
                   <View
                     style={{
                       fontSize: 10,
@@ -275,7 +302,7 @@ const OrderFormDocument = ({ orderData }: { orderData: OrderDataType[] }) => {
                   >
                     <Text style={[styles.col, { borderRight: 0, textAlign: "left" }]}>Total</Text>
                     <Text style={[styles.col, { borderRight: 0, textAlign: "right", paddingRight: 45 }]}>
-                      <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {totalAmount + platformFee - order.discount}
+                      <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {totalAmount + (!hasMealItems(order)?platformFee:0) - order.discount}
                     </Text>
                   </View>
                 </View>

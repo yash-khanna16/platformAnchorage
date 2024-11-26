@@ -1,15 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
-import {
-  Cancel,
-  Check,
-  CheckCircle,
-  Close,
-  Info,
-  Warning,
-  WarningRounded,
-} from "@mui/icons-material";
+import { Cancel, Check, CheckCircle, Close, Info, Warning, WarningRounded } from "@mui/icons-material";
 import veg from "@/app/assets/veg.svg";
 import nonveg from "@/app/assets/nonveg.svg";
 import Image from "next/image";
@@ -107,7 +99,7 @@ function Orders() {
   const isMealOrder = (order: OrderType): Boolean => {
     return order.items.some((item) =>
       Object.values(MEAL_IDS).some(
-        (meal) => meal.veg === item.item_id || meal.nonVeg === item.item_id
+        (meal) => meal.veg === item.item_id || meal.nonVeg === item.item_id || item.item_id === process.env.NEXT_PUBLIC_TEA_ID
       )
     );
   };
@@ -206,18 +198,18 @@ function Orders() {
     const getMealCount = () => {
       const now = new Date(); // Current time
       const minutesUntilMidnight = (24 - now.getHours()) * 60 - now.getMinutes(); // Minutes left until midnight
-  
+
       // Filter orders whose total_time_to_prepare is less than minutes until midnight
       const validOrders = orderData.filter((order: OrderType) => {
         return order.total_time_to_prepare <= minutesUntilMidnight;
       });
-  
+
       const updatedMealCount = {
         BREAKFAST: { veg: 0, nonVeg: 0 },
         LUNCH: { veg: 0, nonVeg: 0 },
         DINNER: { veg: 0, nonVeg: 0 },
       };
-  
+
       // Count meals for valid orders
       validOrders.forEach((order: OrderType) => {
         order.items.forEach((item: ItemType) => {
@@ -231,14 +223,12 @@ function Orders() {
           });
         });
       });
-  
+
       setMealCount(updatedMealCount);
     };
-  
+
     getMealCount();
   }, [orderData]);
-  
-  
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -259,10 +249,7 @@ function Orders() {
         if (newDeliveredData.length > 0) {
           setOrderData((prevOrderData) =>
             prevOrderData.filter(
-              (order) =>
-                !newDeliveredData.some(
-                  (deliveredOrder) => deliveredOrder.order_id === order.order_id
-                )
+              (order) => !newDeliveredData.some((deliveredOrder) => deliveredOrder.order_id === order.order_id)
             )
           );
           setDeliveredData((prevDeliveredData) => [...prevDeliveredData, ...newDeliveredData]);
@@ -313,44 +300,37 @@ function Orders() {
         <TabList className="flex gap-x-5">
           <Tab className="border outline-none data-[selected]:text-[#ef4f5f] px-4 font-medium cursor-pointer flex gap-x-2 shadow-md py-2 w-fit text-[#b9b9b9] rounded-xl">
             <div>Preparing</div>
-            <div
-              className={`${
-                selectedTab === 0 ? "border-[#ff7e8b]" : "border-[#c2c2c2]"
-              } border px-1 rounded-md`}
-            >
+            <div className={`${selectedTab === 0 ? "border-[#ff7e8b]" : "border-[#c2c2c2]"} border px-1 rounded-md`}>
               {orderData.length}
             </div>
           </Tab>
           <Tab className="border outline-none data-[selected]:text-[#ef4f5f] px-4 font-medium cursor-pointer flex gap-x-2 shadow-md py-2 w-fit text-[#b9b9b9] rounded-xl">
             <div>Delivered</div>
-            <div
-              className={`${
-                selectedTab === 1 ? "border-[#ff7e8b]" : "border-[#c2c2c2]"
-              } border px-1 rounded-md`}
-            >
+            <div className={`${selectedTab === 1 ? "border-[#ff7e8b]" : "border-[#c2c2c2]"} border px-1 rounded-md`}>
               {deliveredData.length}
             </div>
           </Tab>
         </TabList>
         <TabPanels className="my-5">
           <TabPanel className="space-y-3">
-            <div className="grid my-5 gap-3 [grid-template-columns:repeat(2,150px)] sm:[grid-template-columns:repeat(3,150px)] md:[grid-template-columns:repeat(4,150px)] lg:[grid-template-columns:repeat(6,150px)] justify-start">
-              <div className="text-sm border border-green-300 px-2 h-fit font-medium py-1 rounded-2xl bg-green-50 text-green-800">
+            {/* <div className="grid my-5 gap-3 [grid-template-columns:repeat(2,150px)] sm:[grid-template-columns:repeat(3,150px)] md:[grid-template-columns:repeat(4,150px)] lg:[grid-template-columns:repeat(6,150px)] justify-start"> */}
+            <div className="sm:flex gap-3 sm:flex-wrap grid [grid-template-columns:repeat(2,150px)] sm:[grid-template-columns:repeat(3,150px)]">
+              <div className="text-sm border border-green-300 px-2 h-fit  sm:min-w-fit font-medium py-1 rounded-2xl bg-green-50 text-green-800">
                 Breakfast Veg: {mealCount.BREAKFAST.veg}
               </div>
-              <div className="text-sm border border-red-300 px-2 h-fit font-medium py-1 rounded-2xl bg-red-50 text-red-800">
+              <div className="text-sm border border-red-300 px-2 h-fit  sm:min-w-fit font-medium py-1 rounded-2xl bg-red-50 text-red-800">
                 Breakfast N.Veg: {mealCount.BREAKFAST.nonVeg}
               </div>
-              <div className="text-sm border border-green-300 px-2 h-fit font-medium py-1 rounded-2xl bg-green-50 text-green-800">
+              <div className="text-sm border border-green-300 px-2 h-fit  sm:min-w-fit font-medium py-1 rounded-2xl bg-green-50 text-green-800">
                 Lunch Veg: {mealCount.LUNCH.veg}
               </div>
-              <div className="text-sm border border-red-300 px-2 h-fit font-medium py-1 rounded-2xl bg-red-50 text-red-800">
+              <div className="text-sm border border-red-300 px-2 h-fit  sm:min-w-fit font-medium py-1 rounded-2xl bg-red-50 text-red-800">
                 Lunch N.Veg: {mealCount.LUNCH.nonVeg}
               </div>
-              <div className="text-sm border border-green-300 px-2 h-fit font-medium py-1 rounded-2xl bg-green-50 text-green-800">
+              <div className="text-sm border border-green-300 px-2 h-fit  sm:min-w-fit font-medium py-1 rounded-2xl bg-green-50 text-green-800">
                 Dinner Veg: {mealCount.DINNER.veg}
               </div>
-              <div className="text-sm border border-red-300 px-2 h-fit font-medium py-1 rounded-2xl bg-red-50 text-red-800">
+              <div className="text-sm border border-red-300 px-2 h-fit  sm:min-w-fit font-medium py-1 rounded-2xl bg-red-50 text-red-800">
                 Dinner N.Veg: {mealCount.DINNER.nonVeg}
               </div>
             </div>
@@ -450,24 +430,9 @@ function Orders() {
                                       {isMealOrder(order) ? (
                                         <>
                                           Meal Scheduled for{" "}
-                                          {(() => {
-                                            const d = new Date(
-                                              Number(order.created_at) +
-                                                order.total_time_to_prepare * 60000 +
-                                                order.delay * 60000
-                                            );
-                                            return `${String(d.getDate()).padStart(
-                                              2,
-                                              "0"
-                                            )}/${String(d.getMonth() + 1).padStart(
-                                              2,
-                                              "0"
-                                            )}/${d.getFullYear()} ${
-                                              d.getHours() % 12 || 12
-                                            }:${String(d.getMinutes()).padStart(2, "0")}${
-                                              d.getHours() >= 12 ? " PM" : " AM"
-                                            }`;
-                                          })()}
+                                          {new Date(
+                                            Number(order.created_at) + order.total_time_to_prepare * 60000 + order.delay * 60000
+                                          ).toDateString()}
                                         </>
                                       ) : (
                                         <>Order Delayed for {order.delay} mins</>
@@ -476,9 +441,7 @@ function Orders() {
                                   </div>
                                 )}
                               </div>
-                              <div className="text-lg text-[#636363]">
-                                ORDER NO: {order.order_id}
-                              </div>
+                              <div className="text-lg text-[#636363]">ORDER NO: {order.order_id}</div>
                               <div className="text-[#7c7c7c] my-2 font-semibold">
                                 {order.guest_name !== null && (
                                   <>
@@ -503,17 +466,9 @@ function Orders() {
                           <div className="w-3/5 md:mx-6 max-md:w-full">
                             <div className="">
                               {order.items.map((item) => (
-                                <div
-                                  key={item.item_id}
-                                  className="flex justify-between items-center w-full"
-                                >
+                                <div key={item.item_id} className="flex justify-between items-center w-full">
                                   <div className="md:px-6 py-2 flex gap-x-3">
-                                    <Image
-                                      width={16}
-                                      height={16}
-                                      alt="veg"
-                                      src={item.type === "veg" ? veg.src : nonveg.src}
-                                    />
+                                    <Image width={16} height={16} alt="veg" src={item.type === "veg" ? veg.src : nonveg.src} />
                                     <div>
                                       {item.qty} x {item.name}
                                     </div>
@@ -524,13 +479,7 @@ function Orders() {
                             </div>
                             <div className="my-4 py-4 md:pl-6 border-t flex w-full justify-between">
                               <div>Total Bill:</div>
-                              <div>
-                                ₹
-                                {order.items.reduce(
-                                  (total, item) => total + item.price * item.qty,
-                                  0
-                                )}
-                              </div>
+                              <div>₹{order.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
                             </div>
                             <div className="flex items-center gap-x-2">
                               <div className="md:ml-6 overflow-hidden h-[56px] my-2 w-[100%] font-medium relative">
@@ -542,11 +491,7 @@ function Orders() {
                                   <div
                                     className={`bg-[#256fef] py-4 rounded-2xl text-white h-[56px]`}
                                     style={{
-                                      width: `${
-                                        ((timers[order.order_id] || 0) /
-                                          (order.total_time_to_prepare * 60)) *
-                                        100
-                                      }%`,
+                                      width: `${((timers[order.order_id] || 0) / (order.total_time_to_prepare * 60)) * 100}%`,
                                     }}
                                   ></div>
                                 </div>
@@ -576,10 +521,9 @@ function Orders() {
                         </div>
                       )
                   )}
-                {!loading && orderData.length === 0 && (
-                  <div className="text-[#7c7c7c] w-full  my-5 font-medium text-xl text-center">
-                    No orders yet
-                  </div>
+
+                {!loading && orderData.filter((order) => !isMealOrder(order)).length === 0 && (
+                  <div className="text-[#7c7c7c] w-full  my-5 font-medium text-xl text-center">No orders yet</div>
                 )}
               </div>
               <div className="space-y-6 w-full">
@@ -610,38 +554,18 @@ function Orders() {
                                 {order.delay > 0 && (
                                   <div>
                                     <Alert color="warning">
-                                      {isMealOrder(order) ? (
-                                        <>
-                                          Meal Scheduled for{" "}
-                                          {(() => {
-                                            const d = new Date(
-                                              Number(order.created_at) +
-                                                order.total_time_to_prepare * 60000 +
-                                                order.delay * 60000
-                                            );
-                                            return `${String(d.getDate()).padStart(
-                                              2,
-                                              "0"
-                                            )}/${String(d.getMonth() + 1).padStart(
-                                              2,
-                                              "0"
-                                            )}/${d.getFullYear()} ${
-                                              d.getHours() % 12 || 12
-                                            }:${String(d.getMinutes()).padStart(2, "0")}${
-                                              d.getHours() >= 12 ? " PM" : " AM"
-                                            }`;
-                                          })()}
-                                        </>
-                                      ) : (
-                                        <>Order Delayed for {order.delay} mins</>
-                                      )}
+                                      Meal Scheduled for{" "}
+                                      {new Date(
+                                        Number(order.created_at) + order.total_time_to_prepare * 60000 + order.delay * 60000
+                                      ).toLocaleDateString()}{" "}
+                                      {new Date(
+                                        Number(order.created_at) + order.total_time_to_prepare * 60 * 1000
+                                      ).toLocaleTimeString("en-US", {  hour: "2-digit", minute: "2-digit" })}
                                     </Alert>
                                   </div>
                                 )}
                               </div>
-                              <div className="text-lg text-[#636363]">
-                                ORDER NO: {order.order_id}
-                              </div>
+                              <div className="text-lg text-[#636363]">ORDER NO: {order.order_id}</div>
                               <div className="text-[#7c7c7c] my-2 font-semibold">
                                 {order.guest_name !== null && (
                                   <>
@@ -666,17 +590,9 @@ function Orders() {
                           <div className="w-3/5 md:mx-6 max-md:w-full">
                             <div className="">
                               {order.items.map((item) => (
-                                <div
-                                  key={item.item_id}
-                                  className="flex justify-between items-center w-full"
-                                >
+                                <div key={item.item_id} className="flex justify-between items-center w-full">
                                   <div className="md:px-6 py-2 flex gap-x-3">
-                                    <Image
-                                      width={16}
-                                      height={16}
-                                      alt="veg"
-                                      src={item.type === "veg" ? veg.src : nonveg.src}
-                                    />
+                                    <Image width={16} height={16} alt="veg" src={item.type === "veg" ? veg.src : nonveg.src} />
                                     <div>
                                       {item.qty} x {item.name}
                                     </div>
@@ -687,13 +603,7 @@ function Orders() {
                             </div>
                             <div className="my-4 py-4 md:pl-6 border-t flex w-full justify-between">
                               <div>Total Bill:</div>
-                              <div>
-                                ₹
-                                {order.items.reduce(
-                                  (total, item) => total + item.price * item.qty,
-                                  0
-                                )}
-                              </div>
+                              <div>₹{order.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
                             </div>
                             <div className="flex items-center gap-x-2">
                               <div className="md:ml-6 overflow-hidden h-[56px] my-2 w-[100%] font-medium relative">
@@ -705,11 +615,7 @@ function Orders() {
                                   <div
                                     className={`bg-[#256fef] py-4 rounded-2xl text-white h-[56px]`}
                                     style={{
-                                      width: `${
-                                        ((timers[order.order_id] || 0) /
-                                          (order.total_time_to_prepare * 60)) *
-                                        100
-                                      }%`,
+                                      width: `${((timers[order.order_id] || 0) / (order.total_time_to_prepare * 60)) * 100}%`,
                                     }}
                                   ></div>
                                 </div>
@@ -739,10 +645,8 @@ function Orders() {
                         </div>
                       )
                   )}
-                {!loading && orderData.length === 0 && (
-                  <div className="text-[#7c7c7c]  my-5 font-medium text-xl text-center">
-                    No orders yet
-                  </div>
+                {!loading && orderData.filter((order) => isMealOrder(order)).length === 0 && (
+                  <div className="text-[#7c7c7c] w-full  my-5 font-medium text-xl text-center">No orders yet</div>
                 )}
               </div>
             </div>
@@ -837,17 +741,9 @@ function Orders() {
                   <div className="w-3/5 md:mx-6 max-md:w-full">
                     <div className="">
                       {order.items.map((item) => (
-                        <div
-                          key={item.item_id}
-                          className="flex justify-between items-center w-full"
-                        >
+                        <div key={item.item_id} className="flex justify-between items-center w-full">
                           <div className="md:px-6 py-2 flex gap-x-3">
-                            <Image
-                              width={16}
-                              height={16}
-                              alt="veg"
-                              src={item.type === "veg" ? veg.src : nonveg.src}
-                            />
+                            <Image width={16} height={16} alt="veg" src={item.type === "veg" ? veg.src : nonveg.src} />
                             <div>
                               {item.qty} x {item.name}
                             </div>
@@ -858,9 +754,7 @@ function Orders() {
                     </div>
                     <div className="my-4 py-4 md:pl-6 border-t flex w-full justify-between">
                       <div>Total Bill:</div>
-                      <div>
-                        ₹{order.items.reduce((total, item) => total + item.price * item.qty, 0)}
-                      </div>
+                      <div>₹{order.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
                     </div>
                     <div className="md:ml-6 overflow-hidden h-[56px] my-2 font-medium relative">
                       <div className="absolute z-10 left-0 text-white bg-[#538cee]  rounded-2xl w-full py-4 text-center">
@@ -872,9 +766,7 @@ function Orders() {
               ))}
 
             {!loading && deliveredData.length === 0 && (
-              <div className="text-[#7c7c7c] my-5 font-medium text-xl text-center">
-                No orders yet
-              </div>
+              <div className="text-[#7c7c7c] my-5 font-medium text-xl text-center">No orders yet</div>
             )}
           </TabPanel>
         </TabPanels>
@@ -893,9 +785,7 @@ function Orders() {
               <div className="w-full items-center my-2 font-medium justify-between text-md  flex">
                 <div className="flex items-center gap-x-2">
                   <div>Order No: {neworderData?.order_id}</div>
-                  <div className="text-green-600 bg-green-[#fdfffe]  border w-fit px-2 py-1 rounded-xl">
-                    {neworderData?.room}
-                  </div>
+                  <div className="text-green-600 bg-green-[#fdfffe]  border w-fit px-2 py-1 rounded-xl">{neworderData?.room}</div>
                 </div>
                 <div>Order by {neworderData?.guest_name}</div>
               </div>
@@ -903,12 +793,7 @@ function Orders() {
                 {neworderData?.items.map((item, index) => (
                   <div key={index} className="flex justify-between items-center w-full">
                     <div className="p-2 flex gap-x-3">
-                      <Image
-                        width={16}
-                        height={16}
-                        alt="veg"
-                        src={item.type === "veg" ? veg.src : nonveg.src}
-                      />
+                      <Image width={16} height={16} alt="veg" src={item.type === "veg" ? veg.src : nonveg.src} />
                       <div>
                         {item.qty} x {item.name}
                       </div>
@@ -919,9 +804,7 @@ function Orders() {
               </div>
               <div className="my-4 pl-2 text-[#636363] flex w-full justify-between">
                 <div>Total Bill:</div>
-                <div>
-                  ₹{neworderData?.items.reduce((total, item) => total + item.price * item.qty, 0)}
-                </div>
+                <div>₹{neworderData?.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
               </div>
             </div>
             <DialogActions className="space-x-3">
