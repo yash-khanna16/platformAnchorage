@@ -572,7 +572,7 @@ const Reservations: React.FC<ReservationsProps> = ({
         sortable: false,
         align: "center",
         headerAlign: "center",
-        width: 250,
+        width: 280,
         renderHeader: (params: GridColumnHeaderParams) => (
           <span
             className="text-[#0D141C] font-semibold pl-3 text-center"
@@ -587,6 +587,7 @@ const Reservations: React.FC<ReservationsProps> = ({
               <IconButton
                 className="w-[40px]"
                 onClick={async () => {
+                  console.log("orderdata: ", params.row.orders)
                   setPreviewReceiptOrderData(params.row.orders);
                   setPreviewReceiptOrder(true);
                 }}

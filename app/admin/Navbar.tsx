@@ -43,6 +43,7 @@ import veg from "@/app/assets/veg.svg";
 import nonveg from "@/app/assets/nonveg.svg";
 import { deleteOrder, fetchAllOrders, updateDelay, updateOrderStatus } from "../actions/api";
 import { getSocket } from "@/app/actions/websocket";
+import Link from "next/link";
 
 function Navbar() {
   const [search, setSearch] = useState("");
@@ -267,7 +268,8 @@ function Navbar() {
             return null;
           }
           return (
-            <div
+            <Link
+            href={`/admin/${option.route}`}
               key={index}
               onClick={() => {
                 router.push(`/admin/${option.route}`);
@@ -283,7 +285,7 @@ function Navbar() {
                   <div className="bg-blue-600 text-white px-2 rounded-full">{orders.length}</div>
                 )}
               </div>
-            </div>
+            </Link>
           );
         })}
         <div
