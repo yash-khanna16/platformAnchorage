@@ -196,12 +196,11 @@ function Orders() {
 
   useEffect(() => {
     const getMealCount = () => {
-      const now = new Date(); // Current time
-      const minutesUntilMidnight = (24 - now.getHours()) * 60 - now.getMinutes(); // Minutes left until midnight
-
-      // Filter orders whose total_time_to_prepare is less than minutes until midnight
+      let nextDay = new Date();
+      nextDay.setDate(nextDay.getDate() + 1);
+      nextDay.setHours(0, 0, 0, 0);
       const validOrders = orderData.filter((order: OrderType) => {
-        return order.total_time_to_prepare <= minutesUntilMidnight;
+        return new Date(Number(order.created_at) + order.total_time_to_prepare * 60000) < nextDay;
       });
 
       const updatedMealCount = {
@@ -210,6 +209,7 @@ function Orders() {
         DINNER: { veg: 0, nonVeg: 0 },
       };
 
+      console.log("valid orders: ", validOrders);
       // Count meals for valid orders
       validOrders.forEach((order: OrderType) => {
         order.items.forEach((item: ItemType) => {
@@ -417,6 +417,13 @@ function Orders() {
                           >
                             <Cancel className="text-red-700 text-lg" />
                           </IconButton>
+                          <div className="text-xs font-semibold absolute bottom-8 left-6">
+                            {new Date(Number(order.created_at)).toLocaleDateString()}{" "}
+                            {new Date(Number(order.created_at)).toLocaleTimeString("en-US", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}{" "}
+                          </div>
                           <div className="w-2/5 max-md:w-full pr-3 md:border-r border-dashed">
                             <div className="space-y-2 border-b pb-5">
                               <div className="flex gap-x-3">
@@ -545,6 +552,13 @@ function Orders() {
                           >
                             <Cancel className="text-red-700 text-lg" />
                           </IconButton>
+                          <div className="text-xs font-semibold absolute bottom-8 left-6">
+                            {new Date(Number(order.created_at)).toLocaleDateString()}{" "}
+                            {new Date(Number(order.created_at)).toLocaleTimeString("en-US", {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}{" "}
+                          </div>
                           <div className="w-2/5 max-md:w-full pr-3 md:border-r border-dashed">
                             <div className="space-y-2 border-b pb-5">
                               <div className="flex gap-x-3">
@@ -560,7 +574,7 @@ function Orders() {
                                       ).toLocaleDateString()}{" "}
                                       {new Date(
                                         Number(order.created_at) + order.total_time_to_prepare * 60 * 1000
-                                      ).toLocaleTimeString("en-US", {  hour: "2-digit", minute: "2-digit" })}
+                                      ).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
                                     </Alert>
                                   </div>
                                 )}
@@ -711,6 +725,13 @@ function Orders() {
                   key={order.order_id}
                   className="w-full max-md:flex-col text-[#636363] grayscale-[90%] flex shadow-md px-6 py-8 font-medium rounded-3xl"
                 >
+                  <div className="text-xs font-semibold absolute bottom-4 left-6">
+                    {new Date(Number(order.created_at)).toLocaleDateString()}{" "}
+                    {new Date(Number(order.created_at)).toLocaleTimeString("en-US", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}{" "}
+                  </div>
                   <div className="w-2/5 max-md:w-full pr-3 md:border-r border-dashed">
                     <div className="space-y-2 border-b pb-5">
                       <div className="text-green-600 bg-green-[#fdfffe] text-2xl border w-fit px-2 py-1 rounded-lg">
