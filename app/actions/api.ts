@@ -1332,9 +1332,12 @@ export async function updateItem(
     price: number;
     time_to_prepare: number;
     type: string;
+    category_id: string;
   }
 ) {
   try {
+
+    console.log("update: ",itemDetails)
     const secret = await loadConfig();
     const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/updateItem`, {
       method: "POST",
