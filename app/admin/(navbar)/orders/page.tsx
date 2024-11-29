@@ -96,6 +96,8 @@ function Orders() {
     },
   };
 
+  console.log("MEAL_IDS: ", MEAL_IDS)
+
   const isMealOrder = (order: OrderType): Boolean => {
     return order.items.some((item) =>
       Object.values(MEAL_IDS).some(
