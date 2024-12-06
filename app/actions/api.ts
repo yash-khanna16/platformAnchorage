@@ -74,6 +74,46 @@ export async function getAvailableRooms(token: string, checkin: Date, checkout: 
     throw error;
   }
 }
+export async function getMigrationRooms(token: string,formData: {
+  checkin: Date;
+      checkout: Date;
+      email: string;
+      meal_veg: number;
+      meal_non_veg: number;
+      remarks: string;
+      additional: string;
+      room: string;
+      name: string;
+      phone: number;
+      company: string;
+      vessel: string;
+      rank: string;
+      breakfast:  number;
+      booking_id: string;
+}) {
+  try {
+    console.log(formData)
+    const secret = await loadConfig();
+    const response = await fetch(`${secret.BACKEND_URL}/api/admin/getMigrationRooms`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({
+        formData:formData
+      }),
+      cache: "no-cache",
+    });
+
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
 export async function addNewBooking(
   token: string,
   bookingData: {
@@ -189,7 +229,6 @@ export async function editBooking(
     originalEmail: string;
   }
 ) {
-  console.log(bookingData);
   try {
     const secret = await loadConfig();
     const response = await fetch(`${secret.BACKEND_URL}/api/admin/editBooking`, {
@@ -927,7 +966,6 @@ export async function editMovement(
     }[];
   }
 ) {
-  console.log(apiData);
   try {
     const secret = await loadConfig();
     const response = await fetch(`${secret.BACKEND_URL}/api/movement/editMovement`, {

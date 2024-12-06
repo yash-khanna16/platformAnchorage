@@ -146,8 +146,10 @@ function NewBooking(): JSX.Element {
           try {
             const newPickUpDateTime = new Date(pickUpDateTime);
             const newReturnDateTime = new Date(returnDateTime);
+            console.log(newPickUpDateTime,newReturnDateTime)
             const result = await getAvailableRooms(token, newPickUpDateTime, newReturnDateTime);
             const roomsAvailable = result.map((data: { room: string; active: string }) => data.room);
+          
             setAvailableRooms(roomsAvailable);
             setRoomDisabled(false);
           } catch {
