@@ -33,8 +33,6 @@ function CheckAvailableRooms() {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [reload, setReload] = useState(false);
-  const [minCheckinDate, setMinCheckinDate] = useState<string>("");
-  const [minCheckinTime, setMinCheckinTime] = useState<string>("");
   const [checkinDate, setCheckinDate] = useState<string>("");
   const [checkinTime, setCheckinTime] = useState<string>("");
   const [checkoutTime, setCheckoutTime] = useState<string>("");

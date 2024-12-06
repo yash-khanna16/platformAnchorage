@@ -1,6 +1,7 @@
 import { addNewBooking, editBooking } from "@/app/actions/api";
 import {
   Button,
+  Chip,
   DialogContent,
   DialogTitle,
   FormControl,
@@ -20,7 +21,7 @@ import Lottie from "lottie-web";
 import React, { SetStateAction, useEffect, useRef, useState } from "react";
 import { CheckCircle, CleaningServices, Close, Info } from "@mui/icons-material";
 import { getAuthAdmin } from "@/app/actions/cookie";
-import { getAvailableRooms } from "@/app/actions/api";
+import { getMigrationRooms } from "@/app/actions/api";
 import CircularProgress from "@mui/joy/CircularProgress";
 import { Select, MenuItem } from "@mui/joy";
 
@@ -45,6 +46,24 @@ interface FormData {
   originalEmail: string;
   room: string;
 }
+
+type BookingData = {
+  checkin: Date;
+  checkout: Date;
+  email: string;
+  meal_veg: number;
+  meal_non_veg: number;
+  remarks: string;
+  additional: string;
+  room: string;
+  name: string;
+  phone: number;
+  company: string;
+  vessel: string;
+  rank: string;
+  breakfast: number;
+  booking_id: string;
+};
 
 function EditBooking({
   initialData,
@@ -111,12 +130,17 @@ function EditBooking({
   const [roomNumber, setRoomNumber] = useState(`${formData.room}`);
   const [errors, setErrors] = useState<Partial<FormData>>({});
   const [availableRooms, setAvailableRooms] = useState([]);
+  const [openConflictModal, setOpenConflictModal] = useState<{
+    open: boolean;
+    value: number;
+    conflicts: BookingData[];
+  }>({ open: false, value: 0, conflicts: [] });
 
   console.log("initial data: ", initialData);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setCheckBox(false)
+    setCheckBox(false);
     // For the Phone Number field, restrict input to numbers only
     // if (name === "phoneNumber") {
     //   // Replace non-numeric characters with an empty string
@@ -161,18 +185,32 @@ function EditBooking({
       [name]: "",
     }));
   };
-  const phoneNumberRegex = /^\+?(\d{1,3})?[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
+  const phoneNumberRegex =
+    /^\+?(\d{1,3})?[-.\s]?\(?\d{1,4}\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
 
   function isValidPhoneNumber(phoneNumber: string) {
     // Remove all non-digit characters
-    const digitsOnly = phoneNumber.replace(/\D/g, '');
+    const digitsOnly = phoneNumber.replace(/\D/g, "");
     // Check if the cleaned number has at least 10 digits and matches the regex
     return digitsOnly.length >= 10 && phoneNumberRegex.test(phoneNumber);
   }
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
 
-    const currentDate = new Date();
+  const fetchStatus = (checkin: Date, checkout: Date): string => {
+    const currentTime = new Date();
+    const checkinTime = new Date(checkin);
+    const checkoutTime = new Date(checkout);
+
+    if (checkoutTime < currentTime) {
+      return "Expired";
+    } else if (checkinTime > currentTime) {
+      return "Upcoming";
+    } else {
+      return "Active";
+    }
+  };
+
+  const handleSubmit = async () => {
+    
     const selectedCheckinDateTime = new Date(`${formData.checkinDate}T${formData.checkinTime}`);
     const selectedCheckoutDateTime = new Date(`${formData.checkoutDate}T${formData.checkoutTime}`);
 
@@ -181,8 +219,8 @@ function EditBooking({
     if (selectedCheckoutDateTime <= selectedCheckinDateTime) {
       newErrors.checkoutDate = "Check-out date and time must be after the check-in date and time.";
     }
-    console.log("form emaiL: ", formData.email)
-    if (formData.email === '') {
+    console.log("form emaiL: ", formData.email);
+    if (formData.email === "") {
       newErrors.email = "Please enter a valid email address.";
     }
     if (formData.email) {
@@ -191,7 +229,7 @@ function EditBooking({
         newErrors.email = "Please enter a valid email address.";
       }
     }
-    
+
     // if (formData.phoneNumber.length) {
     //   if (!isValidPhoneNumber(formData.phoneNumber)) {
     //     newErrors.phoneNumber = "Invalid Phone Number";
@@ -220,7 +258,7 @@ function EditBooking({
         additional: formData.additionalInfo,
         room: formData.room,
         name: formData.name,
-        phone: (formData.phoneNumber),
+        phone: formData.phoneNumber,
         company: formData.companyName,
         vessel: formData.vessel,
         rank: formData.rank,
@@ -254,12 +292,31 @@ function EditBooking({
 
   useEffect(() => {
     const fetchRooms = async () => {
+      const currentDate = new Date();
       const selectedCheckinDateTime = new Date(`${formData.checkinDate}T${formData.checkinTime}`);
-      const selectedCheckoutDateTime = new Date(`${formData.checkoutDate}T${formData.checkoutTime}`);
+      const selectedCheckoutDateTime = new Date(
+        `${formData.checkoutDate}T${formData.checkoutTime}`
+      );
       if (checkBox) {
-        const roomsAvailable = await getAvailableRooms(token, selectedCheckinDateTime, selectedCheckoutDateTime);
+        const formFormat = {
+          checkin: currentDate < selectedCheckinDateTime ? selectedCheckinDateTime : currentDate,
+          checkout: selectedCheckoutDateTime,
+          email: formData.email,
+          meal_veg: formData.veg,
+          meal_non_veg: formData.nonVeg,
+          remarks: formData.remarks,
+          additional: formData.additionalInfo,
+          room: formData.room,
+          name: formData.name,
+          phone: parseInt(formData.phoneNumber),
+          company: formData.companyName,
+          vessel: formData.vessel,
+          rank: formData.rank,
+          breakfast: formData.breakfast,
+          booking_id: formData.booking_id,
+        };
+        const roomsAvailable = await getMigrationRooms(token, formFormat);
         setAvailableRooms(roomsAvailable);
-        console.log(roomsAvailable);
         setRoomNumberLoading(false);
       }
     };
@@ -269,16 +326,26 @@ function EditBooking({
     }
   }, [checkBox]);
 
-  const handleChangeDropdown = (
-    event: React.SyntheticEvent | null,
-    newValue: string | null,
-  ) => {
-    if (newValue) setRoomNumber(newValue)
+  const handleChangeDropdown = (event: React.SyntheticEvent | null, newValue: string | null) => {
+    if (newValue && newValue !== formData.room) {
+      const filteredRoom: { room: string; max_people: number; conflicts: BookingData[] }[] =
+        availableRooms.filter(
+          (room: { room: string; max_people: number; conflicts: BookingData[] }) =>
+            room.room === newValue
+        );
+      if (filteredRoom[0].conflicts.length > 0) {
+        setOpenConflictModal({
+          open: true,
+          value: filteredRoom[0].max_people,
+          conflicts: filteredRoom[0].conflicts,
+        });
+      }
+    }
+    if (newValue) setRoomNumber(newValue);
   };
 
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-10 -w-full">
+    <form onSubmit={(e)=>{e.preventDefault();handleSubmit();}} className="space-y-10 -w-full">
       <div className="grid grid-cols-2 gap-4 w-full max-lg:grid-cols-1">
         <FormControl size="lg" className="space-y-1">
           <FormLabel className="text-[#0D141C] font-medium">Name</FormLabel>
@@ -295,7 +362,14 @@ function EditBooking({
 
         <FormControl size="lg" className="space-y-1">
           <FormLabel>Email Address</FormLabel>
-          <Input name="email" value={formData.email} onChange={handleChange} fullWidth size="lg" placeholder="Email Address" />
+          <Input
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            fullWidth
+            size="lg"
+            placeholder="Email Address"
+          />
           {errors.email && <FormHelperText error>{errors.email}</FormHelperText>}
         </FormControl>
 
@@ -386,22 +460,50 @@ function EditBooking({
 
         <FormControl size="lg" className="space-y-1">
           <FormLabel>Vessel</FormLabel>
-          <Input value={formData.vessel} name="vessel" onChange={handleChange} fullWidth size="lg" placeholder="Vessel" />
+          <Input
+            value={formData.vessel}
+            name="vessel"
+            onChange={handleChange}
+            fullWidth
+            size="lg"
+            placeholder="Vessel"
+          />
         </FormControl>
 
         <FormControl size="lg" className="space-y-1">
           <FormLabel>Rank</FormLabel>
-          <Input value={formData.rank} name="rank" onChange={handleChange} fullWidth size="lg" placeholder="Rank" />
+          <Input
+            value={formData.rank}
+            name="rank"
+            onChange={handleChange}
+            fullWidth
+            size="lg"
+            placeholder="Rank"
+          />
         </FormControl>
 
         <FormControl size="lg" className="space-y-1">
           <FormLabel>ID</FormLabel>
-          <Input value={formData.id} name="id" onChange={handleChange} fullWidth size="lg" placeholder="ID" />
+          <Input
+            value={formData.id}
+            name="id"
+            onChange={handleChange}
+            fullWidth
+            size="lg"
+            placeholder="ID"
+          />
         </FormControl>
 
         <FormControl size="lg" className="space-y-1">
           <FormLabel className="text-[#0D141C] font-medium">Remarks</FormLabel>
-          <Input value={formData.remarks} name="remarks" onChange={handleChange} fullWidth size="lg" placeholder="Remarks" />
+          <Input
+            value={formData.remarks}
+            name="remarks"
+            onChange={handleChange}
+            fullWidth
+            size="lg"
+            placeholder="Remarks"
+          />
         </FormControl>
 
         <FormControl size="lg" className="space-y-1">
@@ -481,11 +583,10 @@ function EditBooking({
           </div>
         </div> */}
         <div>
-          <FormControl >
+          <FormControl>
             <div className="flex space-x-5">
               <FormLabel>Want to migrate?</FormLabel>
               <Checkbox checked={checkBox} onChange={checkBoxChange} />
-
             </div>
           </FormControl>
           {!checkBox ? (
@@ -511,12 +612,52 @@ function EditBooking({
                     },
                   }}
                 >
-                  <Option value={formData.room}>{formData.room}</Option>
-                  {availableRooms.map((data: { room: string; active: boolean }) => (
-                    <Option key={data.room} value={data.room}>
-                      {data.room}
-                    </Option>
-                  ))}
+                  <Option value={formData.room} label={formData.room}>
+                    <div className="flex items-center justify-between w-full">
+                      <div>{formData.room}</div>
+                      <div className="text-xs">Current Room</div>
+                    </div>
+                  </Option>
+                  {availableRooms
+                    .filter(
+                      (data: { room: string; max_people: string; conflicts: BookingData[] }) =>
+                        data.room !== formData.room
+                    )
+                    .map((data: { room: string; max_people: string; conflicts: BookingData[] }) => (
+                      <Option key={data.room} value={data.room} label={data.room}>
+                        <div className="flex justify-between w-full">
+                          <div>{data.room}</div>
+                          <div>
+                            <Chip
+                              className={`mr-2 ${
+                                data.max_people === "0/4"
+                                  ? "text-green-600"
+                                  : data.max_people === "1/4"
+                                  ? "text-yellow-500"
+                                  : data.max_people === "2/4"
+                                  ? "text-orange-500"
+                                  : "text-red-600"
+                              } `}
+                            >
+                              {data.conflicts.length}
+                            </Chip>
+                            <Chip
+                              className={`${
+                                data.max_people === "0/4"
+                                  ? "text-green-600"
+                                  : data.max_people === "1/4"
+                                  ? "text-yellow-500"
+                                  : data.max_people === "2/4"
+                                  ? "text-orange-500"
+                                  : "text-red-600"
+                              } `}
+                            >
+                              {`${data.max_people}`}
+                            </Chip>
+                          </div>
+                        </div>
+                      </Option>
+                    ))}
                 </Select>
               </FormControl>
             </div>
@@ -540,6 +681,73 @@ function EditBooking({
             <div className="flex flex-col h-56 items-center overflow-hidden ">
               {/* <CheckCircle className="h-40 scale-[500%] text-green-600" /> */}
               <div className="font-semibold text-2xl">Entry Edited successfully</div>
+            </div>
+          </DialogContent>
+        </ModalDialog>
+      </Modal>
+      <Modal
+        open={openConflictModal.open}
+        onClose={() => {
+          setOpenConflictModal({ ...openConflictModal, open: false });
+        }}
+      >
+        <ModalDialog size="lg">
+          <ModalClose style={{ zIndex: "10" }} />
+          <DialogTitle className="text-red-500">Caution</DialogTitle>
+          <DialogContent className="h-fit min-w-96 max-lg:min-w-80 max-sm:min-w-72">
+            <div className="flex flex-col overflow-hidden">
+              <div className="font-semibold">
+                It will conflict with{" "}
+                {openConflictModal.conflicts.length > 1
+                  ? `${openConflictModal.conflicts.length} bookings`
+                  : `${openConflictModal.conflicts.length} booking`}
+              </div>
+              {openConflictModal.conflicts.length > 0 && (
+                <div className="grid grid-cols-3 gap-5 mt-5 text-red-500 font-semibold mb-2">
+                  <div>Guest Name</div>
+                  <div>Status</div>
+                  <div>Company</div>
+                </div>
+              )}
+              {openConflictModal.conflicts
+                .sort(
+                  (a: BookingData, b: BookingData) =>
+                    new Date(a.checkin).getTime() - new Date(b.checkin).getTime()
+                )
+                .map((conflict: BookingData) => {
+                  const status = fetchStatus(conflict.checkin, conflict.checkout); // Optimize by calling once
+                  return (
+                    <div key={conflict.booking_id} className="grid grid-cols-3 gap-5 mb-1">
+                      <div>{conflict.name}</div>
+                      <div className="flex items-center">
+                      <Chip
+                        size="sm"
+                        variant="outlined"
+                        color={
+                          status === "Expired"
+                            ? "danger"
+                            : status === "Active"
+                            ? "success"
+                            : "warning"
+                        }
+                      >
+                        {status}
+                      </Chip>
+                      </div>
+                      <div>{conflict.company}</div>
+                    </div>
+                  );
+                })}
+
+              <Button
+                onClick={(e) => {
+                  handleSubmit();
+                  setOpenConflictModal({ ...openConflictModal, open: false })
+                }}
+                className="mt-2 bg-red-500 text-white font-semibold hover:bg-red-600"
+              >
+                Edit Anyway
+              </Button>
             </div>
           </DialogContent>
         </ModalDialog>
