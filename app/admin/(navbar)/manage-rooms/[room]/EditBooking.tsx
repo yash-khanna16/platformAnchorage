@@ -210,7 +210,6 @@ function EditBooking({
   };
 
   const handleSubmit = async () => {
-    
     const selectedCheckinDateTime = new Date(`${formData.checkinDate}T${formData.checkinTime}`);
     const selectedCheckoutDateTime = new Date(`${formData.checkoutDate}T${formData.checkoutTime}`);
 
@@ -345,7 +344,13 @@ function EditBooking({
   };
 
   return (
-    <form onSubmit={(e)=>{e.preventDefault();handleSubmit();}} className="space-y-10 -w-full">
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        handleSubmit();
+      }}
+      className="space-y-10 -w-full"
+    >
       <div className="grid grid-cols-2 gap-4 w-full max-lg:grid-cols-1">
         <FormControl size="lg" className="space-y-1">
           <FormLabel className="text-[#0D141C] font-medium">Name</FormLabel>
@@ -694,7 +699,7 @@ function EditBooking({
         <ModalDialog size="lg">
           <ModalClose style={{ zIndex: "10" }} />
           <DialogTitle className="text-red-500">Caution</DialogTitle>
-          <DialogContent className="h-fit min-w-96 max-lg:min-w-80 max-sm:min-w-72">
+          <DialogContent className="h-fit ">
             <div className="flex flex-col overflow-hidden">
               <div className="font-semibold">
                 It will conflict with{" "}
@@ -702,47 +707,51 @@ function EditBooking({
                   ? `${openConflictModal.conflicts.length} bookings`
                   : `${openConflictModal.conflicts.length} booking`}
               </div>
-              {openConflictModal.conflicts.length > 0 && (
-                <div className="grid grid-cols-3 gap-5 mt-5 text-red-500 font-semibold mb-2">
-                  <div>Guest Name</div>
-                  <div>Status</div>
-                  <div>Company</div>
+              <div className="overflow-auto scrollNone">
+                {openConflictModal.conflicts.length > 0 && (
+                  <div className="grid grid-cols-[1.5fr,1fr,1fr] gap-2 mt-5 text-red-500 font-semibold mb-2 min-w-[500px]">
+                    <div>Guest Name</div>
+                    <div>Status</div>
+                    <div>Company</div>
+                  </div>
+                )}
+                <div className="flex flex-col gap-1 min-w-[500px]">
+                  {openConflictModal.conflicts
+                    .sort(
+                      (a: BookingData, b: BookingData) =>
+                        new Date(a.checkin).getTime() - new Date(b.checkin).getTime()
+                    )
+                    .map((conflict: BookingData) => {
+                      const status = fetchStatus(conflict.checkin, conflict.checkout); // Optimize by calling once
+                      return (
+                        <div key={conflict.booking_id} className="grid grid-cols-[1.5fr,1fr,1fr] gap-2 items-center mb-1">
+                          <div>{conflict.name}</div>
+                          <div>
+                            <Chip
+                              size="sm"
+                              variant="outlined"
+                              color={
+                                status === "Expired"
+                                  ? "danger"
+                                  : status === "Active"
+                                  ? "success"
+                                  : "warning"
+                              }
+                            >
+                              {status}
+                            </Chip>
+                          </div>
+                          <div>{conflict.company}</div>
+                        </div>
+                      );
+                    })}
                 </div>
-              )}
-              {openConflictModal.conflicts
-                .sort(
-                  (a: BookingData, b: BookingData) =>
-                    new Date(a.checkin).getTime() - new Date(b.checkin).getTime()
-                )
-                .map((conflict: BookingData) => {
-                  const status = fetchStatus(conflict.checkin, conflict.checkout); // Optimize by calling once
-                  return (
-                    <div key={conflict.booking_id} className="grid grid-cols-3 gap-5 mb-1">
-                      <div>{conflict.name}</div>
-                      <div className="flex items-center">
-                      <Chip
-                        size="sm"
-                        variant="outlined"
-                        color={
-                          status === "Expired"
-                            ? "danger"
-                            : status === "Active"
-                            ? "success"
-                            : "warning"
-                        }
-                      >
-                        {status}
-                      </Chip>
-                      </div>
-                      <div>{conflict.company}</div>
-                    </div>
-                  );
-                })}
+              </div>
 
               <Button
                 onClick={(e) => {
                   handleSubmit();
-                  setOpenConflictModal({ ...openConflictModal, open: false })
+                  setOpenConflictModal({ ...openConflictModal, open: false });
                 }}
                 className="mt-2 bg-red-500 text-white font-semibold hover:bg-red-600"
               >
