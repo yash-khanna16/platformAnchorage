@@ -362,10 +362,18 @@ function Analytics() {
     let profit;
 
     if (selectedOption === "month") {
-      room = await fetchRoomData(token, prevMonth, currentYear);
-      meal = await fetchMeals(token, prevMonth, currentYear);
-      breakfast = await fetchBreakfast(token, prevMonth, currentYear);
-      profit = await fetchProfitData(token, prevMonth, currentYear);
+      if(currentMonth==="1"){
+        room = await fetchRoomData(token, prevMonth, prevYear);
+        meal = await fetchMeals(token, prevMonth, prevYear);
+        breakfast = await fetchBreakfast(token, prevMonth, prevYear);
+        profit = await fetchProfitData(token, prevMonth, prevYear);
+      }
+      else{
+        room = await fetchRoomData(token, prevMonth, currentYear);
+        meal = await fetchMeals(token, prevMonth, currentYear);
+        breakfast = await fetchBreakfast(token, prevMonth, currentYear);
+        profit = await fetchProfitData(token, prevMonth, currentYear);
+      }
     }
     if (selectedOption === "quarter") {
       if (prevQuarter === "4") {
