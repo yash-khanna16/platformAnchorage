@@ -69,7 +69,7 @@ function Analytics() {
     });
   }, []);
 
-  async function handleSelectChange() {}
+  async function handleSelectChange() { }
 
   const fetchGraph = async () => {
     try {
@@ -348,12 +348,23 @@ function Analytics() {
     const currentYear = currentDate.getFullYear().toString();
     const prevYear = (currentDate.getFullYear() - 1).toString();
 
+    const currentQuarter = Math.ceil(parseInt(currentMonth) / 3);
+
     // Calculate previous quarter
-    let prevQuarter;
-    if (parseInt(currentMonth) <= 2) {
-      prevQuarter = 4; // If it's Q1, previous quarter is Q4 of the previous year
+    let prevQuarter, prevQuarterYear;
+
+    if (currentQuarter === 1) {
+      prevQuarter = "4"; // Previous quarter is Q4
+      prevQuarterYear = (parseInt(currentYear) - 1).toString();
     } else {
-      prevQuarter = Math.ceil((parseInt(currentMonth) - 2) / 3); // Subtract 2 to adjust for 0-indexed months
+      prevQuarter = (currentQuarter - 1).toString();
+      prevQuarterYear = currentYear;
+    }
+    let prevMonthYear;
+    if (currentMonth === "1") {
+      prevMonthYear = (parseInt(currentYear) - 1).toString();
+    } else {
+      prevMonthYear = currentYear;
     }
     prevQuarter = prevQuarter.toString();
     let room;
@@ -362,31 +373,18 @@ function Analytics() {
     let profit;
 
     if (selectedOption === "month") {
-      if(currentMonth==="1"){
-        room = await fetchRoomData(token, prevMonth, prevYear);
-        meal = await fetchMeals(token, prevMonth, prevYear);
-        breakfast = await fetchBreakfast(token, prevMonth, prevYear);
-        profit = await fetchProfitData(token, prevMonth, prevYear);
-      }
-      else{
-        room = await fetchRoomData(token, prevMonth, currentYear);
-        meal = await fetchMeals(token, prevMonth, currentYear);
-        breakfast = await fetchBreakfast(token, prevMonth, currentYear);
-        profit = await fetchProfitData(token, prevMonth, currentYear);
-      }
+
+      room = await fetchRoomData(token, prevMonth, prevMonthYear);
+      meal = await fetchMeals(token, prevMonth, prevMonthYear);
+      breakfast = await fetchBreakfast(token, prevMonth, prevMonthYear);
+      profit = await fetchProfitData(token, prevMonth, prevMonthYear);
+
     }
     if (selectedOption === "quarter") {
-      if (prevQuarter === "4") {
-        room = await fetchRoomDataQuarter(token, prevQuarter, prevYear);
-        meal = await fetchMealsQuarter(token, prevQuarter, prevYear);
-        breakfast = await fetchBreakfastQuarter(token, prevQuarter, prevYear);
-        profit = await fetchProfitDataQuarter(token, prevQuarter, prevYear);
-      } else {
-        room = await fetchRoomDataQuarter(token, prevQuarter, currentYear);
-        meal = await fetchMealsQuarter(token, prevQuarter, currentYear);
-        breakfast = await fetchBreakfastQuarter(token, prevQuarter, currentYear);
-        profit = await fetchProfitDataQuarter(token, prevQuarter, currentYear);
-      }
+      room = await fetchRoomDataQuarter(token, prevQuarter, prevQuarterYear);
+      meal = await fetchMealsQuarter(token, prevQuarter, prevQuarterYear);
+      breakfast = await fetchBreakfastQuarter(token, prevQuarter, prevQuarterYear);
+      profit = await fetchProfitDataQuarter(token, prevQuarter, prevQuarterYear);
     }
     if (selectedOption === "year") {
       room = await fetchRoomDataYear(token, prevYear);
@@ -404,6 +402,9 @@ function Analytics() {
     });
 
     const prevAvg = Number((prevTotal / numberOfdays).toFixed(2));
+
+    // console.log("prevQuarter: ", prevQuarter, "prevQuarterYear: ", prevQuarterYear)
+    // console.log("prevMonth: ", prevMonth, "prevMonthYear: ", prevMonthYear)
 
     setPrevBookings(prevAvg);
     let currentTotal = 0;
