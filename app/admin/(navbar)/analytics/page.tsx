@@ -69,7 +69,7 @@ function Analytics() {
     });
   }, []);
 
-  async function handleSelectChange() { }
+  async function handleSelectChange() {}
 
   const fetchGraph = async () => {
     try {
@@ -373,12 +373,10 @@ function Analytics() {
     let profit;
 
     if (selectedOption === "month") {
-
       room = await fetchRoomData(token, prevMonth, prevMonthYear);
       meal = await fetchMeals(token, prevMonth, prevMonthYear);
       breakfast = await fetchBreakfast(token, prevMonth, prevMonthYear);
       profit = await fetchProfitData(token, prevMonth, prevMonthYear);
-
     }
     if (selectedOption === "quarter") {
       room = await fetchRoomDataQuarter(token, prevQuarter, prevQuarterYear);
@@ -408,78 +406,67 @@ function Analytics() {
 
     setPrevBookings(prevAvg);
     let currentTotal = 0;
-    numberOfdays = 0;
 
     roomData.map((entry: { date: string; data: string }) => {
       currentTotal = currentTotal + Number(entry.data);
-      numberOfdays++;
     });
 
-    const Avg = Number((currentTotal / numberOfdays).toFixed(2));
+    const Avg = Number((currentTotal / roomData.length).toFixed(2));
     setBookings(Avg);
 
     let prevMeal: number = 0;
 
-    meal?.map((entry: { booking_date: string; average_meals_per_day: string }) => {
+    meal.map((entry: { booking_date: string; average_meals_per_day: string }) => {
       prevMeal = prevMeal + Number(entry.average_meals_per_day);
-      numberOfdays++;
     });
 
-    const avgMeal = Number((prevMeal / numberOfdays).toFixed(2));
+    const avgMeal = Number((prevMeal / meal.length).toFixed(2));
+    console.log("prevMeal: ", meal, prevMeal, meal.length, avgMeal);
     setPrevMeal(avgMeal);
 
     let currentMeal = 0;
-    numberOfdays = 0;
 
     mealData.map((entry: { date: string; data: string }) => {
       currentMeal = currentMeal + Number(entry.data);
-      numberOfdays++;
     });
 
-    const avgCurrentMeal = Number((currentMeal / numberOfdays).toFixed(2));
+    const avgCurrentMeal = Number((currentMeal / mealData.length).toFixed(2));
     setMeal(avgCurrentMeal);
 
     let prevBreakfast: number = 0;
 
     breakfast?.map((entry: { booking_date: string; average_breakfasts_per_day: string }) => {
       prevBreakfast = prevBreakfast + Number(entry.average_breakfasts_per_day);
-      numberOfdays++;
     });
 
-    const avgBreakfast = Number((prevBreakfast / numberOfdays).toFixed(2));
+    const avgBreakfast = Number((prevBreakfast / breakfast.length).toFixed(2));
     setPrevBreakfast(avgBreakfast);
 
     let currentBreakfast = 0;
-    numberOfdays = 0;
 
     breakfastData.map((entry: { date: string; data: string }) => {
       currentBreakfast = currentBreakfast + Number(entry.data);
-      numberOfdays++;
     });
 
-    const avgCurrentBreakfast = Number((currentBreakfast / numberOfdays).toFixed(2));
+    const avgCurrentBreakfast = Number((currentBreakfast / breakfastData.length).toFixed(2));
     setBreakfast(avgCurrentBreakfast);
 
     let prevProfit: number = 0;
-    numberOfdays = 0;
 
     profit.map((entry: { order_date: string; total_profit: string }) => {
       prevProfit = prevProfit + Number(entry.total_profit);
-      numberOfdays++;
     });
-    const avgPrevProfit = Number((prevProfit / numberOfdays).toFixed(2));
+    const avgPrevProfit = Number((prevProfit / profit.length).toFixed(2));
     setPrevProfit(avgPrevProfit);
     setPrevTotalProfit(prevProfit);
 
     let currentProfit: number = 0;
-    numberOfdays = 0;
 
     profitData.map((entry: { date: string; data: string }) => {
       currentProfit = currentProfit + Number(entry.data);
-      numberOfdays++;
     });
     setTotalProfit(currentProfit);
-    const avgCurrentProfit = Number((currentProfit / numberOfdays).toFixed(2));
+    const avgCurrentProfit = Number((currentProfit / profitData.length).toFixed(2));
     setProfit(avgCurrentProfit);
     setLoading(false);
   };
@@ -586,7 +573,10 @@ function Analytics() {
           )}
           {!loading && (
             <div className="p-5 shadow-md w-full  xl:h-[45vh]  border rounded-xl max-lg:p-0">
-              <PieChart chartData={companyData} title={`Company Wise Booking Per ${selectedOption}`} />
+              <PieChart
+                chartData={companyData}
+                title={`Company Wise Booking Per ${selectedOption}`}
+              />
             </div>
           )}
           {loading && (
