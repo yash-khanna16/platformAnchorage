@@ -56,6 +56,7 @@ type GuestType = {
   phone?: string;
   vessel?: string;
   remark?: string;
+  rank?: string;
 };
 
 type PassengerType = {
@@ -63,6 +64,7 @@ type PassengerType = {
   phoneNumber: string;
   remark: string;
   company: string;
+  rank: string;
 };
 type FormDataType = {
   driverName: string;
@@ -160,6 +162,7 @@ function AddMovement() {
     phoneNumber: "",
     remark: "",
     company: "",
+    rank: "",
   });
   const [availableDrivers, setAvailableDrivers] = useState([]);
   const [availableCars, setAvailableCars] = useState([]);
@@ -262,6 +265,7 @@ function AddMovement() {
           phone: entry.phoneNumber,
           remark: entry.remark,
           company: entry.company,
+          rank:entry.rank
         };
       });
       const dataSend = {
@@ -326,6 +330,7 @@ function AddMovement() {
           phone: entry.phoneNumber,
           remark: entry.remark,
           company: entry.company,
+          rank:entry.rank,
         };
       });
       const newSelectedPassenger = selectedPassenger.map((entry: GuestType) => {
@@ -430,7 +435,7 @@ function AddMovement() {
     const { name, value } = e.target;
     setPassengerDetails((prevState) => ({
       ...prevState,
-      [name]: name === "phoneNumber" ? value.replace(/\D/g, "").slice(0, 10) : value,
+      [name]: name === "phoneNumber" ? value.replace(/\D/g, "") : value,
     }));
   };
 
@@ -516,7 +521,7 @@ function AddMovement() {
     setManualPassenger([...manualPassenger, passengerDetails]);
     console.log(manualPassenger);
     setManually(false);
-    setPassengerDetails({ name: "", phoneNumber: "", remark: "", company: "" });
+    setPassengerDetails({ name: "", phoneNumber: "", remark: "", company: "", rank: "" });
   };
 
   useEffect(() => {
@@ -760,6 +765,19 @@ function AddMovement() {
                     placeholder="Enter Remark"
                   />
                 </FormControl>
+                <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
+                  <FormLabel className="text-[#0D141C] font-medium">Rank</FormLabel>
+                  <Input
+                    name="rank"
+                    onChange={handleChange}
+                    value={data.rank}
+                    required
+                    disabled
+                    fullWidth
+                    size="lg"
+                    placeholder="Enter Rank"
+                  />
+                </FormControl>
                 <FormControl size="lg" className="my-1">
                   <FormLabel className="text-[#0D141C] font-medium">Remark</FormLabel>
                   <Input
@@ -831,6 +849,19 @@ function AddMovement() {
                     fullWidth
                     size="lg"
                     placeholder="Enter Remark"
+                  />
+                </FormControl>
+                <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
+                  <FormLabel className="text-[#0D141C] font-medium">Rank</FormLabel>
+                  <Input
+                    name="rank"
+                    onChange={handleChange}
+                    value={data.rank}
+                    required
+                    disabled
+                    fullWidth
+                    size="lg"
+                    placeholder="Enter Rank"
                   />
                 </FormControl>
                 <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
@@ -909,6 +940,7 @@ function AddMovement() {
             name: "",
             phoneNumber: "",
             remark: "",
+            rank: "",
           });
         }}
       >
@@ -953,7 +985,6 @@ function AddMovement() {
                     input: {
                       inputMode: "numeric",
                       pattern: "[0-9]*",
-                      maxLength: 10,
                     },
                   }}
                 />
@@ -974,6 +1005,18 @@ function AddMovement() {
                   fullWidth
                   size="lg"
                   placeholder="Enter Company"
+                />
+              </FormControl>
+              <FormControl size="lg" className="my-1">
+                <FormLabel className="text-[#0D141C] font-medium">Rank</FormLabel>
+                <Input
+                  name="rank" // Ensure this matches the state property
+                  value={passengerDetails.rank}
+                  onChange={handleChange}
+                  required
+                  fullWidth
+                  size="lg"
+                  placeholder="Enter Rank"
                 />
               </FormControl>
               <FormControl size="lg" className="my-1">

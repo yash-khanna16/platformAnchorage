@@ -19,22 +19,20 @@ import {
   Option,
   Snackbar,
   Table,
-  ButtonGroup,
 } from "@mui/joy";
 import Reservations from "../manage-rooms/[room]/Reservations";
 import { Box, Typography, IconButton, DialogActions } from "@mui/material";
 import Input from "@mui/joy/Input";
 import Checkbox from "@mui/joy/Checkbox";
-import React, { SetStateAction, useEffect, useRef, useState } from "react";
-import { CheckCircle, Close, Info, Stop } from "@mui/icons-material";
+import React, { SetStateAction, useEffect, useState } from "react";
+import { CheckCircle, Close, Info } from "@mui/icons-material";
 import { getAuthAdmin } from "@/app/actions/cookie";
-import { Select, MenuItem } from "@mui/joy";
+import { Select} from "@mui/joy";
 import { Cancel, WarningRounded } from "@mui/icons-material";
 import WarningRoundedIcon from "@mui/icons-material/WarningRounded";
 import { GridRowSelectionModel } from "@mui/x-data-grid";
 import { deleteMovementByMovementId } from "@/app/actions/api";
 import { stopIcon } from "@/assets/icons";
-import zIndex from "@mui/material/styles/zIndex";
 
 type MovementType = {
   movement_id: string;
@@ -53,6 +51,7 @@ type MovementType = {
     remark: string;
     company: string;
     external_booking: boolean;
+    rank: string;
   }[];
 };
 
@@ -75,6 +74,7 @@ type EditMovementType = {
     remark: string;
     external_booking: boolean;
     company: string;
+    rank: string;
   }[];
 };
 
@@ -109,6 +109,7 @@ type PassengerType = {
   remark: string;
   company: string;
   external_booking: boolean;
+  rank: string;
 };
 
 type GuestType = {
@@ -226,7 +227,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
   const [loadingDelete, setLoadingDelete] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
-  const [password,setPassword]=useState("")
+  const [password, setPassword] = useState("")
   const [alert, setAlert] = useState(false);
   const [passengerModal, setPassengerModal] = useState(false);
   const [message, setMessage] = useState("");
@@ -253,6 +254,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
     remark: "",
     company: "",
     external_booking: true,
+    rank: ""
   });
   const [errorModal, setErrorModal] = useState(false);
   const [conflicts, setConflicts] = useState<Conflict[]>([]);
@@ -268,7 +270,6 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
     setNewDriver(selectedData.driver);
     setNewCar(selectedData.car_number);
     setCheckBox(false);
-    console.log(formData);
   }, [selectedData]);
 
   useEffect(() => {
@@ -311,7 +312,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
     }
   };
 
-  const changePassword = (e:React.ChangeEvent<HTMLInputElement>)=>{
+  const changePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPassword(e.target.value);
   }
 
@@ -348,6 +349,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
         remark: string;
         company: string;
         external_booking: boolean;
+        rank: string;
       }) => {
         if (data.passenger_id === passenger_id) {
           return { ...data, [name]: value };
@@ -365,7 +367,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
   const handlePassengerDelete = async () => {
     try {
       setLoadingDelete(true);
-      const res = await deletePassenger(token, formData.movement_id, deleteId,password);
+      const res = await deletePassenger(token, formData.movement_id, deleteId, password);
       setMessage(res.message);
       if (res.message === "Passenger and related records deleted successfully.") {
         const newPassengersList = formData.passengers.filter(
@@ -443,7 +445,6 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
   async function getGuests() {
     try {
       let fetchedRows = await searchAllGuests(token);
-      console.log(fetchedRows);
 
       const currentTime = new Date();
 
@@ -495,6 +496,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
         phone: entry.phoneNumber,
         remark: entry.remark,
         company: entry.company,
+        rank:entry.rank,
       };
     });
     const newSelectedPassenger = selectedPassenger.map((entry: GuestType) => {
@@ -592,6 +594,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
       remark: "",
       company: "",
       external_booking: true,
+      rank: ""
     });
   };
   const handlePassengerChange = (
@@ -705,7 +708,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
   const deleteMovement = async () => {
     setDelMovement(false);
     try {
-      const res = await deleteMovementByMovementId(token, formData.movement_id,password);
+      const res = await deleteMovementByMovementId(token, formData.movement_id, password);
       if (res.message === "Movement and related data deleted successfully!") {
         setDeleteConfirm(true);
       }
@@ -962,6 +965,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
               remark: string;
               external_booking: boolean;
               company: string;
+              rank: string;
             },
             index
           ) => (
@@ -1028,6 +1032,20 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
                     placeholder="Enter Company"
                   />
                 </FormControl>
+                <FormControl size="lg" className="my-1 ">
+                  <FormLabel className="text-[#0D141C] font-medium">Rank</FormLabel>
+                  <Input
+                    name="rank"
+                    disabled={!data.external_booking}
+                    value={data.rank}
+                    onChange={(e) => {
+                      handleChangePassenger(e, data.passenger_id);
+                    }}
+                    fullWidth
+                    size="lg"
+                    placeholder="Enter Rank"
+                  />
+                </FormControl>
                 <FormControl size="lg" className="my-1">
                   <FormLabel className="text-[#0D141C] font-medium">Remark</FormLabel>
                   <Input
@@ -1086,6 +1104,17 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
                 <Input
                   name="company"
                   value={data.company}
+                  disabled
+                  fullWidth
+                  size="lg"
+                  placeholder="Enter Remark"
+                />
+              </FormControl>
+              <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
+                <FormLabel className="text-[#0D141C] font-medium">Rank</FormLabel>
+                <Input
+                  name="rank"
+                  value={data.rank || ""}
                   disabled
                   fullWidth
                   size="lg"
@@ -1166,6 +1195,19 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
                 />
               </FormControl>
               <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
+                <FormLabel className="text-[#0D141C] font-medium">Rank</FormLabel>
+                <Input
+                  name="rank"
+                  onChange={handleChange}
+                  value={data.rank}
+                  required
+                  disabled
+                  fullWidth
+                  size="lg"
+                  placeholder="Enter Remark"
+                />
+              </FormControl>
+              <FormControl size="lg" className="my-1 hover:cursor-not-allowed">
                 <FormLabel className="text-[#0D141C] font-medium">Remark</FormLabel>
                 <Input
                   name="Pick Up"
@@ -1207,11 +1249,12 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
             phoneNumber: "",
             remark: "",
             external_booking: true,
+            rank: "",
           });
         }}
       >
         <ModalDialog style={{ width: "50vw" }}>
-          <ModalClose style={{zIndex:"10"}}/>
+          <ModalClose style={{ zIndex: "10" }} />
           <DialogContent className="h-fit">
             <Typography className="text-4xl mb-5" component="div" fontWeight="bold">
               Add Details
@@ -1275,6 +1318,18 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
                 />
               </FormControl>
               <FormControl size="lg" className="my-1">
+                <FormLabel className="text-[#0D141C] font-medium">Rank</FormLabel>
+                <Input
+                  name="rank" // Ensure this matches the state property
+                  value={passengerDetails.rank}
+                  onChange={handleChangeManually}
+                  required
+                  fullWidth
+                  size="lg"
+                  placeholder="Enter Company"
+                />
+              </FormControl>
+              <FormControl size="lg" className="my-1">
                 <FormLabel className="text-[#0D141C] font-medium">Remark</FormLabel>
                 <Input
                   name="remark" // Ensure this matches the state property
@@ -1320,7 +1375,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
         }}
       >
         <ModalDialog style={{ width: "75vw" }}>
-          <ModalClose style={{zIndex:"10"}}/>
+          <ModalClose style={{ zIndex: "10" }} />
           <DialogContent className="h-fit">
             <Reservations
               reload={reload}
@@ -1379,7 +1434,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
                 placeholder="Enter Password"
               />
             </FormControl>
-            </DialogContent>
+          </DialogContent>
           <DialogActions>
             <Button
               variant="solid"
@@ -1389,7 +1444,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
             >
               Confirm
             </Button>
-            <Button variant="plain" color="neutral" onClick={() => {setDel(false);setPassword("");}}>
+            <Button variant="plain" color="neutral" onClick={() => { setDel(false); setPassword(""); }}>
               Cancel
             </Button>
           </DialogActions>
@@ -1448,7 +1503,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
         }}
       >
         <ModalDialog size="lg">
-          <ModalClose style={{zIndex:"10"}}/>
+          <ModalClose style={{ zIndex: "10" }} />
           <DialogTitle className="">Movement Confirmation</DialogTitle>
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
@@ -1467,7 +1522,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
         }}
       >
         <ModalDialog size="lg">
-          <ModalClose style={{zIndex:"10"}}/>
+          <ModalClose style={{ zIndex: "10" }} />
           <DialogTitle className="">Edit Movement Error</DialogTitle>
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
@@ -1511,7 +1566,7 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
         }}
       >
         <ModalDialog size="lg">
-          <ModalClose style={{zIndex:"10"}}/>
+          <ModalClose style={{ zIndex: "10" }} />
           <DialogTitle className="">Movement Confirmation</DialogTitle>
           <DialogContent className="h-fit">
             <div className="flex flex-col h-56 items-center overflow-hidden ">
@@ -1549,12 +1604,12 @@ const Edit: React.FC<EditMovementProps> = ({ selectedData, reload, setReload }) 
                 placeholder="Enter Password"
               />
             </FormControl>
-            </DialogContent>
+          </DialogContent>
           <DialogActions>
             <Button variant="solid" color="danger" onClick={deleteMovement}>
               Confirm
             </Button>
-            <Button variant="plain" color="neutral" onClick={() => {setDelMovement(false);setPassword("")}}>
+            <Button variant="plain" color="neutral" onClick={() => { setDelMovement(false); setPassword("") }}>
               Cancel
             </Button>
           </DialogActions>

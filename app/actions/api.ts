@@ -820,6 +820,7 @@ export async function addMovement(
       phoneNumber?: string;
       remark?: string;
       company?: string;
+      rank?:string;
     }[];
   }
 ) {

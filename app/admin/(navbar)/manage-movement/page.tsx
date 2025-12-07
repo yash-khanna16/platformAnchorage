@@ -24,6 +24,7 @@ type MovementType = {
     remark: string;
     external_booking: boolean;
     company: string;
+    rank:string;
   }[];
 };
 
