@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Tab, TabGroup, TabList, TabPanel, TabPanels } from "@headlessui/react";
-import { Cancel, Check, CheckCircle, Close, Info, Warning, WarningRounded } from "@mui/icons-material";
+import { Cancel, Check, CheckCircle, Close, Info, Warning, WarningRounded, Add } from "@mui/icons-material";
 import veg from "@/app/assets/veg.svg";
 import nonveg from "@/app/assets/nonveg.svg";
 import Image from "next/image";
@@ -19,13 +19,10 @@ import {
   Input,
   ModalClose,
   ModalDialog,
-  ButtonGroup,
-  Sheet,
   Snackbar,
-  Typography,
   Alert,
-  Chip,
 } from "@mui/joy";
+import AddOrderModal from "@/app/components/modal/AddOrderModal";
 
 export type ItemType = {
   item_id: string;
@@ -73,6 +70,7 @@ function Orders() {
   const [deleteId, setDeleteId] = useState("");
   const [delayModal, setDelayModal] = useState(false);
   const [delayId, setDelayId] = useState("");
+  const [openAddOrderModal, setAddOrderModal] = useState<boolean>(false)
   const [mealCount, setMealCount] = useState({
     BREAKFAST: { veg: 0, nonVeg: 0 },
     LUNCH: { veg: 0, nonVeg: 0 },
@@ -96,7 +94,6 @@ function Orders() {
     },
   };
 
-  console.log("MEAL_IDS: ", MEAL_IDS)
 
   const isMealOrder = (order: OrderType): Boolean => {
     return order.items.some((item) =>
@@ -297,23 +294,26 @@ function Orders() {
   };
 
   return (
-    <div className="my-10 mx-10">
+    <div className="">
       <TabGroup selectedIndex={selectedTab} onChange={setSelectedTab} className="">
-        <TabList className="flex gap-x-5">
-          <Tab className="border outline-none data-[selected]:text-[#ef4f5f] px-4 font-medium cursor-pointer flex gap-x-2 shadow-md py-2 w-fit text-[#b9b9b9] rounded-xl">
-            <div>Preparing</div>
-            <div className={`${selectedTab === 0 ? "border-[#ff7e8b]" : "border-[#c2c2c2]"} border px-1 rounded-md`}>
-              {orderData.length}
-            </div>
-          </Tab>
-          <Tab className="border outline-none data-[selected]:text-[#ef4f5f] px-4 font-medium cursor-pointer flex gap-x-2 shadow-md py-2 w-fit text-[#b9b9b9] rounded-xl">
-            <div>Delivered</div>
-            <div className={`${selectedTab === 1 ? "border-[#ff7e8b]" : "border-[#c2c2c2]"} border px-1 rounded-md`}>
-              {deliveredData.length}
-            </div>
-          </Tab>
-        </TabList>
-        <TabPanels className="my-5">
+        <div className=" sticky top-0 py-5 bg-white w-full z-20 px-10  flex justify-between">
+          <TabList className="flex gap-x-5">
+            <Tab className="border outline-none data-[selected]:text-[#ef4f5f] px-4 font-medium cursor-pointer flex gap-x-2 shadow-md py-2 w-fit text-[#b9b9b9] rounded-xl">
+              <div>Preparing</div>
+              <div className={`${selectedTab === 0 ? "border-[#ff7e8b]" : "border-[#c2c2c2]"} border px-1 rounded-md`}>
+                {orderData.length}
+              </div>
+            </Tab>
+            <Tab className="border outline-none data-[selected]:text-[#ef4f5f] px-4 font-medium cursor-pointer flex gap-x-2 shadow-md py-2 w-fit text-[#b9b9b9] rounded-xl">
+              <div>Delivered</div>
+              <div className={`${selectedTab === 1 ? "border-[#ff7e8b]" : "border-[#c2c2c2]"} border px-1 rounded-md`}>
+                {deliveredData.length}
+              </div>
+            </Tab>
+          </TabList>
+          <button className=" text-green-500 border border-green-500 flex items-center px-2 py-1 rounded-md gap-2" onClick={() => setAddOrderModal(true)}><Add /> Add Order</button>
+        </div>
+        <TabPanels className=" my-10 mx-10">
           <TabPanel className="space-y-3">
             {/* <div className="grid my-5 gap-3 [grid-template-columns:repeat(2,150px)] sm:[grid-template-columns:repeat(3,150px)] md:[grid-template-columns:repeat(4,150px)] lg:[grid-template-columns:repeat(6,150px)] justify-start"> */}
             <div className="sm:flex gap-3 sm:flex-wrap grid [grid-template-columns:repeat(2,150px)] sm:[grid-template-columns:repeat(3,150px)]">
@@ -794,6 +794,12 @@ function Orders() {
           </TabPanel>
         </TabPanels>
       </TabGroup>
+
+      <AddOrderModal
+        open={openAddOrderModal}
+        setAddOrderModal={setAddOrderModal}
+        token={token}
+      />
 
       <Modal open={newOrder} onClose={() => setNewOrder(false)}>
         <ModalDialog size="lg" sx={{ width: 650 }}>

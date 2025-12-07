@@ -74,25 +74,28 @@ export async function getAvailableRooms(token: string, checkin: Date, checkout: 
     throw error;
   }
 }
-export async function getMigrationRooms(token: string,formData: {
-  checkin: Date;
-      checkout: Date;
-      email: string;
-      meal_veg: number;
-      meal_non_veg: number;
-      remarks: string;
-      additional: string;
-      room: string;
-      name: string;
-      phone: number;
-      company: string;
-      vessel: string;
-      rank: string;
-      breakfast:  number;
-      booking_id: string;
-}) {
+export async function getMigrationRooms(
+  token: string,
+  formData: {
+    checkin: Date;
+    checkout: Date;
+    email: string;
+    meal_veg: number;
+    meal_non_veg: number;
+    remarks: string;
+    additional: string;
+    room: string;
+    name: string;
+    phone: number;
+    company: string;
+    vessel: string;
+    rank: string;
+    breakfast: number;
+    booking_id: string;
+  }
+) {
   try {
-    console.log(formData)
+    console.log(formData);
     const secret = await loadConfig();
     const response = await fetch(`${secret.BACKEND_URL}/api/admin/getMigrationRooms`, {
       method: "POST",
@@ -102,7 +105,7 @@ export async function getMigrationRooms(token: string,formData: {
         token: token,
       },
       body: JSON.stringify({
-        formData:formData
+        formData: formData,
       }),
       cache: "no-cache",
     });
@@ -820,7 +823,7 @@ export async function addMovement(
       phoneNumber?: string;
       remark?: string;
       company?: string;
-      rank?:string;
+      rank?: string;
     }[];
   }
 ) {
@@ -1375,8 +1378,7 @@ export async function updateItem(
   }
 ) {
   try {
-
-    console.log("update: ",itemDetails)
+    console.log("update: ", itemDetails);
     const secret = await loadConfig();
     const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/updateItem`, {
       method: "POST",
@@ -1544,7 +1546,7 @@ export async function updateCategory(
   newCategory: string,
   categories: string[]
 ) {
-    console.log(categories)
+  console.log(categories);
   try {
     const secret = await loadConfig();
     const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/updateCategory`, {
@@ -1574,31 +1576,32 @@ export async function updateCategory(
 }
 
 export async function fetchAllCoupons(token: string) {
-    try {
-        const secret= await loadConfig();
-        const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/fetchAllCouponsAdmin`, {
-            method: "GET",
-            mode: "cors",
-            headers: {
-                "Content-Type": "application/json",
-                token: token,
-            },
-            cache: "no-cache",
-        });
+  try {
+    const secret = await loadConfig();
+    const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/fetchAllCouponsAdmin`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      cache: "no-cache",
+    });
 
-        const data = await response.json(); // Parse the JSON response
-        if (!response.ok) {
-            throw new Error("Error fetching coupons" + data);
-        }
-        return data;
-    } catch (error) {
-        console.log(error);
-        throw error;
+    const data = await response.json(); // Parse the JSON response
+    if (!response.ok) {
+      throw new Error("Error fetching coupons" + data);
     }
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
 }
 export async function addCoupon(
   token: string,
-  formData:{code: string;
+  formData: {
+    code: string;
     description: string;
     coupon_type: string;
     coupon_type_description: string;
@@ -1625,10 +1628,11 @@ export async function addCoupon(
       booking_id: string;
       email: string;
     }[];
-    is_active: boolean;}
+    is_active: boolean;
+  }
 ) {
   try {
-    console.log("abc: ", formData.applicable_categories)
+    console.log("abc: ", formData.applicable_categories);
     const secret = await loadConfig();
     const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/addCoupon`, {
       method: "POST",
@@ -1638,7 +1642,7 @@ export async function addCoupon(
         token: token,
       },
       body: JSON.stringify({
-        couponData:formData
+        couponData: formData,
       }),
       cache: "no-cache",
     });
@@ -1653,10 +1657,7 @@ export async function addCoupon(
     throw error;
   }
 }
-export async function deleteCoupon(
-  token: string,
-  couponId:string
-) {
+export async function deleteCoupon(token: string, couponId: string) {
   try {
     const secret = await loadConfig();
     const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/deleteCoupon`, {
@@ -1667,11 +1668,11 @@ export async function deleteCoupon(
         token: token,
       },
       body: JSON.stringify({
-        coupon_id:couponId
+        coupon_id: couponId,
       }),
       cache: "no-cache",
     });
-    
+
     const data = await response.json(); // Parse the JSON response
     if (!response.ok) {
       throw new Error("Error adding coupon" + data);
@@ -1685,7 +1686,8 @@ export async function deleteCoupon(
 
 export async function modifyCoupon(
   token: string,
-  formData:{code: string;
+  formData: {
+    code: string;
     description: string;
     coupon_type: string;
     coupon_type_description: string;
@@ -1712,7 +1714,8 @@ export async function modifyCoupon(
       booking_id: string;
       email: string;
     }[];
-    is_active: boolean;}
+    is_active: boolean;
+  }
 ) {
   try {
     const secret = await loadConfig();
@@ -1724,7 +1727,7 @@ export async function modifyCoupon(
         token: token,
       },
       body: JSON.stringify({
-        couponData:formData
+        couponData: formData,
       }),
       cache: "no-cache",
     });
@@ -1739,7 +1742,45 @@ export async function modifyCoupon(
     throw error;
   }
 }
+export async function getAllRooms(token: string) {
+  try {
+    const secret = await loadConfig();
+    const response = await fetch(`${secret.BACKEND_URL}/api/admin/getAllRooms`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      cache: "no-cache",
+    });
 
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
 
+export async function getBookingForRoom(token: string,room:string) {
+  try {
+    const secret = await loadConfig();
+    const response = await fetch(`${secret.BACKEND_URL}/api/cos/fetchBookingByRoom`, {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        room:room,
+        token: token,
+      },
+      cache: "no-cache",
+    });
 
-
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
