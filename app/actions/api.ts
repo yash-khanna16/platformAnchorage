@@ -1278,7 +1278,7 @@ export async function deleteOrder(token: string, orderId: string, reason: string
     throw error;
   }
 }
-export async function fetchAllItems(token: string) {
+export async function fetchAllItems(token: string, bookingId: string | null = null) {
   try {
     const secret = await loadConfig();
     const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/fetchAllItems`, {
@@ -1287,6 +1287,7 @@ export async function fetchAllItems(token: string) {
       headers: {
         "Content-Type": "application/json",
         token: token,
+        ...(bookingId ? { bookingid: bookingId } : {}),
       },
       cache: "no-cache",
     });
@@ -1763,17 +1764,57 @@ export async function getAllRooms(token: string) {
   }
 }
 
-export async function getBookingForRoom(token: string,room:string) {
+export async function getBookingForRoom(token: string, room: string) {
   try {
     const secret = await loadConfig();
-    const response = await fetch(`${secret.BACKEND_URL}/api/cos/fetchBookingByRoom`, {
+    const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/getBookingDetailsForRoom`, {
       method: "GET",
       mode: "cors",
       headers: {
         "Content-Type": "application/json",
-        room:room,
+        room: room,
         token: token,
       },
+      cache: "no-cache",
+    });
+
+    const data = await response.json(); // Parse the JSON response
+    return data;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
+export async function AddOrderAdmin(
+  token: string,
+  body: {
+    booking_id: string;
+    room: string;
+    email: string;
+    items: {
+      item_id: string;
+      qty: number;
+    }[];
+    remark: string;
+    created_at: string;
+    status: string;
+    order_id: string;
+    time_to_prepare: number;
+    coupon_id: null;
+    delay: number;
+  }
+) {
+  try {
+    const secret = await loadConfig();
+    const response = await fetch(`${secret.BACKEND_URL}/api/admin/cos/addOrder`, {
+      method: "POST",
+      mode: "cors",
+      headers: {
+        "Content-Type": "application/json",
+        token: token,
+      },
+      body: JSON.stringify({ orderDetails: body }),
       cache: "no-cache",
     });
 

@@ -7,9 +7,6 @@ import nonveg from "@/app/assets/nonveg.svg";
 import Image from "next/image";
 import { getAuthAdmin } from "@/app/actions/cookie";
 import { deleteOrder, fetchAllOrders, updateDelay, updateOrderStatus } from "@/app/actions/api";
-import { convertUTCToIST } from "@/app/actions/utils";
-import { getSocket } from "@/app/actions/websocket";
-import { Socket, io } from "socket.io-client";
 import { DialogActions, IconButton, Modal } from "@mui/material";
 import {
   Button,
@@ -295,8 +292,8 @@ function Orders() {
 
   return (
     <div className="">
-      <TabGroup selectedIndex={selectedTab} onChange={setSelectedTab} className="">
-        <div className=" sticky top-0 py-5 bg-white w-full z-20 px-10  flex justify-between">
+      <TabGroup selectedIndex={selectedTab} onChange={setSelectedTab}>
+        <div className=" sticky top-0 py-5 bg-white w-full z-20 px-10 flex items-center gap-5">
           <TabList className="flex gap-x-5">
             <Tab className="border outline-none data-[selected]:text-[#ef4f5f] px-4 font-medium cursor-pointer flex gap-x-2 shadow-md py-2 w-fit text-[#b9b9b9] rounded-xl">
               <div>Preparing</div>
@@ -311,7 +308,7 @@ function Orders() {
               </div>
             </Tab>
           </TabList>
-          <button className=" text-green-500 border border-green-500 flex items-center px-2 py-1 rounded-md gap-2" onClick={() => setAddOrderModal(true)}><Add /> Add Order</button>
+          <button className="border  px-4 font-medium cursor-pointer flex gap-x-2 shadow-md py-2.5 w-fit text-[#b9b9b9] rounded-xl hover:border-green-600 hover:text-green-600" onClick={() => setAddOrderModal(true)}><Add /> Add Order</button>
         </div>
         <TabPanels className=" my-10 mx-10">
           <TabPanel className="space-y-3">
@@ -799,6 +796,8 @@ function Orders() {
         open={openAddOrderModal}
         setAddOrderModal={setAddOrderModal}
         token={token}
+        setMessage={setMessage}
+        setAlert={setAlert}
       />
 
       <Modal open={newOrder} onClose={() => setNewOrder(false)}>
