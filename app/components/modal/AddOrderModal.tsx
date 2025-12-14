@@ -1,3 +1,4 @@
+"use client"
 import React, { Dispatch, FormEvent, FormEventHandler, SetStateAction, useEffect, useState } from 'react'
 import { Modal } from "@mui/material";
 import {

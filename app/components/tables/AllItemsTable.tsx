@@ -1,3 +1,4 @@
+"use client"
 import { fetchAllItems } from "@/app/actions/api";
 import { Cancel, Search, ShoppingCart } from "@mui/icons-material";
 import { Checkbox, Input } from "@mui/joy";
