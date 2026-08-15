@@ -680,7 +680,7 @@ const MyDocument = ({ data }: { data: any }) => {
               <View style={{ marginLeft: 15, width: 12, height: 12, border: 1 }} />
               <Text style={{ marginLeft: 6 }}>YES</Text>
             </View>
-            {data.document_url && /\.(jpg|jpeg|png)$/i.test(data.document_url) && (
+            {data.document_url && /\.(jpg|jpeg|png)$/i.test(data.document_url.split("?")[0]) && (
               <View style={{ marginTop: 15, width: "100%" }}>
                 <Text style={{ fontSize: 12, marginVertical: 8 }}>ID DOCUMENT</Text>
                 <View style={{ display: "flex", flexDirection: "row", columnGap: 15, justifyContent: "center" }}>
@@ -688,7 +688,7 @@ const MyDocument = ({ data }: { data: any }) => {
                     style={{ height: 200, marginVertical: 20, objectFit: "contain" }}
                     src={data.document_url}
                   />
-                  {data.document_url_back && /\.(jpg|jpeg|png)$/i.test(data.document_url_back) && (
+                  {data.document_url_back && /\.(jpg|jpeg|png)$/i.test(data.document_url_back.split("?")[0]) && (
                     <Image
                       style={{ height: 200, marginVertical: 20, objectFit: "contain" }}
                       src={data.document_url_back}
