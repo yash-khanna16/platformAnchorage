@@ -1191,6 +1191,33 @@ export async function fetchOccupancyByBookingId(token: string, bookingId: string
   }
 }
 
+export async function fetchSignedDocumentUrl(token: string, url: string) {
+  try {
+    const secret = await loadConfig();
+    const response = await fetch(
+      `${secret.BACKEND_URL}/api/admin/getSignedDocumentUrl?url=${encodeURIComponent(url)}`,
+      {
+        method: "get",
+        mode: "cors",
+        headers: {
+          "Content-Type": "application/json",
+          token: token,
+        },
+        cache: "no-cache",
+      }
+    );
+    const data = await response.json();
+    if (!response.ok) {
+      console.log("error fetching signed document url ", data);
+      throw new Error("Internal Server Error!");
+    }
+    return data.signedUrl as string;
+  } catch (error) {
+    console.log(error);
+    throw error;
+  }
+}
+
 export async function fetchBookingLogs(token: string) {
   try {
     const secret = await loadConfig();

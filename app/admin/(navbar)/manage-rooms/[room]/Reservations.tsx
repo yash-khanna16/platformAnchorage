@@ -41,6 +41,7 @@ import {
   fetchMealsByBookingId,
   fetchMovementByBookingId,
   fetchOccupancyByBookingId,
+  fetchSignedDocumentUrl,
 } from "@/app/actions/api";
 import { useRouter } from "next/navigation";
 import { getAuthAdmin } from "@/app/actions/cookie";
@@ -159,6 +160,23 @@ const Reservations: React.FC<ReservationsProps> = ({
       console.log("error fetching occupancy for bookingID ", bookingId);
       return null;
     }
+  }
+
+  // ID documents are stored privately in S3 - swap the stored URL for a
+  // short-lived signed URL before displaying/downloading it.
+  async function resolveDocumentUrls(data: RowData): Promise<any> {
+    const resolved = { ...data };
+    try {
+      if (resolved.document_url) {
+        resolved.document_url = await fetchSignedDocumentUrl(token, resolved.document_url);
+      }
+      if (resolved.document_url_back) {
+        resolved.document_url_back = await fetchSignedDocumentUrl(token, resolved.document_url_back);
+      }
+    } catch (error) {
+      console.log("error resolving signed document url(s)", error);
+    }
+    return resolved;
   }
 
   const changePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -456,8 +474,9 @@ const Reservations: React.FC<ReservationsProps> = ({
                     movements: movements,
                     occupancy: occupancy,
                   };
+                  const dataWithSignedUrls = await resolveDocumentUrls(data);
                   setPreview(true);
-                  setPreviewData(data);
+                  setPreviewData(dataWithSignedUrls);
                 }
               }}
             >
@@ -480,7 +499,8 @@ const Reservations: React.FC<ReservationsProps> = ({
                     movements: movements,
                     occupancy: occupancy,
                   };
-                  downloadPdf(data);
+                  const dataWithSignedUrls = await resolveDocumentUrls(data);
+                  downloadPdf(dataWithSignedUrls);
                 }
               }}
               // onClick={() => {
@@ -599,8 +619,12 @@ const Reservations: React.FC<ReservationsProps> = ({
               <IconButton
                 className="w-[40px]"
                 onClick={async () => {
-                  const url_front = params.row.document_url;
-                  const url_back = params.row.document_url_back;
+                  const url_front = params.row.document_url
+                    ? await fetchSignedDocumentUrl(token, params.row.document_url)
+                    : null;
+                  const url_back = params.row.document_url_back
+                    ? await fetchSignedDocumentUrl(token, params.row.document_url_back)
+                    : null;
                   if (url_front) {
                     try {
                       // Fetch the file as a blob
@@ -695,8 +719,9 @@ const Reservations: React.FC<ReservationsProps> = ({
                     movements: movements,
                     occupancy: occupancy,
                   };
+                  const dataWithSignedUrls = await resolveDocumentUrls(data);
                   setPreview(true);
-                  setPreviewData(data);
+                  setPreviewData(dataWithSignedUrls);
                 }
               }}
             >
@@ -719,7 +744,8 @@ const Reservations: React.FC<ReservationsProps> = ({
                     movements: movements,
                     occupancy: occupancy,
                   };
-                  downloadPdf(data);
+                  const dataWithSignedUrls = await resolveDocumentUrls(data);
+                  downloadPdf(dataWithSignedUrls);
                 }
               }}
             >
