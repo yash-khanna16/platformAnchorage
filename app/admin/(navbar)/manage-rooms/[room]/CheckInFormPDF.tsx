@@ -675,6 +675,11 @@ const MyDocument = ({ data }: { data: any }) => {
                 </View>
               </View>
             </View>
+            <View style={{ marginTop: 15, fontSize: 12, display: "flex", flexDirection: "row", alignItems: "center" }}>
+              <Text>WOULD YOU LIKE TO STAY WITH US AGAIN?</Text>
+              <View style={{ marginLeft: 15, width: 12, height: 12, border: 1 }} />
+              <Text style={{ marginLeft: 6 }}>YES</Text>
+            </View>
             {data.document_url && /\.(jpg|jpeg|png)$/i.test(data.document_url) && (
               <View style={{ marginTop: 15, width: "100%" }}>
                 <Text style={{ fontSize: 12, marginVertical: 8 }}>ID DOCUMENT</Text>
