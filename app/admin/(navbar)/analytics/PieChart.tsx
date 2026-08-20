@@ -38,15 +38,16 @@ function DonutChart(props: any) {
   };
   const currentMonth = new Date().toLocaleString("default", { month: "long" });
   return (
-    <div className="chart-container h-full pb-5 ">
+    <div className="chart-container h-full flex flex-col pb-5 ">
       <div className="text-lg max-xl:text-center font-bold text-[#353738] capitalize">
         {props.title}
       </div>
-      <div className="mx-auto h-full ">
+      <div className="mx-auto flex-1 min-h-0 w-full">
         <Doughnut
           className="mx-auto" // Changed Pie to Doughnut
           data={chartData}
           options={{
+            maintainAspectRatio: false,
             plugins: {
               title: {
                 display: true,

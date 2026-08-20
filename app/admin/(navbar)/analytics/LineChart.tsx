@@ -217,7 +217,7 @@ function LineChart({
   const currentMonth = new Date().toLocaleString("default", { month: "long" });
 
   return (
-    <div className="chart-container ">
+    <div className="chart-container h-full flex flex-col">
       <div className="flex justify-between">
         <div className="text-lg max-xl:text-center w-full font-bold text-[#353738] capitalize">{title}</div>
         {/* <Select indicator={<KeyboardArrowDown />} size="sm" defaultValue="June">
@@ -226,9 +226,11 @@ function LineChart({
           <Option value="April">April</Option>
         </Select> */}
       </div>
+      <div className="flex-1 min-h-0">
       <Line
         data={chartDataGraph}
         options={{
+          maintainAspectRatio: false,
           plugins: {
             title: {
               display: true,
@@ -254,6 +256,7 @@ function LineChart({
           },
         }}
       />
+      </div>
     </div>
   );
 }
