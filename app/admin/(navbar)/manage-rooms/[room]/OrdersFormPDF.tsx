@@ -132,7 +132,9 @@ export type OrderDataType = {
   discount: number;
 };
 
-const platformFee = 2;
+const platformFee = 15;
+const GST_RATE = 0.05;
+const GSTIN = "07AVNPK6965G1Z1";
 
 const MEAL_IDS: Record<"BREAKFAST" | "LUNCH" | "DINNER", { veg: string; nonVeg: string }> = {
   BREAKFAST: {
@@ -166,6 +168,7 @@ const OrderFormDocument = ({ orderData }: { orderData: OrderDataType[] }) => {
         const { order_id, room, created_at, remarks, items, name, email } = order;
 
         const totalAmount = items.reduce((total, item) => total + item.price * item.qty, 0);
+        const gst = Math.round((totalAmount - order.discount) * GST_RATE);
 
         return (
           <Page key={orderIndex} style={styles.page}>
@@ -176,6 +179,9 @@ const OrderFormDocument = ({ orderData }: { orderData: OrderDataType[] }) => {
                 </View>
                 <View style={styles.heading}>
                   <Text style={styles.header}>Order Summary</Text>
+                </View>
+                <View style={styles.heading}>
+                  <Text style={styles.text}>GSTIN: {GSTIN}</Text>
                 </View>
 
                 <View style={styles.content}>
@@ -298,11 +304,28 @@ const OrderFormDocument = ({ orderData }: { orderData: OrderDataType[] }) => {
                       borderTop: 0,
                       borderColor: "#a1a1a1",
                       borderRightWidth: 0,
+                      borderBottomWidth: 0,
+                    }}
+                  >
+                    <Text style={[styles.col, { borderRight: 0, textAlign: "left" }]}>GST (5%)</Text>
+                    <Text style={[styles.col, { borderRight: 0, textAlign: "right", paddingRight: 45 }]}>
+                      <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {gst}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      fontSize: 10,
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      borderTop: 0,
+                      borderColor: "#a1a1a1",
+                      borderRightWidth: 0,
                     }}
                   >
                     <Text style={[styles.col, { borderRight: 0, textAlign: "left" }]}>Total</Text>
                     <Text style={[styles.col, { borderRight: 0, textAlign: "right", paddingRight: 45 }]}>
-                      <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {totalAmount + (!hasMealItems(order)?platformFee:0) - order.discount}
+                      <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {totalAmount + (!hasMealItems(order)?platformFee:0) - order.discount + gst}
                     </Text>
                   </View>
                 </View>
