@@ -550,13 +550,13 @@ function Analytics() {
         </div>
         <div className="grid grid-cols-2 gap-5 mt-5 max-xl:grid-cols-1">
           {loading && (
-            <div className="p-5 animate-pulse shadow-md w-full xl:h-[45vh] border flex flex-col gap-y-5 py-6 rounded-xl max-lg:p-0">
+            <div className="p-5 animate-pulse shadow-md w-full h-[45vh] border flex flex-col gap-y-5 py-6 rounded-xl max-lg:p-0">
               <div className="w-36 h-5 rounded-2xl bg-gray-200"></div>
               <div className="w-full h-full bg-gray-200 rounded-md"></div>
             </div>
           )}
           {!loading && (
-            <div className="p-5 shadow-md w-full xl:h-[45vh] border rounded-xl max-lg:p-0">
+            <div className="p-5 shadow-md w-full h-[45vh] border rounded-xl max-lg:p-0">
               <LineChart
                 graphType={selectedOption}
                 theme="blue"
@@ -566,13 +566,13 @@ function Analytics() {
             </div>
           )}
           {loading && (
-            <div className="p-5 animate-pulse shadow-md w-full xl:h-[45vh] border flex flex-col gap-y-5 py-6 rounded-xl max-lg:p-0">
+            <div className="p-5 animate-pulse shadow-md w-full h-[45vh] border flex flex-col gap-y-5 py-6 rounded-xl max-lg:p-0">
               <div className="w-36 h-5 rounded-2xl bg-gray-200"></div>
               <div className="w-full h-full bg-gray-200 rounded-md"></div>
             </div>
           )}
           {!loading && (
-            <div className="p-5 shadow-md w-full  xl:h-[45vh]  border rounded-xl max-lg:p-0">
+            <div className="p-5 shadow-md w-full  h-[45vh]  border rounded-xl max-lg:p-0">
               <PieChart
                 chartData={companyData}
                 title={`Company Wise Booking Per ${selectedOption}`}
@@ -580,13 +580,13 @@ function Analytics() {
             </div>
           )}
           {loading && (
-            <div className="p-5 animate-pulse shadow-md w-full xl:h-[45vh] border flex flex-col gap-y-5 py-6 rounded-xl max-lg:p-0">
+            <div className="p-5 animate-pulse shadow-md w-full h-[45vh] border flex flex-col gap-y-5 py-6 rounded-xl max-lg:p-0">
               <div className="w-36 h-5 rounded-2xl bg-gray-200"></div>
               <div className="w-full h-full bg-gray-200 rounded-md"></div>
             </div>
           )}
           {!loading && (
-            <div className="p-5 shadow-md w-full xl:h-[45vh]  border rounded-xl max-lg:p-0">
+            <div className="p-5 shadow-md w-full h-[45vh]  border rounded-xl max-lg:p-0">
               <LineChart
                 graphType={selectedOption}
                 theme="cyan"
@@ -596,7 +596,7 @@ function Analytics() {
             </div>
           )}
           {!loading && (
-            <div className="p-5 shadow-md w-full xl:h-[45vh]  border rounded-xl max-lg:p-0">
+            <div className="p-5 shadow-md w-full h-[45vh]  border rounded-xl max-lg:p-0">
               <LineChart
                 graphType={selectedOption}
                 theme="cyan"
@@ -607,13 +607,13 @@ function Analytics() {
           )}
 
           {loading && (
-            <div className="p-5 animate-pulse shadow-md w-full xl:h-[45vh] border flex flex-col gap-y-5 py-6 rounded-xl max-lg:p-0">
+            <div className="p-5 animate-pulse shadow-md w-full h-[45vh] border flex flex-col gap-y-5 py-6 rounded-xl max-lg:p-0">
               <div className="w-36 h-5 rounded-2xl bg-gray-200"></div>
               <div className="w-full h-full bg-gray-200 rounded-md"></div>
             </div>
           )}
           {!loading && (
-            <div className="p-5 shadow-md w-full xl:h-[45vh]  border rounded-xl max-lg:p-0">
+            <div className="p-5 shadow-md w-full h-[45vh]  border rounded-xl max-lg:p-0">
               <LineChart
                 graphType={selectedOption}
                 theme="red"
