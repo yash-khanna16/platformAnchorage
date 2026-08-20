@@ -36,6 +36,20 @@ type GraphData = {
   data: string;
 };
 
+// Multiple raw entries can share the same label (e.g. several days all
+// falling in "July"), so sum them into one point per label instead of
+// plotting a separate point per entry.
+function groupByDate(entries: { date: string; data: string }[]): GraphData[] {
+  const grouped = entries.reduce((acc: Record<string, { date: string; data: number }>, element) => {
+    if (!acc[element.date]) {
+      acc[element.date] = { date: element.date, data: 0 };
+    }
+    acc[element.date].data += parseFloat(element.data);
+    return acc;
+  }, {});
+  return Object.values(grouped).map((entry) => ({ date: entry.date, data: entry.data.toString() }));
+}
+
 function Analytics() {
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState("");
@@ -206,10 +220,10 @@ function Analytics() {
         // A newer selection has since started its own fetch - drop this
         // stale response instead of overwriting the newer data with it.
         if (requestIdRef.current !== myRequestId) return;
-        setRoomData(transformedRoom);
-        setMealData(transformedMeal);
-        setBreakfastData(transformedBreakfast);
-        setProfitData(transformedProfit);
+        setRoomData(groupByDate(transformedRoom));
+        setMealData(groupByDate(transformedMeal));
+        setBreakfastData(groupByDate(transformedBreakfast));
+        setProfitData(groupByDate(transformedProfit));
       }
       if (selectedOption === "year") {
         room = await fetchRoomDataYear(token, currentYear);
@@ -265,83 +279,10 @@ function Analytics() {
         // A newer selection has since started its own fetch - drop this
         // stale response instead of overwriting the newer data with it.
         if (requestIdRef.current !== myRequestId) return;
-        const groupedRoom = transformedRoom.reduce(
-          (acc: any, element: { date: string; data: string }) => {
-            // If the date doesn't exist in the accumulator, initialize it
-            if (!acc[element.date]) {
-              acc[element.date] = {
-                date: element.date,
-                data: 0,
-              };
-            }
-
-            // Sum the data for the same date
-            acc[element.date].data += parseFloat(element.data); // Ensure data is treated as a number
-            return acc;
-          },
-          {}
-        );
-        const groupedMeals = transformedMeal.reduce(
-          (acc: any, element: { date: string; data: string }) => {
-            // If the date doesn't exist in the accumulator, initialize it
-            if (!acc[element.date]) {
-              acc[element.date] = {
-                date: element.date,
-                data: 0,
-              };
-            }
-
-            // Sum the data for the same date
-            acc[element.date].data += parseFloat(element.data); // Ensure data is treated as a number
-            return acc;
-          },
-          {}
-        );
-        const groupedBreakfast = transformedBreakfast.reduce(
-          (acc: any, element: { date: string; data: string }) => {
-            // If the date doesn't exist in the accumulator, initialize it
-            if (!acc[element.date]) {
-              acc[element.date] = {
-                date: element.date,
-                data: 0,
-              };
-            }
-
-            // Sum the data for the same date
-            acc[element.date].data += parseFloat(element.data); // Ensure data is treated as a number
-            return acc;
-          },
-          {}
-        );
-        const groupedProfit = transformedProfit.reduce(
-          (acc: any, element: { date: string; data: string }) => {
-            // If the date doesn't exist in the accumulator, initialize it
-            if (!acc[element.date]) {
-              acc[element.date] = {
-                date: element.date,
-                data: 0,
-              };
-            }
-
-            // Sum the data for the same date
-            acc[element.date].data += parseFloat(element.data); // Ensure data is treated as a number
-            return acc;
-          },
-          {}
-        );
-
-        const modifiedTransformedRoom: { date: string; data: string }[] =
-          Object.values(groupedRoom);
-        const modifiedTransformedMeals: { date: string; data: string }[] =
-          Object.values(groupedMeals);
-        const modifiedTransformedBreakfast: { date: string; data: string }[] =
-          Object.values(groupedBreakfast);
-        const modifiedTransformedProfit: { date: string; data: string }[] =
-          Object.values(groupedProfit);
-        setRoomData(modifiedTransformedRoom);
-        setMealData(modifiedTransformedMeals);
-        setBreakfastData(modifiedTransformedBreakfast);
-        setProfitData(modifiedTransformedProfit);
+        setRoomData(groupByDate(transformedRoom));
+        setMealData(groupByDate(transformedMeal));
+        setBreakfastData(groupByDate(transformedBreakfast));
+        setProfitData(groupByDate(transformedProfit));
       }
 
       setCompanyData(company);
