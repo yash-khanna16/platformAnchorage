@@ -24,7 +24,7 @@ import {
 import { deleteAuthAdmin, getAuthAdmin } from "../actions/cookie";
 import { parseJwt } from "../actions/utils";
 import logo from "../assets/anchorage_logo1.png";
-import { OrderType } from "./(navbar)/orders/page";
+import { OrderType, getOrderTotal } from "./(navbar)/orders/page";
 import {
   Badge,
   Button,
@@ -396,7 +396,7 @@ function Navbar() {
               </div>
               <div className="my-4 pl-2 text-[#636363] flex w-full justify-between">
                 <div>Total Bill:</div>
-                <div>₹{currentExpiredOrder?.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
+                <div>₹{currentExpiredOrder ? getOrderTotal(currentExpiredOrder) : 0}</div>
               </div>
             </div>
             <DialogActions className="flex  space-x-3">
@@ -476,7 +476,7 @@ function Navbar() {
               </div>
               <div className="my-4 pl-2 text-[#636363] flex w-full justify-between">
                 <div>Total Bill:</div>
-                <div>₹{currentOrder?.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
+                <div>₹{currentOrder ? getOrderTotal(currentOrder) : 0}</div>
               </div>
             </div>
             <DialogActions className="flex  space-x-3">

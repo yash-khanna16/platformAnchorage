@@ -42,9 +42,21 @@ export type OrderType = {
   total_time_to_prepare: number;
   delay: number;
   discount: number;
+  platform_fee?: number;
+  gst?: number;
+  platform_fee_gst?: number;
   status: string;
   guest_name: string;
   items: ItemType[];
+};
+
+export const getOrderTotal = (order: OrderType) => {
+  const subtotal = order.items.reduce((total, item) => total + item.price * item.qty, 0);
+  const discount = order.discount || 0;
+  const platformFee = order.platform_fee || 0;
+  const gst = order.gst || 0;
+  const platformFeeGst = order.platform_fee_gst || 0;
+  return subtotal - discount + gst + platformFee + platformFeeGst;
 };
 
 function Orders() {
@@ -485,7 +497,7 @@ function Orders() {
                             </div>
                             <div className="my-4 py-4 md:pl-6 border-t flex w-full justify-between">
                               <div>Total Bill:</div>
-                              <div>₹{order.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
+                              <div>₹{getOrderTotal(order)}</div>
                             </div>
                             <div className="flex items-center gap-x-2">
                               <div className="md:ml-6 overflow-hidden h-[56px] my-2 w-[100%] font-medium relative">
@@ -616,7 +628,7 @@ function Orders() {
                             </div>
                             <div className="my-4 py-4 md:pl-6 border-t flex w-full justify-between">
                               <div>Total Bill:</div>
-                              <div>₹{order.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
+                              <div>₹{getOrderTotal(order)}</div>
                             </div>
                             <div className="flex items-center gap-x-2">
                               <div className="md:ml-6 overflow-hidden h-[56px] my-2 w-[100%] font-medium relative">
@@ -774,7 +786,7 @@ function Orders() {
                     </div>
                     <div className="my-4 py-4 md:pl-6 border-t flex w-full justify-between">
                       <div>Total Bill:</div>
-                      <div>₹{order.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
+                      <div>₹{getOrderTotal(order)}</div>
                     </div>
                     <div className="md:ml-6 overflow-hidden h-[56px] my-2 font-medium relative">
                       <div className="absolute z-10 left-0 text-white bg-[#538cee]  rounded-2xl w-full py-4 text-center">
@@ -832,7 +844,7 @@ function Orders() {
               </div>
               <div className="my-4 pl-2 text-[#636363] flex w-full justify-between">
                 <div>Total Bill:</div>
-                <div>₹{neworderData?.items.reduce((total, item) => total + item.price * item.qty, 0)}</div>
+                <div>₹{neworderData ? getOrderTotal(neworderData) : 0}</div>
               </div>
             </div>
             <DialogActions className="space-x-3">
