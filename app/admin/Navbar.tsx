@@ -24,7 +24,7 @@ import {
 import { deleteAuthAdmin, getAuthAdmin } from "../actions/cookie";
 import { parseJwt } from "../actions/utils";
 import logo from "../assets/anchorage_logo1.png";
-import { OrderType, getOrderTotal } from "./(navbar)/orders/page";
+import { OrderType, getOrderTotal } from "./(navbar)/orders/orderTotals";
 import {
   Badge,
   Button,
