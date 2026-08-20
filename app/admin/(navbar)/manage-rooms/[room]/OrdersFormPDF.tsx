@@ -130,6 +130,9 @@ export type OrderDataType = {
   email: string;
   phone: string;
   discount: number;
+  platform_fee?: number;
+  gst?: number;
+  platform_fee_gst?: number;
 };
 
 const platformFee = 15;
@@ -168,7 +171,13 @@ const OrderFormDocument = ({ orderData }: { orderData: OrderDataType[] }) => {
         const { order_id, room, created_at, remarks, items, name, email } = order;
 
         const totalAmount = items.reduce((total, item) => total + item.price * item.qty, 0);
-        const gst = Math.round((totalAmount - order.discount) * GST_RATE);
+        // Prefer the amounts actually charged/stored on the order (frozen at
+        // order time) - fall back to a live estimate only for orders placed
+        // before these were persisted.
+        const orderPlatformFee = order.platform_fee ?? (!hasMealItems(order) ? platformFee : 0);
+        const gst = order.gst ?? Math.round((totalAmount - order.discount) * GST_RATE);
+        const platformFeeGst = order.platform_fee_gst ?? Math.round(orderPlatformFee * GST_RATE);
+        const taxesAndOtherCharges = gst + orderPlatformFee + platformFeeGst;
 
         return (
           <Page key={orderIndex} style={styles.page}>
@@ -276,25 +285,6 @@ const OrderFormDocument = ({ orderData }: { orderData: OrderDataType[] }) => {
                       </Text>
                     </View>
                   )}
-                  {!hasMealItems(order) && (
-                    <View
-                      style={{
-                        fontSize: 10,
-                        display: "flex",
-                        flexDirection: "row",
-                        justifyContent: "space-between",
-                        borderTop: 0,
-                        borderColor: "#a1a1a1",
-                        borderRightWidth: 0,
-                        borderBottomWidth: 0,
-                      }}
-                    >
-                      <Text style={[styles.col, { borderRight: 0, textAlign: "left" }]}>Platform Fee</Text>
-                      <Text style={[styles.col, { borderRight: 0, textAlign: "right", paddingRight: 45 }]}>
-                        <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {platformFee}
-                      </Text>
-                    </View>
-                  )}
                   <View
                     style={{
                       fontSize: 10,
@@ -307,11 +297,70 @@ const OrderFormDocument = ({ orderData }: { orderData: OrderDataType[] }) => {
                       borderBottomWidth: 0,
                     }}
                   >
-                    <Text style={[styles.col, { borderRight: 0, textAlign: "left" }]}>GST (5%)</Text>
+                    <Text style={[styles.col, styles.boldText, { borderRight: 0, textAlign: "left" }]}>
+                      Taxes and Other Charges
+                    </Text>
+                    <Text style={[styles.col, styles.boldText, { borderRight: 0, textAlign: "right", paddingRight: 45 }]}>
+                      <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {taxesAndOtherCharges}
+                    </Text>
+                  </View>
+                  <View
+                    style={{
+                      fontSize: 9,
+                      display: "flex",
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      borderTop: 0,
+                      borderColor: "#a1a1a1",
+                      borderRightWidth: 0,
+                      borderBottomWidth: 0,
+                    }}
+                  >
+                    <Text style={[styles.col, { borderRight: 0, textAlign: "left", paddingLeft: 15 }]}>GST on food (5%)</Text>
                     <Text style={[styles.col, { borderRight: 0, textAlign: "right", paddingRight: 45 }]}>
                       <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {gst}
                     </Text>
                   </View>
+                  {orderPlatformFee > 0 && (
+                    <>
+                      <View
+                        style={{
+                          fontSize: 9,
+                          display: "flex",
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          borderTop: 0,
+                          borderColor: "#a1a1a1",
+                          borderRightWidth: 0,
+                          borderBottomWidth: 0,
+                        }}
+                      >
+                        <Text style={[styles.col, { borderRight: 0, textAlign: "left", paddingLeft: 15 }]}>Platform Fee</Text>
+                        <Text style={[styles.col, { borderRight: 0, textAlign: "right", paddingRight: 45 }]}>
+                          <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {orderPlatformFee}
+                        </Text>
+                      </View>
+                      <View
+                        style={{
+                          fontSize: 9,
+                          display: "flex",
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          borderTop: 0,
+                          borderColor: "#a1a1a1",
+                          borderRightWidth: 0,
+                          borderBottomWidth: 0,
+                        }}
+                      >
+                        <Text style={[styles.col, { borderRight: 0, textAlign: "left", paddingLeft: 15 }]}>
+                          GST on Platform Fee (5%)
+                        </Text>
+                        <Text style={[styles.col, { borderRight: 0, textAlign: "right", paddingRight: 45 }]}>
+                          <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {platformFeeGst}
+                        </Text>
+                      </View>
+                    </>
+                  )}
                   <View
                     style={{
                       fontSize: 10,
@@ -325,7 +374,7 @@ const OrderFormDocument = ({ orderData }: { orderData: OrderDataType[] }) => {
                   >
                     <Text style={[styles.col, { borderRight: 0, textAlign: "left" }]}>Total</Text>
                     <Text style={[styles.col, { borderRight: 0, textAlign: "right", paddingRight: 45 }]}>
-                      <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {totalAmount + (!hasMealItems(order)?platformFee:0) - order.discount + gst}
+                      <Image src={rupee.src} style={{ width: 7, height: 7 }} /> {totalAmount - order.discount + taxesAndOtherCharges}
                     </Text>
                   </View>
                 </View>
