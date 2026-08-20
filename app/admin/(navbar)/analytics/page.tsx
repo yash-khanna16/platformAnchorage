@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js/auto";
 import { CategoryScale } from "chart.js";
 import LineChart from "./LineChart";
@@ -58,6 +58,11 @@ function Analytics() {
   const [selectedOption, setSelectedOption] = useState<"quarter" | "year" | "month" | null>(
     "month"
   );
+  // Guards against out-of-order responses: if the user switches
+  // month/quarter/year while a slower request from a previous selection is
+  // still in flight, that stale response's setState calls must not
+  // overwrite the newer one's data once it lands.
+  const requestIdRef = useRef(0);
 
   // const handleChange = (event: SelectChangeEvent) => {
   //   setTime(event.target.value as string);
@@ -72,6 +77,7 @@ function Analytics() {
   async function handleSelectChange() {}
 
   const fetchGraph = async () => {
+    const myRequestId = ++requestIdRef.current;
     try {
       setLoading(true);
       const currentDate = new Date();
@@ -135,8 +141,12 @@ function Analytics() {
           transformedMeal,
           transformedRoom,
           transformedBreakfast,
-          transformedProfit
+          transformedProfit,
+          myRequestId
         );
+        // A newer selection has since started its own fetch - drop this
+        // stale response instead of overwriting the newer data with it.
+        if (requestIdRef.current !== myRequestId) return;
         setRoomData(transformedRoom);
         setMealData(transformedMeal);
         setBreakfastData(transformedBreakfast);
@@ -190,8 +200,12 @@ function Analytics() {
           transformedMeal,
           transformedRoom,
           transformedBreakfast,
-          transformedProfit
+          transformedProfit,
+          myRequestId
         );
+        // A newer selection has since started its own fetch - drop this
+        // stale response instead of overwriting the newer data with it.
+        if (requestIdRef.current !== myRequestId) return;
         setRoomData(transformedRoom);
         setMealData(transformedMeal);
         setBreakfastData(transformedBreakfast);
@@ -245,8 +259,12 @@ function Analytics() {
           transformedMeal,
           transformedRoom,
           transformedBreakfast,
-          transformedProfit
+          transformedProfit,
+          myRequestId
         );
+        // A newer selection has since started its own fetch - drop this
+        // stale response instead of overwriting the newer data with it.
+        if (requestIdRef.current !== myRequestId) return;
         const groupedRoom = transformedRoom.reduce(
           (acc: any, element: { date: string; data: string }) => {
             // If the date doesn't exist in the accumulator, initialize it
@@ -340,7 +358,13 @@ function Analytics() {
     }
   }, [token, selectedOption]);
 
-  const fetchUpDown = async (mealData: [], roomData: [], breakfastData: [], profitData: []) => {
+  const fetchUpDown = async (
+    mealData: [],
+    roomData: [],
+    breakfastData: [],
+    profitData: [],
+    requestId: number
+  ) => {
     setLoading(true);
     const currentDate = new Date();
     const currentMonth = (currentDate.getMonth() + 1).toString();
@@ -390,6 +414,10 @@ function Analytics() {
       breakfast = await fetchBreakfastYear(token, prevYear);
       profit = await fetchProfitDataYear(token, prevYear);
     }
+
+    // A newer selection has since started its own fetch - drop this stale
+    // response instead of overwriting the newer stat-card numbers with it.
+    if (requestIdRef.current !== requestId) return;
 
     let prevTotal: number = 0;
     let numberOfdays: number = 0;
